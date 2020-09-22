@@ -1,7 +1,7 @@
 ﻿using SimuladorGerenciaMemoria.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace SimuladorGerenciaMemoria.Data
+namespace SimuladorGerenciaMemoria
 {
     public class SimuladorContext : DbContext
     {
@@ -9,6 +9,11 @@ namespace SimuladorGerenciaMemoria.Data
         {
         }
 
-        public DbSet<Course> Courses { get; set; }
+        public DbSet<Process> Processes { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            modelBuilder.Entity<Process>().ToTable("Process");
+        }
     }
 }
