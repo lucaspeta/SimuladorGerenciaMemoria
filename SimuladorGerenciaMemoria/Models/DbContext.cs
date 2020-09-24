@@ -11,9 +11,15 @@ namespace SimuladorGerenciaMemoria
 
         public DbSet<Process> Processes { get; set; }
 
+        public DbSet<Memory> Memories { get; set; }
+
+        public DbSet<Simulation> Simulations { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            modelBuilder.Entity<Process>().ToTable("Process");
+            modelBuilder.Entity<Process>().ToTable("Processes");
+            modelBuilder.Entity<Memory>().ToTable("Memories");
+            modelBuilder.Entity<Simulation>().ToTable("Simulations");
         }
     }
 }
