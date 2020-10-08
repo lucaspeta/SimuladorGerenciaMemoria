@@ -10,6 +10,11 @@ for details on configuring this project to bundle and minify static web assets. 
     margin-right: 20px;
 }
 
+#logo-utp:hover {
+    opacity: 0.9;
+    transition: 0.5s;
+}
+
 .navbar a {
     color: rgba(255, 255,255, 0.8) !important;
 }
