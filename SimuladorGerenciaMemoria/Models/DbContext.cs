@@ -15,11 +15,14 @@ namespace SimuladorGerenciaMemoria
 
         public DbSet<Simulation> Simulations { get; set; }
 
+        public DbSet<Frame> Frames { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Process>().ToTable("Processes");
             modelBuilder.Entity<Memory>().ToTable("Memories");
             modelBuilder.Entity<Simulation>().ToTable("Simulations");
+            modelBuilder.Entity<Frame>().ToTable("Frames");
         }
     }
 }
