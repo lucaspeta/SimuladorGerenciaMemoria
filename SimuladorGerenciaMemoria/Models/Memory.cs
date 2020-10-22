@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimuladorGerenciaMemoria.Classes;
@@ -14,11 +15,16 @@ namespace SimuladorGerenciaMemoria.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+        [DisplayName("Nome")]
         public string Name { get; set; }
+        [DisplayName("Tamanho")]
         public long Size { get; set; }
+        [DisplayName("Tamanho dos frames")]
         public long FramesSize { get; set; }
+        [DisplayName("Quantidade de frames")]
         public long FramesQTD { get; set; }
         public List<Frame> Frames { get; set; }
+        [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
     }
 

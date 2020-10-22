@@ -35,6 +35,10 @@ a {
     color: #008d83;
 }
 
+a:hover {
+    color: #008d83;
+}
+
 .btn-primary {
   color: #fff;
   background-color: #1b6ec2;
