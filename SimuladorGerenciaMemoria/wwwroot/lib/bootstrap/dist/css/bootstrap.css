@@ -1571,7 +1571,7 @@ pre code {
 .table-primary,
 .table-primary > th,
 .table-primary > td {
-  background-color: #b8daff;
+  background-color: rgba(70, 70, 70, 0.90);
 }
 
 .table-primary th,
