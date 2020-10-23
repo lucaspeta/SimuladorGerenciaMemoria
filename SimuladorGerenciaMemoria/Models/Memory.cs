@@ -4,13 +4,14 @@ using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimuladorGerenciaMemoria.Classes;
+using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Models
 {
     public class Memory
     {
-        public static long MemorySize = 2500 * Utils.IntPow(2, 10);
-        public static long FrameSize = 1 * Utils.IntPow(2, 10);
+        //public static long MemorySize = 2500 * Utils.IntPow(2, 10);
+        //public static long FrameSize = 1 * Utils.IntPow(2, 10);
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]

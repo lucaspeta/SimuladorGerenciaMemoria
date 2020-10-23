@@ -1,0 +1,58 @@
+﻿.page-500-bg {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+}
+
+.page-500-header,
+.page-500-error-code,
+.page-500-subheader,
+.page-500-text {
+    position: relative;
+    padding: 0 30px;
+    text-align: center;
+}
+
+.page-500-header {
+    width: 100%;
+    padding: 20px 0;
+    box-shadow: 0 4px 0 rgba(0,0,0,.1);
+}
+
+.page-500-error-code {
+    margin-top: 60px;
+    color: #fff;
+    text-shadow: 0 4px 0 rgba(0,0,0,.1);
+    font-size: 120px;
+    font-weight: 700;
+    line-height: 140px;
+}
+
+.page-500-subheader,
+.page-500-text {
+    margin-bottom: 60px;
+    color: rgba(0,0,0,.5);
+    font-weight: 600;
+}
+
+.page-500-subheader {
+    font-size: 50px;
+}
+
+    .page-500-subheader:after {
+        position: absolute;
+        bottom: -30px;
+        left: 50%;
+        display: block;
+        width: 40px;
+        height: 4px;
+        margin-left: -20px;
+        content: "";
+        background: rgba(0,0,0,.2);
+    }
+
+.page-500-text {
+    font-size: 20px;
+}
