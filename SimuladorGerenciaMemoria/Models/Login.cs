@@ -4,9 +4,9 @@ namespace SimuladorGerenciaMemoria.Models
 {
     public class Login
     {
-        [Display(Name = "Email ou Usuário")]
+        [Display(Name = "Usuário")]
         [Required]
-        public string Email { get; set; }
+        public string User { get; set; }
 
         [Display(Name = "Senha")]
         [Required]

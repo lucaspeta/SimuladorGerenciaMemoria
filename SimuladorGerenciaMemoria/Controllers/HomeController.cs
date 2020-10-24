@@ -3,9 +3,12 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using SimuladorGerenciaMemoria.Models;
+using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Controllers
 {
@@ -18,24 +21,24 @@ namespace SimuladorGerenciaMemoria.Controllers
             _logger = logger;
         }
 
+        [RedirectAction]
         public IActionResult Index()
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View();
         }
 
-        public IActionResult Privacy()
-        {
-            return View();
-        }
-
+        [RedirectAction]
         public IActionResult About()
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View();
         }
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(new ErrorViewModel { RequestId = Activity.Current?.Id ?? HttpContext.TraceIdentifier });
         }
     }

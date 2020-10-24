@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
 using System;
-using System.Linq;
 using System.Threading.Tasks;
 
 namespace SimuladorGerenciaMemoria.Controllers
@@ -13,6 +13,11 @@ namespace SimuladorGerenciaMemoria.Controllers
     public class AccountController : Controller
     {
         private readonly SimuladorContext _context;
+
+        public AccountController(SimuladorContext context)
+        {
+            _context = context;
+        }
 
         [AllowAnonymous]
         public ActionResult Login()
@@ -23,7 +28,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [AllowAnonymous]
         [ValidateAntiForgeryToken]
-        public ActionResult Login(Login login)
+        public async Task<IActionResult> Login(Login login)
         {
             try
             {
@@ -33,37 +38,36 @@ namespace SimuladorGerenciaMemoria.Controllers
                 }
                 else
                 {
-                    string userName = login.Email;
+                    string userLogin = login.User;
                     string userPass = login.Password;
 
-                    foreach (var user in _context.Users.ToList())
+                    var user = await _context.Users.SingleOrDefaultAsync(u => u.Login == userLogin);
+
+                    if (user != null)
                     {
-                        if (user.Email == userName || user.Login == userName)
+                        if (userPass == PassGenerator.Decrypt(user.Password))
                         {
-                            if (userPass == PassGenerator.Decrypt(user.Password))
-                            {
-                                HttpContext.Session.SetString("Name", user.Name);
-                                HttpContext.Session.SetInt32("UserID", user.ID);
-                                HttpContext.Session.SetString("UserName", userName);
-
-                                _context.SaveChanges();
-
-                                return RedirectToAction("Index", "Home");
-                            }
-                            else
-                            {
-                                throw new Exception("Senha inválida.");
-                            }
+                            HttpContext.Session.SetString("Name", user.Name);
+                            HttpContext.Session.SetInt32("UserID", user.ID);
+                            HttpContext.Session.SetString("UserName", user.Login);
+                            HttpContext.Session.SetString("UserEmail", user.Email);
+                           
+                            return RedirectToAction("Index", "Home");
+                        }
+                        else 
+                        {
+                            throw new Exception("Senha inválida.");
                         }
                     }
-
-                    throw new Exception("Usuário não encontrado.");
+                    else 
+                    {
+                        throw new Exception("Usuário não encontrado.");
+                    }                    
                 }
             }
             catch (Exception e)
             {
                 ViewBag.Error = e.Message;
-                HttpContext.Session.Clear();
                 return View();
             }
         }
@@ -83,7 +87,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             try
             {
                 //Just verify if there is any user with the same nickName
-                if (await _context.Users.ToListAsync() != null)
+                if (await _context.Memories.CountAsync() > 0)
                 {
                     foreach (var user in await _context.Users.ToListAsync())
                     {
@@ -106,7 +110,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                     _context.Users.Add(usuario);
                     await _context.SaveChangesAsync();
 
-                    return RedirectToAction("Entrar");
+                    return RedirectToAction("Login");
                 }
                 else
                 {
@@ -121,17 +125,12 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         [RedirectAction]
-        public ActionResult ChangePassword()
+        public IActionResult ChangePassword()
         {
             try
             {
-                ViewBag.Icon = "fa fa-cog";
-                User user = _context.Users.Find(Convert.ToInt32(HttpContext.Session.GetInt32("UserID")));
-
-                if (user == null)
-                {
-                    throw new Exception("HttpBadRequest");
-                }
+                ViewBag.userName = HttpContext.Session.GetString("UserName");
+                ViewBag.userID = HttpContext.Session.GetInt32("UserID");
 
                 return View();
             }
@@ -145,38 +144,34 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public ActionResult ChangePasswod(ChangePassword _changePassword)
+        public async Task<IActionResult> ChangePassword(ChangePassword _changePassword)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.userID = HttpContext.Session.GetInt32("UserID");
+
             try
             {
-                User usuario = _context.Users.Find(_changePassword.Id);
-
-                if (ModelState.IsValid)
-                {
-                    if (PassGenerator.Decrypt(usuario.Password) != _changePassword.SenhaAntiga)
-                    {
-                        throw new Exception("Senha antiga inválida!");
-                    }
-                    else
-                    {
-                        if (_changePassword.NovaSenha == PassGenerator.Decrypt(usuario.Password))
-                        {
-                            throw new Exception("A nova senha tem que ser diferente da antiga.");
-                        }
-
-                        usuario.Password = PassGenerator.Encrypt(_changePassword.NovaSenha);
-                        _context.SaveChanges();
-                        return RedirectToAction("Index", "Home", new { id = usuario.ID });
-                    }
-                }
+                User usuario = await _context.Users.FindAsync(_changePassword.Id);
+                
+                if (PassGenerator.Decrypt(usuario.Password) != _changePassword.SenhaAntiga)
+                    throw new Exception("Senha antiga inválida!");
                 else
                 {
-                    return View();
-                }
+                    if (_changePassword.NovaSenha == PassGenerator.Decrypt(usuario.Password))
+                        throw new Exception("A nova senha tem que ser diferente da antiga.");
+
+                    if(_changePassword.NovaSenha != _changePassword.RepeteNovaSenha)
+                        throw new Exception("As senhas devem ser iguais.");
+
+                    usuario.Password = PassGenerator.Encrypt(_changePassword.NovaSenha);
+
+                    await _context.SaveChangesAsync();
+
+                    return RedirectToAction("Index", "Home", new { id = usuario.ID });
+                }         
             }
             catch (Exception e)
             {
-                System.Diagnostics.Debug.Write("------------Erro: " + e);
                 ViewBag.Error = e.Message;
                 return View();
             }

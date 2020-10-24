@@ -26,6 +26,13 @@ namespace SimuladorGerenciaMemoria.Models
         public string Login { get; set; }
 
         [Required]
+        [Display(Name = "Senha")]
         public string Password { get; set; }
+
+        [Required]
+        [Display(Name = "Comfirme a senha")]
+        [NotMapped]
+        [Compare(nameof(Password), ErrorMessage = "As senhas devem ser iguais.")]
+        public string RepeatPassword { get; set; }
     }
 }

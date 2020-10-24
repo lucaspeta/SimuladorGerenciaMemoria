@@ -1,36 +1,29 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Security.Claims;
-using Microsoft.AspNetCore.Http;
+﻿using SimuladorGerenciaMemoria.Models;
 using Microsoft.AspNetCore.Mvc.Filters;
-using SimuladorGerenciaMemoria.Models;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.AspNetCore.Http;
 
 namespace SimuladorGerenciaMemoria.Utils
-{    
-   public class RedirectAction : ActionFilterAttribute 
+{
+    public class RedirectAction : ActionFilterAttribute
     {
-        /*private readonly IHttpContextAccessor _httpContextAccessor;
         public override void OnActionExecuting(ActionExecutingContext filterContext)
         {
             base.OnActionExecuting(filterContext);
-            _httpContextAccessor = httpContextAccessor;
 
+            int? userId = filterContext.HttpContext.Session.GetInt32("UserID");
 
-        public void YourMethodName()
-        {
-            var userId = _httpContextAccessor.HttpContext.User.FindFirstValue(ClaimTypes.NameIdentifier);
-        }
-
-            if (user == null)
+            if (userId == null)
             {
                 filterContext.Result = new RedirectToRouteResult(new RouteValueDictionary(new
                 {
-                    controller = "Conta",
-                    action = "Entrar"
+                    controller = "Account",
+                    action = "Login"
                 }));
+
                 return;
             }
-        }*/
+        }
     }
 }

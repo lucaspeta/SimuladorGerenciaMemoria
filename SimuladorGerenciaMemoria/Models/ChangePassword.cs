@@ -19,8 +19,6 @@ namespace SimuladorGerenciaMemoria.Models
 
         [Display(Name = "Nova senha")]
         [Required]
-        [MinLength(8)]
-        [MaxLength(15)]
         [DataType(DataType.Password)]
         public string NovaSenha { get; set; }
 

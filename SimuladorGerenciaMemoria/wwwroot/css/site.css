@@ -30,21 +30,23 @@ a.navbar-brand {
     word-break: break-all;
 }
 
-
-/*
-    About us
-*/
-
-.bg-1 {
-    background-color: #008d83; /* Green */
-    color: #ffffff;
+.btn-success {
+    background-color: #008d83 !important;
+    color: white !important;
+    border: #008d83;
 }
 
-.bg-2 {
-    background-color: #474e5d; /* Dark Blue */
-    color: #ffffff;
+.btn-success:hover {
+    background-color: #008d83 !important;
+    color: white !important;
+    opacity: 0.9;
+    transition: 0.5s;
+    border: #008d83;
 }
 
+.even {
+    background-color: #454d55 !important;
+}
 
 /* Provide sufficient contrast against white background */
 a {
@@ -53,6 +55,19 @@ a {
 
 a:hover {
     color: #008d83 !important;
+}
+
+/*
+    About us
+*/
+.bg-1 {
+    background-color: #008d83; /* Green */
+    color: #ffffff;
+}
+
+.bg-2 {
+    background-color: #474e5d; /* Dark Blue */
+    color: #ffffff;
 }
 
 .btn-primary {
