@@ -25,6 +25,13 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Quantidade de frames")]
         public long FramesQTD { get; set; }
         public List<Frame> Frames { get; set; }
+
+        [Display(Name = "Simulação")]
+        public int SimulationID { get; set; }
+
+        [ForeignKey("SimulationID")]
+        public virtual Simulation Simulation { get; set; }
+
         [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
     }

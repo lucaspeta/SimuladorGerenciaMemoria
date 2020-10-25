@@ -34,5 +34,7 @@ namespace SimuladorGerenciaMemoria.Models
         [NotMapped]
         [Compare(nameof(Password), ErrorMessage = "As senhas devem ser iguais.")]
         public string RepeatPassword { get; set; }
+
+        public IEnumerable<Simulation> Simulations { get; set; }
     }
 }

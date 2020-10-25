@@ -13,7 +13,17 @@ namespace SimuladorGerenciaMemoria.Models
         public int ID { get; set; }
         [DisplayName("Nome")]
         public string Name { get; set; }
+
+        [DisplayName("Usuário")]
+        public int? UserID { get; set; }
+
+        [ForeignKey("UserID")]
+        public virtual User User { get; set; }
+
+        public IEnumerable<Memory> Memories { get; set; }
+
         [DisplayName("Data de criação")]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm}")]
         public DateTime CreateDate { get; set; }
     }
 }
