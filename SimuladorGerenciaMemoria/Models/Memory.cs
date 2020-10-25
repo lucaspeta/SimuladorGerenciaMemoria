@@ -1,24 +1,31 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using SimuladorGerenciaMemoria.Classes;
+using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Models
 {
     public class Memory
     {
-        public static long MemorySize = 2500 * Utils.IntPow(2, 10);
-        public static long FrameSize = 1 * Utils.IntPow(2, 10);
+        //public static long MemorySize = 2500 * Utils.IntPow(2, 10);
+        //public static long FrameSize = 1 * Utils.IntPow(2, 10);
 
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+        [DisplayName("Nome")]
         public string Name { get; set; }
+        [DisplayName("Tamanho")]
         public long Size { get; set; }
+        [DisplayName("Tamanho dos frames")]
         public long FramesSize { get; set; }
+        [DisplayName("Quantidade de frames")]
         public long FramesQTD { get; set; }
         public List<Frame> Frames { get; set; }
+        [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
     }
 

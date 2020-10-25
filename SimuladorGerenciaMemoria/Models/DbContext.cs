@@ -1,7 +1,7 @@
 ﻿using SimuladorGerenciaMemoria.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace SimuladorGerenciaMemoria
+namespace SimuladorGerenciaMemoria.Models
 {
     public class SimuladorContext : DbContext
     {
@@ -17,12 +17,15 @@ namespace SimuladorGerenciaMemoria
 
         public DbSet<Frame> Frames { get; set; }
 
+        public DbSet<User> Users { get; set; }
+
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
             modelBuilder.Entity<Process>().ToTable("Processes");
             modelBuilder.Entity<Memory>().ToTable("Memories");
             modelBuilder.Entity<Simulation>().ToTable("Simulations");
             modelBuilder.Entity<Frame>().ToTable("Frames");
+            modelBuilder.Entity<User>().ToTable("Users");
         }
     }
 }

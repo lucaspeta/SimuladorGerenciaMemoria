@@ -1,0 +1,76 @@
+﻿@model SimuladorGerenciaMemoria.Models.User
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" type="image/x-icon" href="~/favicon.ico" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, minimum-scale=1.0, maximum-scale=1.0">
+    <link rel="stylesheet" href="~/css/login-custom.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/animate.min.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/candy-green.min.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/pixeladmin.min.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/Site.css" />
+    <link rel="stylesheet" href="~/css/PixelAdmin/widgets.min.css" />
+    <title>Cadastro - Simulador de Gerênciamento de Memória</title>
+    <link href="http://fonts.googleapis.com/css?family=Open+Sans:300italic,400italic,600italic,700italic,400,600,700,300&subset=latin" rel="stylesheet" type="text/css">
+    <link href="http://code.ionicframework.com/ionicons/2.0.1/css/ionicons.min.css" rel="stylesheet" type="text/css">
+    <link href="http://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css" rel="stylesheet" integrity="sha384-wvfXpqpZZVQGK6TAh5PVlGOfQNHSoD2xbE+QkPxCAFlNEevoEH3Sl0sibVcOQVnN" crossorigin="anonymous">
+</head>
+<body style="background-color: #1f1f1f;">
+    <div class="page-signin-container" id="page-signin-form">
+        <div class="panel-heading">
+            <div><img src="~/img/186-1869212_cpu-processor-chip-microprocessor-icon-hd-png-download.png" width="50" /><img src="~/img/logotipo-09-01-334560-edited.webp" width="100" /></div>
+            <div><p style="font-weight: 800; color: rgb(128, 128, 128); font-size: 12pt;">Simulador de Gerênciamento de Memória</p></div>
+        </div>
+
+        @using (Html.BeginForm("Register", "Account", FormMethod.Post, new { @class = "panel p-a-4", enctype = "multipart/form-data" }))
+        {
+            @Html.AntiForgeryToken()
+
+    <div class="form-horizontal">
+
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+
+        <fieldset class="form-group form-group-lg">
+            @Html.EditorFor(model => model.Name, new { htmlAttributes = new { @class = "form-control", @placeholder = "Nome Completo" } })
+            @Html.ValidationMessageFor(model => model.Name, "", new { @class = "text-danger" })
+        </fieldset>
+
+        <fieldset class="form-group form-group-lg">
+            @Html.EditorFor(model => model.Email, new { htmlAttributes = new { @class = "form-control", @placeholder = "Email" } })
+            @Html.ValidationMessageFor(model => model.Email, "", new { @class = "text-danger" })
+        </fieldset>
+
+        <fieldset class="form-group form-group-lg">
+            @Html.EditorFor(model => model.Login, new { htmlAttributes = new { @class = "form-control", @placeholder = "Usuário" } })
+            @Html.ValidationMessageFor(model => model.Login, "", new { @class = "text-danger" })
+        </fieldset>
+
+        <fieldset class="form-group form-group-lg">
+            @Html.EditorFor(model => model.Password, new { htmlAttributes = new { @class = "form-control", @type = "password", @placeholder = "Senha" } })
+            <small class="text-muted">Minimum 6 characters</small>
+        </fieldset>
+
+        <fieldset class="form-group form-group-lg">
+            @Html.EditorFor(model => model.RepeatPassword, new { htmlAttributes = new { @class = "form-control", @type = "password", @placeholder = "Comfirme a senha" } })
+            @Html.ValidationMessageFor(model => model.RepeatPassword, "", new { @class = "text-danger" })
+        </fieldset>
+
+        <button type="submit" class="btn btn-block btn-lg btn-primary m-t-3">Cadastrar</button>
+    </div>
+        }
+        <a href="@Url.Action("Login","Account")" style="font-weight: 700; color: white;">Já fez o cadastrado?</a>
+    </div>
+
+    <footer class="panel-footer px-footer-bottom p-t-0" style="background-color: #1f1f1f;">
+        <span class="text-muted"><p style="color: white">&copy; 2020 - Simulador de Gerenciamento de Memória, Universidade Tuiuti do Paraná - UTP</p></span>
+    </footer>
+</body>
+</html>

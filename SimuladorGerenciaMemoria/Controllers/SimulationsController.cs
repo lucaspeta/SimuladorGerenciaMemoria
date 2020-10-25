@@ -2,11 +2,14 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimuladorGerenciaMemoria;
 using SimuladorGerenciaMemoria.Models;
+using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Controllers
 {
@@ -20,14 +23,19 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         // GET: Simulations
+        [RedirectAction]
         public async Task<IActionResult> Index()
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(await _context.Simulations.ToListAsync());
         }
 
         // GET: Simulations/Details/5
+        [RedirectAction]
         public async Task<IActionResult> Details(int? id)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
             if (id == null)
             {
                 return NotFound();
@@ -44,8 +52,10 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         // GET: Simulations/Create
+        [RedirectAction]
         public IActionResult Create()
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View();
         }
 
@@ -54,8 +64,10 @@ namespace SimuladorGerenciaMemoria.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RedirectAction]
         public async Task<IActionResult> Create([Bind("ID,Name,CreateDate")] Simulation simulation)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             if (ModelState.IsValid)
             {
                 _context.Add(simulation);
@@ -66,8 +78,11 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         // GET: Simulations/Edit/5
+        [RedirectAction]
         public async Task<IActionResult> Edit(int? id)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
             if (id == null)
             {
                 return NotFound();
@@ -86,8 +101,11 @@ namespace SimuladorGerenciaMemoria.Controllers
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [RedirectAction]
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate")] Simulation simulation)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
             if (id != simulation.ID)
             {
                 return NotFound();
@@ -117,8 +135,11 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         // GET: Simulations/Delete/5
+        [RedirectAction]
         public async Task<IActionResult> Delete(int? id)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
             if (id == null)
             {
                 return NotFound();
@@ -137,16 +158,22 @@ namespace SimuladorGerenciaMemoria.Controllers
         // POST: Simulations/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [RedirectAction]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
             var simulation = await _context.Simulations.FindAsync(id);
             _context.Simulations.Remove(simulation);
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
 
+
+        [RedirectAction]
         private bool SimulationExists(int id)
         {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
             return _context.Simulations.Any(e => e.ID == id);
         }
 
