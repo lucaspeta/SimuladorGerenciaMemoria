@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201025184929_add_keys_simu_and_memo")]
+    partial class add_keys_simu_and_memo
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -66,7 +68,7 @@ namespace SimuladorGerenciaMemoria.Migrations
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
-                    b.Property<int>("SimulationID")
+                    b.Property<int?>("SimulationID")
                         .HasColumnType("int");
 
                     b.Property<long>("Size")
@@ -173,9 +175,7 @@ namespace SimuladorGerenciaMemoria.Migrations
                 {
                     b.HasOne("SimuladorGerenciaMemoria.Models.Simulation", "Simulation")
                         .WithMany("Memories")
-                        .HasForeignKey("SimulationID")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
+                        .HasForeignKey("SimulationID");
                 });
 
             modelBuilder.Entity("SimuladorGerenciaMemoria.Models.Simulation", b =>

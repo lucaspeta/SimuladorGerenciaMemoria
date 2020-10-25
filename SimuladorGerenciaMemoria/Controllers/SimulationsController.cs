@@ -27,7 +27,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            return View(await _context.Simulations.ToListAsync());
+            return View(await _context.Simulations.Include(s => s.User).ToListAsync());
         }
 
         // GET: Simulations/Details/5
@@ -38,14 +38,16 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             var simulation = await _context.Simulations
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (simulation == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             return View(simulation);
@@ -65,15 +67,20 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,CreateDate")] Simulation simulation)
+        public async Task<IActionResult> Create([Bind("ID,Name")] Simulation simulation)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+
+            simulation.CreateDate = DateTime.Now;
+            simulation.UserID = HttpContext.Session.GetInt32("UserID");
+
             if (ModelState.IsValid)
             {
                 _context.Add(simulation);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(simulation);
         }
 
@@ -85,13 +92,13 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             var simulation = await _context.Simulations.FindAsync(id);
             if (simulation == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
             return View(simulation);
         }
@@ -102,13 +109,13 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate")] Simulation simulation)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,UserID")] Simulation simulation)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
             if (id != simulation.ID)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             if (ModelState.IsValid)
@@ -122,7 +129,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 {
                     if (!SimulationExists(simulation.ID))
                     {
-                        return NotFound();
+                        return RedirectToAction("Error404", "Erros");
                     }
                     else
                     {
@@ -142,14 +149,14 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             var simulation = await _context.Simulations
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (simulation == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             return View(simulation);

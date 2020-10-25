@@ -1,8 +1,10 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
@@ -35,14 +37,14 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             var memory = await _context.Memories
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (memory == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             return View(memory);
@@ -53,6 +55,8 @@ namespace SimuladorGerenciaMemoria.Controllers
         public IActionResult Create()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
+
             return View();
         }
 
@@ -62,9 +66,10 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,CreateDate")] Memory memory)
+        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            memory.CreateDate = DateTime.Now;
 
             if (ModelState.IsValid)
             {
@@ -72,6 +77,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
             }
+
             return View(memory);
         }
 
@@ -81,16 +87,12 @@ namespace SimuladorGerenciaMemoria.Controllers
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return RedirectToAction("Error404", "Erros");
 
             var memory = await _context.Memories.FindAsync(id);
-            if (memory == null)
-            {
-                return NotFound();
-            }
+
+            if (memory == null) return RedirectToAction("Error404", "Erros");
+
             return View(memory);
         }
 
@@ -106,7 +108,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id != memory.ID)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             if (ModelState.IsValid)
@@ -120,7 +122,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 {
                     if (!MemoryExists(memory.ID))
                     {
-                        return NotFound();
+                        return RedirectToAction("Error404", "Erros");
                     }
                     else
                     {
@@ -140,14 +142,14 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             var memory = await _context.Memories
                 .FirstOrDefaultAsync(m => m.ID == id);
             if (memory == null)
             {
-                return NotFound();
+                return RedirectToAction("Error404", "Erros");
             }
 
             return View(memory);
