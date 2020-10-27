@@ -1,4 +1,7 @@
-﻿using System;
+﻿using Microsoft.AspNetCore.Mvc.Razor.Compilation;
+using SimuladorGerenciaMemoria.Models;
+using SimuladorGerenciaMemoria.Utils;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -7,21 +10,25 @@ namespace SimuladorGerenciaMemoria.Classes
 {
     public class ScriptProcess
     {
-        public long memoryS { get; set; }
-        public int sizeRandom { get; set; }
-
+        public long memorySize { get; set; }
+        
+        public int memoryOccupied { get; set; }
         public long FramesSize { get; set; }
-
+        public long FramesQTD { get; set; }
+        
+       
         public Dictionary<long, bool> AllRegBase { get; set; }
 
-        /*public ScriptProcess(long mS, long fZ, Dictionary<long, bool> allRegB = null, int sR = 50)
-        {
-            memoryS = mS;
-            sizeRandom = sR;
-            FramesSize = fZ;
-            AllRegBase = allRegB;
+        
+        public ScriptProcess(Memory inicialMemomry , int memoryO ) {
+            memorySize = inicialMemomry.Size;
+            FramesSize = inicialMemomry.FramesSize;
+            FramesQTD = inicialMemomry.FramesQTD;
+            memoryOccupied = memoryO;
+            
         }
 
+ 
         public List<long> GetRegBase(long framesNeeded)
         {
             List<long> validIndexes = new List<long>();
@@ -72,41 +79,43 @@ namespace SimuladorGerenciaMemoria.Classes
             return validIndexes;
         }
 
-        public void CreateFile(string path, string nameProcess = "P")
+        public void CreateFile( string nameProcess = "Process")
         {
 
-            List<int> process = new List<int>(); // processo
-            List<long> regBase = new List<long>(); // inicio
-            List<long> regLimite = new List<long>();  // tamanho
+            List<int> process = new List<int>(); // process
+            List<long> regBase = new List<long>(); // beggining
+            List<long> regLimite = new List<long>();  // size
 
             Random p = new Random();
 
-
-            for (int i = 0; process.Count < this.sizeRandom; i++)
+            // Generate the process numbers
+            for (int i = 0; process.Count < this.memoryOccupied; i++)
             {
-                int pValue = p.Next(sizeRandom);
+                int pValue = p.Next(memoryOccupied);
                 if (!process.Contains(pValue))
                     process.Add(pValue);
             }
 
-            for (int i = 0; regLimite.Count < sizeRandom; i++)
+
+            for (int i = 0; regLimite.Count < memoryOccupied; i++)
             {
                 long regValor = 0;
                 do
                 {
-                    regValor = p.Next((Convert.ToInt32(this.memoryS) / this.sizeRandom));
+                    regValor = p.Next((int)((this.memorySize) / this.memoryOccupied));
 
                 } while (regValor.Equals(0));
 
                 if (!regLimite.Contains(regValor))
                 {
                     regLimite.Add(regValor);
-                    this.memoryS = this.memoryS - regLimite[regLimite.Count - 1];
+                    this.memorySize = this.memorySize - regLimite[regLimite.Count - 1];
                 }
 
             }
 
             process.Sort();
+
             for (int i = 0; i < regLimite.Count; i++)
             {
                 long framesNeeded = 0;
@@ -114,6 +123,7 @@ namespace SimuladorGerenciaMemoria.Classes
                 framesNeeded = regLimite[i] % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
                 var avaiableRegB = GetRegBase(framesNeeded);
+
                 if (!avaiableRegB.Count.Equals(0) && AllRegBase != null)
                 {
                     Random randomRegB = new Random();
@@ -129,11 +139,13 @@ namespace SimuladorGerenciaMemoria.Classes
                     regBase.Add(0);
             }
 
-            using (StreamWriter writer = new StreamWriter(path, false))
+            using (StreamWriter writer = new StreamWriter("Output/Output.txt", false))
             {
                 for (int i = 0; i < process.Count; i++)
                     writer.WriteLine(nameProcess + process[i] + ";" + regBase[i] + ";" + regLimite[i]);
             }
-        }*/
+        }
+
+        
     }
 }

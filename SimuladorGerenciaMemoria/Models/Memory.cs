@@ -12,7 +12,7 @@ namespace SimuladorGerenciaMemoria.Models
     {
         //public static long MemorySize = 2500 * Utils.IntPow(2, 10);
         //public static long FrameSize = 1 * Utils.IntPow(2, 10);
-
+    
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
