@@ -41,7 +41,10 @@ namespace SimuladorGerenciaMemoria.Controllers
             }
 
             var memory = await _context.Memories
+                .Include(m => m.Simulation)
+                .Include(m => m.Frames)
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (memory == null)
             {
                 return RedirectToAction("Error404", "Erros");
