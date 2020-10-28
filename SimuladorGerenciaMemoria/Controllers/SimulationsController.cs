@@ -1,13 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
-using SimuladorGerenciaMemoria;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
 
@@ -27,7 +23,15 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Index()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            return View(await _context.Simulations.Include(s => s.User).ToListAsync());
+
+            var listToReturn = await _context.Simulations
+                .Include(s => s.User)
+                .Include(s => s.Memories)
+                .AsNoTracking()
+                .OrderBy(s => s.CreateDate)
+                .ToListAsync();
+
+            return View(listToReturn);
         }
 
         // GET: Simulations/Details/5

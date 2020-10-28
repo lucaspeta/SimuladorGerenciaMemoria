@@ -16,7 +16,7 @@ namespace SimuladorGerenciaMemoria.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
-        [DisplayName("Nome")]
+        [DisplayName("Nome da memória")]
         public string Name { get; set; }
         [DisplayName("Tamanho")]
         public long Size { get; set; }
@@ -24,7 +24,6 @@ namespace SimuladorGerenciaMemoria.Models
         public long FramesSize { get; set; }
         [DisplayName("Quantidade de frames")]
         public long FramesQTD { get; set; }
-        public List<Frame> Frames { get; set; }
 
         [Display(Name = "Simulação")]
         public int SimulationID { get; set; }
@@ -34,6 +33,8 @@ namespace SimuladorGerenciaMemoria.Models
 
         [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
+
+        public IEnumerable<Frame> Frames { get; set; }
     }
 
     /*private Memory GetOriginalMemory

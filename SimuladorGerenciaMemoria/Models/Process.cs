@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 
@@ -10,17 +11,16 @@ namespace SimuladorGerenciaMemoria.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+
+        [DisplayName("Nome")]
         public string Name { get; set; }
-        public long RegB { get; set; }
-        public long RegL { get; set; }
-        public double TimeToFindIndex { get; set; }
+
+        [DisplayName("Tamanho")]
+        public int Size { get; set; }
+
+        [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
-        /*public Process(string n, long rb, long rl, long time = 0)
-        {
-            Name = n;
-            RegB = rb;
-            RegL = rl;
-            TimeToFindIndex = time;
-        }*/
+
+        public IEnumerable<Frame> Frames { get; set; }
     }
 }

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
@@ -12,14 +13,19 @@ namespace SimuladorGerenciaMemoria.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
-        public string Name { get; set; }
-        public Process Process { get; set; }
 
+        [DisplayName("Nome")]
+        public string Name { get; set; }
+
+        [DisplayName("Processo")]
+        public int ProcessID { get; set; }
+        public virtual Process Process { get; set; }
+
+        [DisplayName("Registrador Base")]
         public long RegB { get; set; }
 
-        /*public Frame(long )
-        {
-            RegB = rb;
-        }*/
+        [DisplayName("Memoria")]
+        public int MemoryID { get; set; }
+        public virtual Memory Memory { get; set; }
     }
 }
