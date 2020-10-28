@@ -11,25 +11,30 @@ namespace SimuladorGerenciaMemoria.Classes
     public class ScriptProcess
     {
         public long memorySize { get; set; }
-        
+
         public int memoryOccupied { get; set; }
         public long FramesSize { get; set; }
         public long FramesQTD { get; set; }
-        
-       
+
+
         public Dictionary<long, bool> AllRegBase { get; set; }
 
-        
-        public ScriptProcess(Memory inicialMemomry , int memoryO ) {
+
+        public ScriptProcess(Memory inicialMemomry, int memoryO) {
             memorySize = inicialMemomry.Size;
             FramesSize = inicialMemomry.FramesSize;
             FramesQTD = inicialMemomry.FramesQTD;
             memoryOccupied = memoryO;
-            
+            AllRegBase = new Dictionary<long, bool>();
+            for (long memorySize = 0; memorySize < inicialMemomry.Size; memorySize = memorySize + inicialMemomry.FramesSize)
+            {
+                AllRegBase.Add(memorySize, false);
+            }
         }
+        
 
- 
-        public List<long> GetRegBase(long framesNeeded)
+
+    public List<long> GetRegBase(long framesNeeded)
         {
             List<long> validIndexes = new List<long>();
             if (AllRegBase != null)
@@ -79,6 +84,7 @@ namespace SimuladorGerenciaMemoria.Classes
             return validIndexes;
         }
 
+        
         public void CreateFile( string nameProcess = "Process")
         {
 
@@ -92,6 +98,8 @@ namespace SimuladorGerenciaMemoria.Classes
             for (int i = 0; process.Count < this.memoryOccupied; i++)
             {
                 int pValue = p.Next(memoryOccupied);
+
+
                 if (!process.Contains(pValue))
                     process.Add(pValue);
             }
@@ -116,8 +124,11 @@ namespace SimuladorGerenciaMemoria.Classes
 
             process.Sort();
 
+          
+
             for (int i = 0; i < regLimite.Count; i++)
             {
+               
                 long framesNeeded = 0;
                 framesNeeded += (regLimite[i] / this.FramesSize);
                 framesNeeded = regLimite[i] % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
@@ -126,6 +137,7 @@ namespace SimuladorGerenciaMemoria.Classes
 
                 if (!avaiableRegB.Count.Equals(0) && AllRegBase != null)
                 {
+                    
                     Random randomRegB = new Random();
                     long regB = randomRegB.Next(0, avaiableRegB.Count);
                     regB = avaiableRegB[Convert.ToInt32(regB)];
@@ -148,4 +160,6 @@ namespace SimuladorGerenciaMemoria.Classes
 
         
     }
+
+
 }

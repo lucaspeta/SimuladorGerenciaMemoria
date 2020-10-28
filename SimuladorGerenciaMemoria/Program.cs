@@ -21,10 +21,10 @@ namespace SimuladorGerenciaMemoria
             m.ID = 1;
             m.Name = "Memoria 1";
             m.Size = 100000;
-            m.FramesSize = 100;
-            m.FramesQTD = 10;
+            m.FramesSize = 1000;
+            m.FramesQTD = m.Size / m.FramesSize;
 
-            ScriptProcess p = new ScriptProcess(m,10);
+            ScriptProcess p = new ScriptProcess(m,100);
             p.CreateFile();
 
             CreateHostBuilder(args).Build().Run();
