@@ -21,6 +21,10 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
 
+        public int? MemoryID { get; set; }
+
+        public virtual Memory Memory { get; set; }
+
         public IEnumerable<Frame> Frames { get; set; }
     }
 }

@@ -17,7 +17,17 @@ namespace SimuladorGerenciaMemoria.Models
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
         [DisplayName("Nome da memória")]
+
+        [Required(ErrorMessage = "É necessário preencher o nome da memória.")]
         public string Name { get; set; }
+
+        public enum SizePickList 
+        {
+            Pequeno,
+            Medio,
+            Grande
+        }
+
         [DisplayName("Tamanho")]
         public long Size { get; set; }
         [DisplayName("Tamanho dos frames")]
@@ -35,6 +45,15 @@ namespace SimuladorGerenciaMemoria.Models
         public DateTime CreateDate { get; set; }
 
         public IEnumerable<Frame> Frames { get; set; }
+
+        public IEnumerable<Process> Processes { get; set; }
+
+        public bool isGeneratedProcessList { get; set; }
+
+        public enum InitialState 
+        {
+
+        }
     }
 
     /*private Memory GetOriginalMemory

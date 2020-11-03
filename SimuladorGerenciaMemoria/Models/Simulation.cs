@@ -11,6 +11,8 @@ namespace SimuladorGerenciaMemoria.Models
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
+
+        [Required(ErrorMessage = "É necessário preencher o nome da simulação.")]
         [DisplayName("Nome")]
         public string Name { get; set; }
 
