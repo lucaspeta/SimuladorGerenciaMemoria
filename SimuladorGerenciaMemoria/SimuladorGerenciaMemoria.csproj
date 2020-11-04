@@ -29,6 +29,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="Output\" />
     <Folder Include="Views\Erros\" />
   </ItemGroup>
 
