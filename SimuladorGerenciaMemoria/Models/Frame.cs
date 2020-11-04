@@ -24,8 +24,23 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Registrador Base")]
         public long RegB { get; set; }
 
+        [DisplayName("Registrador Limite")]
+        public long RegL { get; set; }
+
         [DisplayName("Memoria")]
         public int MemoryID { get; set; }
         public virtual Memory Memory { get; set; }
+
+        public bool IsInitial { get; set; }
+
+        public enum TipoAlgVal 
+        {
+            QuickFit,
+            FirstFit,
+            BestFit,
+            WorstFit
+        }
+
+        public TipoAlgVal? TipoAlg { get; set; }
     }
 }
