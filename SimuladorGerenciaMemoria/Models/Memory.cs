@@ -8,8 +8,7 @@ using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Models
 {
-    public class Memory
-    
+    public class Memory {     
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }

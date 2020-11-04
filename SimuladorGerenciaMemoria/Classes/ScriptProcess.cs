@@ -30,9 +30,7 @@ namespace SimuladorGerenciaMemoria.Classes
             }
         }
         
-
-
-    public List<long> GetRegBase(long framesNeeded)
+        public List<long> GetRegBase(long framesNeeded)
         {
             List<long> validIndexes = new List<long>();
             if (AllRegBase != null)
@@ -82,7 +80,6 @@ namespace SimuladorGerenciaMemoria.Classes
             return validIndexes;
         }
 
-        
         public void CreateFile( string nameProcess = "Process")
         {
 
