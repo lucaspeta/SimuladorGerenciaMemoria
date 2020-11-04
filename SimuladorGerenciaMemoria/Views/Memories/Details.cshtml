@@ -16,12 +16,49 @@
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Simulation.Name)
         </dd>
+
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Name)
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
         </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.Size)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Size)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FramesQTD)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FramesQTD)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.FramesSize)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.FramesSize)
+        </dd>
+
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.IsGeneratedProcessList)
+        </dt>
+        <dd class="col-sm-10">
+            @if (Model.IsGeneratedProcessList)
+            {
+                @Html.DisplayText("Sim") 
+            }
+            else
+            { 
+                @Html.DisplayText("Não")
+            }
+        </dd>
+
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.CreateDate)
         </dt>
@@ -100,7 +137,7 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @if (Model != null)
+                    @if (Model.Processes != null)
                     {
                         foreach (var item in Model.Processes)
                         {

@@ -7,17 +7,17 @@ namespace SimuladorGerenciaMemoria.Classes
 {
     public class ScriptProcess
     {
-        public long memoryS { get; set; }
-        public int sizeRandom { get; set; }
+        public long MemorySize { get; set; }
+        public int SizeRandom { get; set; }
 
         public long FramesSize { get; set; }
 
         public Dictionary<long, bool> AllRegBase { get; set; }
 
-        /*public ScriptProcess(long mS, long fZ, Dictionary<long, bool> allRegB = null, int sR = 50)
+        public ScriptProcess(long mS, long fZ, Dictionary<long, bool> allRegB = null, int sR = 50)
         {
-            memoryS = mS;
-            sizeRandom = sR;
+            MemorySize = mS;
+            SizeRandom = sR;
             FramesSize = fZ;
             AllRegBase = allRegB;
         }
@@ -82,26 +82,26 @@ namespace SimuladorGerenciaMemoria.Classes
             Random p = new Random();
 
 
-            for (int i = 0; process.Count < this.sizeRandom; i++)
+            for (int i = 0; process.Count < this.SizeRandom; i++)
             {
-                int pValue = p.Next(sizeRandom);
+                int pValue = p.Next(SizeRandom);
                 if (!process.Contains(pValue))
                     process.Add(pValue);
             }
 
-            for (int i = 0; regLimite.Count < sizeRandom; i++)
+            for (int i = 0; regLimite.Count < SizeRandom; i++)
             {
                 long regValor = 0;
                 do
                 {
-                    regValor = p.Next((Convert.ToInt32(this.memoryS) / this.sizeRandom));
+                    regValor = p.Next((Convert.ToInt32(this.MemorySize) / this.SizeRandom));
 
                 } while (regValor.Equals(0));
 
                 if (!regLimite.Contains(regValor))
                 {
                     regLimite.Add(regValor);
-                    this.memoryS = this.memoryS - regLimite[regLimite.Count - 1];
+                    this.MemorySize = this.MemorySize - regLimite[regLimite.Count - 1];
                 }
 
             }
@@ -134,6 +134,6 @@ namespace SimuladorGerenciaMemoria.Classes
                 for (int i = 0; i < process.Count; i++)
                     writer.WriteLine(nameProcess + process[i] + ";" + regBase[i] + ";" + regLimite[i]);
             }
-        }*/
+        }
     }
 }
