@@ -28,8 +28,6 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(
                 await _context.Memories
-                .Include(m => m.Processes)
-                .AsNoTracking()
                 .ToListAsync()
                 );
         }
@@ -74,11 +72,28 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList")] Memory memory)
+        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             memory.CreateDate = DateTime.Now;
             memory.FramesQTD = memory.Size / memory.FramesSize;
+
+            int initialState = 25;
+
+            switch (memory.InitialState) 
+            {
+                case Memory.InitialStatePickList.Pequeno:
+                    initialState = 25;
+                    break;
+                case Memory.InitialStatePickList.Medio:
+                    initialState = 50;
+                    break;
+                case Memory.InitialStatePickList.Grande:
+                    initialState = 75;
+                    break;
+            }
+
+            float proccessesNeeded = memory.FramesQTD * initialState / 100;
                         
             if (ModelState.IsValid)
             {

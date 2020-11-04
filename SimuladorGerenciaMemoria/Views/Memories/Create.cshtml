@@ -40,7 +40,7 @@
             <div class="form-group">
                 <label class="control-label">Preenchimento inicial da memória</label>
                 @Html.DropDownList("InitialState",
-                    Html.GetEnumSelectList<Memory.InitialState>(),
+                    Html.GetEnumSelectList<Memory.InitialStatePickList>(),
                     "Selecione...", new { @class = "form-control" })
             </div>
 

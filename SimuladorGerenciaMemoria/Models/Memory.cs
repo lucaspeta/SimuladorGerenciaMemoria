@@ -18,7 +18,9 @@ namespace SimuladorGerenciaMemoria.Models
         [Required(ErrorMessage = "É necessário preencher o nome da memória.")]
         public string Name { get; set; }
 
-        public enum InitialState 
+        public string InitialStateVal { get; set; }
+
+        public enum InitialStatePickList
         {
             [Display(Name = "25%")]
             Pequeno,
@@ -27,6 +29,9 @@ namespace SimuladorGerenciaMemoria.Models
             [Display(Name = "75%")]
             Grande
         }
+
+        [DisplayName("Estado inicial")]
+        public InitialStatePickList InitialState { get; set; }
 
         [DisplayName("Tamanho")]
         public long Size { get; set; }
