@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201103194239_memory_create_init")]
+    partial class memory_create_init
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,15 +65,6 @@ namespace SimuladorGerenciaMemoria.Migrations
                     b.Property<long>("FramesSize")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("InitialState")
-                        .HasColumnType("int");
-
-                    b.Property<string>("InitialStateVal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsGeneratedProcessList")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
@@ -81,6 +74,9 @@ namespace SimuladorGerenciaMemoria.Migrations
 
                     b.Property<long>("Size")
                         .HasColumnType("bigint");
+
+                    b.Property<bool>("isGeneratedProcessList")
+                        .HasColumnType("bit");
 
                     b.HasKey("ID");
 

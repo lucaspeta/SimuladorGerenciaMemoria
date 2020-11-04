@@ -12,11 +12,40 @@
     <div class="col-md-4">
         <form asp-action="Create">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <div class="form-group">
+                @Html.LabelFor(model => model.SimulationID, "Simulação", htmlAttributes: new { @class = "control-label" })
+                @Html.DropDownList("SimulationID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.ValidationMessageFor(model => model.SimulationID, "", new { @class = "text-danger" })
+            </div>
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label class="control-label">Tamanho da memória (MB)</label>
+                <input asp-for="Size" class="form-control" />
+                <span asp-validation-for="Size" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Tamanho do frame (MB)</label>
+                <input asp-for="FramesSize" class="form-control" />
+                <span asp-validation-for="FramesSize" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Preenchimento inicial da memória</label>
+                @Html.DropDownList("InitialState",
+                    Html.GetEnumSelectList<Memory.InitialStatePickList>(),
+                    "Selecione...", new { @class = "form-control" })
+            </div>
+
+            <input type="hidden" asp-for="IsGeneratedProcessList" value="0" />
+
             <div class="form-group">
                 <input type="submit" value="Criar" class="btn btn-success" />
             </div>

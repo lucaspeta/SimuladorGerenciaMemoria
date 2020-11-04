@@ -9,55 +9,53 @@ using SimuladorGerenciaMemoria.Utils;
 namespace SimuladorGerenciaMemoria.Models
 {
     public class Memory
-    {
-        //public static long MemorySize = 2500 * Utils.IntPow(2, 10);
-        //public static long FrameSize = 1 * Utils.IntPow(2, 10);
     
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }
-        [DisplayName("Nome")]
+        [DisplayName("Nome da memória")]
+
+        [Required(ErrorMessage = "É necessário preencher o nome da memória.")]
         public string Name { get; set; }
+
+        public string InitialStateVal { get; set; }
+
+        public enum InitialStatePickList
+        {
+            [Display(Name = "25%")]
+            Pequeno,
+            [Display(Name = "50%")]
+            Medio,
+            [Display(Name = "75%")]
+            Grande
+        }
+
+        [DisplayName("Estado inicial")]
+        public InitialStatePickList InitialState { get; set; }
+
         [DisplayName("Tamanho")]
         public long Size { get; set; }
-        [DisplayName("Tamanho dos frames")]
+        [DisplayName("FrameTamanho")]
         public long FramesSize { get; set; }
-        [DisplayName("Quantidade de frames")]
+        [DisplayName("FrameQTD")]
         public long FramesQTD { get; set; }
-        public List<Frame> Frames { get; set; }
-        [DisplayName("Data de criação")]
+
+        [Display(Name = "Simulação")]
+        public int SimulationID { get; set; }
+
+        [ForeignKey("SimulationID")]
+        public virtual Simulation Simulation { get; set; }
+
+        [DisplayName("Dt Criação")]
         public DateTime CreateDate { get; set; }
+
+        public IEnumerable<Frame> Frames { get; set; }
+
+        public IEnumerable<Process> Processes { get; set; }
+
+        [DisplayName("Gerada lista processos?")]
+        public bool IsGeneratedProcessList { get; set; }
     }
-
-    /*private Memory GetOriginalMemory
-    {
-        get
-        {
-            Memory originalMemory = new Memory(MemorySize, FrameSize);
-
-            String Buffer = Utils.ReadInputFile("../../../Inputs/data.csv");
-            List<Process> processesList = Utils.CsvToProcessList(Buffer);
-            originalMemory.InitializeMemory(processesList);
-
-            return originalMemory;
-        }
-    }*/
-
-    /*public Memory()
-    {
-        //Frames = GetOriginalMemory.Frames;
-        Size = GetOriginalMemory.Size;
-        FramesSize = GetOriginalMemory.FramesSize;
-        FramesQTD = GetOriginalMemory.FramesQTD;
-    }
-
-    public Memory(long ms, long fs)
-    {
-        //Frames = new List<Frame>();
-        Size = ms;
-        FramesSize = fs;
-        FramesQTD = ms / fs;
-    }*/
 
     /*private void InitializeMemory(List<Process> Processes)
     {

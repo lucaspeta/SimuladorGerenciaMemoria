@@ -44,6 +44,20 @@ a.navbar-brand {
     border: #008d83;
 }
 
+.btn-info {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    border: #17a2b8;
+}
+
+.btn-info:hover {
+    background-color: #17a2b8 !important;
+    color: white !important;
+    opacity: 0.9;
+    transition: 0.5s;
+    border: #17a2b8;
+}
+
 .even {
     background-color: #454d55 !important;
 }

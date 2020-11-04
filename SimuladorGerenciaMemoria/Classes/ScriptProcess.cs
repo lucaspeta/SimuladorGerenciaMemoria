@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Mvc.Razor.Compilation;
+using Microsoft.AspNetCore.Mvc.Razor.Compilation;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
 using System;
@@ -11,14 +11,12 @@ namespace SimuladorGerenciaMemoria.Classes
     public class ScriptProcess
     {
         public long memorySize { get; set; }
-
         public int memoryOccupied { get; set; }
         public long FramesSize { get; set; }
         public long FramesQTD { get; set; }
 
 
         public Dictionary<long, bool> AllRegBase { get; set; }
-
 
         public ScriptProcess(Memory inicialMemomry, int memoryO) {
             memorySize = inicialMemomry.Size;
@@ -98,12 +96,10 @@ namespace SimuladorGerenciaMemoria.Classes
             for (int i = 0; process.Count < this.memoryOccupied; i++)
             {
                 int pValue = p.Next(memoryOccupied);
-
-
+              
                 if (!process.Contains(pValue))
                     process.Add(pValue);
             }
-
 
             for (int i = 0; regLimite.Count < memoryOccupied; i++)
             {
@@ -119,12 +115,9 @@ namespace SimuladorGerenciaMemoria.Classes
                     regLimite.Add(regValor);
                     this.memorySize = this.memorySize - regLimite[regLimite.Count - 1];
                 }
-
             }
 
             process.Sort();
-
-          
 
             for (int i = 0; i < regLimite.Count; i++)
             {
@@ -157,9 +150,5 @@ namespace SimuladorGerenciaMemoria.Classes
                     writer.WriteLine(nameProcess + process[i] + ";" + regBase[i] + ";" + regLimite[i]);
             }
         }
-
-        
     }
-
-
 }

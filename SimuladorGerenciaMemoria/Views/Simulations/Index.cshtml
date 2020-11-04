@@ -26,25 +26,31 @@
                         <th>
                             @Html.DisplayNameFor(model => model.CreateDate)
                         </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.UserID)
+                        </th>
                         <th></th>
                     </tr>
                 </thead>
                 <tbody>
                     @foreach (var item in Model)
                     {
-                        <tr>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.Name)
-                            </td>
-                            <td>
-                                @Html.DisplayFor(modelItem => item.CreateDate)
-                            </td>
-                            <td>
-                                <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
-                                <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a>
-                                <!--<a asp-action="Delete" asp-route-id="@item.ID">Delete</a>-->
-                            </td>
-                        </tr>
+                    <tr>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.Name)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.CreateDate)
+                        </td>
+                        <td>
+                            @Html.DisplayFor(modelItem => item.User.Login)
+                        </td>
+                        <td>
+                            <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
+                            <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a>
+                            <!--<a asp-action="Delete" asp-route-id="@item.ID">Delete</a>-->
+                        </td>
+                    </tr>
                     }
                 </tbody>
             </table>

@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201028021930_memorie_frame_process_fk")]
+    partial class memorie_frame_process_fk
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -63,17 +65,7 @@ namespace SimuladorGerenciaMemoria.Migrations
                     b.Property<long>("FramesSize")
                         .HasColumnType("bigint");
 
-                    b.Property<int>("InitialState")
-                        .HasColumnType("int");
-
-                    b.Property<string>("InitialStateVal")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<bool>("IsGeneratedProcessList")
-                        .HasColumnType("bit");
-
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int>("SimulationID")
@@ -99,9 +91,6 @@ namespace SimuladorGerenciaMemoria.Migrations
                     b.Property<DateTime>("CreateDate")
                         .HasColumnType("datetime2");
 
-                    b.Property<int?>("MemoryID")
-                        .HasColumnType("int");
-
                     b.Property<string>("Name")
                         .HasColumnType("nvarchar(max)");
 
@@ -109,8 +98,6 @@ namespace SimuladorGerenciaMemoria.Migrations
                         .HasColumnType("int");
 
                     b.HasKey("ID");
-
-                    b.HasIndex("MemoryID");
 
                     b.ToTable("Processes");
                 });
@@ -126,7 +113,6 @@ namespace SimuladorGerenciaMemoria.Migrations
                         .HasColumnType("datetime2");
 
                     b.Property<string>("Name")
-                        .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<int?>("UserID")
@@ -190,13 +176,6 @@ namespace SimuladorGerenciaMemoria.Migrations
                         .HasForeignKey("SimulationID")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
-                });
-
-            modelBuilder.Entity("SimuladorGerenciaMemoria.Models.Process", b =>
-                {
-                    b.HasOne("SimuladorGerenciaMemoria.Models.Memory", "Memory")
-                        .WithMany("Processes")
-                        .HasForeignKey("MemoryID");
                 });
 
             modelBuilder.Entity("SimuladorGerenciaMemoria.Models.Simulation", b =>

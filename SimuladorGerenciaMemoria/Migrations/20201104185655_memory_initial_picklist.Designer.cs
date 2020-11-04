@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201104185655_memory_initial_picklist")]
+    partial class memory_initial_picklist
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
