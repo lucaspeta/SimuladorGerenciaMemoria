@@ -6,7 +6,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using SimuladorGerenciaMemoria.Classes;
+using SimuladorGerenciaMemoria.Scripts;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria
@@ -24,8 +24,8 @@ namespace SimuladorGerenciaMemoria
             m.FramesSize = 1000;
             m.FramesQTD = m.Size / m.FramesSize;
 
-            ScriptProcess p = new ScriptProcess(m,100);
-            p.CreateFile();
+            ScriptProcess p = new ScriptProcess(m,100,m.ID);
+            p.CreateProcesses();
 
             CreateHostBuilder(args).Build().Run();
         }

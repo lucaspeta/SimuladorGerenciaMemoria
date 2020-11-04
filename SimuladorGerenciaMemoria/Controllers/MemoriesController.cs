@@ -8,13 +8,13 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.EntityFrameworkCore;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
+using SimuladorGerenciaMemoria.Scripts;
 
 namespace SimuladorGerenciaMemoria.Controllers
 {
     public class MemoriesController : Controller
     {
         private readonly SimuladorContext _context;
-        
 
         public MemoriesController(SimuladorContext context)
         {
@@ -91,18 +91,20 @@ namespace SimuladorGerenciaMemoria.Controllers
                 case Memory.InitialStatePickList.Grande:
                     initialState = 75;
                     break;
-            }
+            }            
 
-            float proccessesNeeded = memory.FramesQTD * initialState / 100;
-                        
-            if (ModelState.IsValid)
-            {
-                _context.Add(memory);
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
-            }
+            _context.Add(memory);                
 
-            return View(memory);
+            int processesNeeded = (int)memory.FramesQTD * initialState / 100;
+
+            ScriptProcess scriptProcess = new ScriptProcess(memory, processesNeeded, memory.ID);
+
+            var processList = scriptProcess.CreateProcesses();
+
+            _context.Add(processList);
+
+            await _context.SaveChangesAsync();
+            return RedirectToAction(nameof(Index));
         }
 
         // GET: Memories/Edit/5

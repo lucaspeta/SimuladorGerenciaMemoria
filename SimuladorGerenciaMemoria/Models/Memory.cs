@@ -3,13 +3,11 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
-using SimuladorGerenciaMemoria.Classes;
 using SimuladorGerenciaMemoria.Utils;
 
 namespace SimuladorGerenciaMemoria.Models
 {
-    public class Memory
-    
+    public class Memory {     
         [Key]
         [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
         public int ID { get; set; }

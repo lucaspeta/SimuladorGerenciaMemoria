@@ -16,7 +16,7 @@ namespace SimuladorGerenciaMemoria.Models
         public string Name { get; set; }
 
         [DisplayName("Tamanho")]
-        public int Size { get; set; }
+        public long Size { get; set; }
 
         [DisplayName("Data de criação")]
         public DateTime CreateDate { get; set; }
