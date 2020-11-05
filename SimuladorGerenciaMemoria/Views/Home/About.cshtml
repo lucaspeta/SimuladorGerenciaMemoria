@@ -16,9 +16,9 @@
     <link rel="stylesheet" href="~/lib/jquery/dist/jquery.min.js" />
     <link rel="stylesheet" href="~/css/site.css" />
 
-    <!-- <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/css/bootstrap.min.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
-    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>-->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.1/js/bootstrap.min.js"></script>
 
     <style>
         #foto {
@@ -30,34 +30,71 @@
             background-color: #474e5d; /* Dark Blue */
             color: #ffffff;
         }
+        .featurette-divider {
+            margin: 3rem 0;
+        }
+
+       
+        .featurette-heading {
+            font-weight: 20;
+            line-height: 1;
+            letter-spacing: -.05rem;
+        }
+
+        .lead {
+            font-size: 16px;
+        }
     </style>
 
 
 </head>
 
 <body>
+    <hr class="featurette-divider"  background-color: #008d83;>
+    <div class="row featurette">
+        <div class="col-sm-6">
+            <h2 class="featurette-heading">História <span class="text-muted"></span></h2>
+            <p class="lead text-justify">
+                Em um sistema computacional atual, o uso de uma hierarquia de memória devidamente elaborada é fundamental, uma vez que há muitos processos executando de forma concorrente aos recursos computacionais, resultando em trocas constantes dos processos na memória. Com essa troca constante, problemas como fragmentação externa ou falta de memória são suscetíveis e comuns no sistema computacional, necessitando, portanto, meios para reduzi-los ou contorná-los.
+            </p>
+            <p class="lead text-justify">Deste modo, este trabalho de pesquisa tem como objetivo comparar a eficiência, no que diz respeito a fragmentação e tempo de resposta, de quatro algoritmos clássicos de gerenciamento de memória, e ao mesmo tempo, disponibilizar uma ferramenta intuitiva e de fácil acesso para a comunidade acadêmica, podendo ser utilizada no ensino de disciplinas fundamentais em cursos tecnológicos, bacharelados e engenharias.</p>
+        </div> 
+        <div class="col-sm-6">
+            <h2 class="featurette-heading">Beneficios <span class="text-muted">- Relevância.</span></h2>
+            <p class="lead text-justify">
+                Os algoritmos de alocação de memória tem um papel importante em relação ao desempenho do computador, compreendendo assim a importância dos mesmos,
+                no momento atual há uma necessidade de uma ferramenta no qual possibilite criar simulações de como cada respectivo
+                algoritmo se comporta com uma grande massa de dados, tanto quanto há também uma necessidade de uma
+                ferramenta no qual facilite o entendimento nos resultado obtidos.
+            </p>
+        </div>
+    </div>
+    <hr class="featurette-divider">
+    <div class="row featurette">
+        
+    </div>
 
     <div id="foto" class="container-fluid bg-1 text-center">
         <div class="row">
             <div class="col-sm"></div>
-            <div  class="col-sm">
+            <div class="col-sm">
                 <img id="foto" src="~/img/felipe.jpeg" class="img-circle" alt="Bird" width="125" height="125" />
             </div>
             <div class="col-sm">
-                <img  src="~/img/lucas.jpeg" class="img-circle" alt="Bird" width="125" height="125" />
+                <img src="~/img/lucas.jpeg" class="img-circle" alt="Bird" width="125" height="125" />
             </div>
             <div class="col-sm"></div>
         </div>
 
         <div id="texto-foto" class="container-fluid bg-2 text-center">
-           
+
             <div class="row">
                 <div class="col-sm"></div>
-                <div  class="col-sm">
+                <div class="col-sm">
                     <h5>Felipe Ferreira</h5>
                     <p>Ciência da Computação - UTP</p>
                 </div>
-                <div  class="col-sm">
+                <div class="col-sm">
                     <h5>Lucas Ferreira</h5>
                     <p>Ciência da Computação - UTP</p>
                 </div>
