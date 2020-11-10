@@ -28,6 +28,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 .Include(s => s.User)
                 .Include(s => s.Memories)
                 .AsNoTracking()
+                .Where(m => m.UserID == HttpContext.Session.GetInt32("UserID"))
                 .OrderBy(s => s.CreateDate)
                 .ToListAsync();
 
@@ -50,9 +51,10 @@ namespace SimuladorGerenciaMemoria.Controllers
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (simulation == null)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            if (simulation.UserID != HttpContext.Session.GetInt32("UserID")) 
+                return RedirectToAction("Error403", "Erros");
 
             return View(simulation);
         }
@@ -100,10 +102,13 @@ namespace SimuladorGerenciaMemoria.Controllers
             }
 
             var simulation = await _context.Simulations.FindAsync(id);
+
             if (simulation == null)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            if (simulation.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
+
             return View(simulation);
         }
 
@@ -118,9 +123,10 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
             if (id != simulation.ID)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            if (simulation.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
 
             if (ModelState.IsValid)
             {
@@ -152,16 +158,18 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
             if (id == null)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            
 
             var simulation = await _context.Simulations
                 .FirstOrDefaultAsync(m => m.ID == id);
+
             if (simulation == null)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            if (simulation.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
 
             return View(simulation);
         }

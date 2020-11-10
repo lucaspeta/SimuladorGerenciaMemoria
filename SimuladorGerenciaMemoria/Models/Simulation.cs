@@ -25,7 +25,7 @@ namespace SimuladorGerenciaMemoria.Models
         public IEnumerable<Memory> Memories { get; set; }
 
         [DisplayName("Data de criação")]
-        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy hh:mm}")]
+        [DisplayFormat(DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime CreateDate { get; set; }
     }
 }

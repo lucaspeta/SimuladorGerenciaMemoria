@@ -12,7 +12,6 @@
     <div class="row">
         <div class="col-md-4">
             <form>
-
                 <div class="form-group">
                     <label class="control-label">Preencher restante da memória (Máximo possível @ViewBag.MaximoPossivel%)</label>
                     <input id="maximo_possivel" class="form-control" type="number" placeholder="Digite a pocentagem" />
@@ -34,41 +33,6 @@
             </form>
         </div>
     </div>
-
-    <script>
-        $('.submit-btn').on('click', function () {
-            $('.btn-success').prop('disabled', true);
-
-            var memoriaId = '@(ViewBag.MemoryID)';
-            var maximo_possivel = $('#maximo_possivel').val();
-            var tamanho_minimo = $('#tamanho_minimo').val();
-            var tamanho_maximo = $('#tamanho_maximo').val();
-
-            var dataToController =
-            {
-                memoryID: memoriaId,
-                MemoryToFeel: maximo_possivel,
-                ini: tamanho_minimo,
-                fin: tamanho_maximo
-            };
-
-            $.ajax({
-                type: "POST",
-                url: "/Memories/GerarProcessosInserir/",
-                data: JSON.stringify(dataToController),
-                datatype: "text",
-                success: function (msg) {
-                    console.log(msg);
-                },
-                error: function (req, status, error) {
-                    console.log(msg);
-                },
-                done: function () {
-                    $('.btn-success').prop('disabled', false);
-                }
-            });
-        });
-    </script>
 }
 else
 {
@@ -85,9 +49,8 @@ else
                                 Nome
                             </th>
                             <th>
-                                Tamanho
+                                Tamanho (bytes)
                             </th>
-                            <th></th>
                         </tr>
                     </thead>
                     <tbody>
@@ -107,34 +70,73 @@ else
             </div>
         </div>
     </div>
-
-    <link rel="stylesheet" href="~/css/datatables.min.css" />
-    <script src="~/js/datatables.min.js"></script>
-
-    <script>
-        $('#tableDados').dataTable({
-            responsive: true,
-            "oLanguage": {
-                "sProcessing": "Processando...",
-                "sLengthMenu": "Mostrar _MENU_ registros",
-                "sZeroRecords": "Não foram encontrados resultados",
-                "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
-                "sInfoEmpty": "Mostrando de 0 até 0 de 0 registros",
-                "sInfoFiltered": "",
-                "sInfoPostFix": "",
-                "sSearch": "Buscar : ",
-                "sUrl": "",
-                "oPaginate": {
-                    "sFirst": "Primeiro",
-                    "sPrevious": "Anterior",
-                    "sNext": "Seguinte",
-                    "sLast": "Último"
-                }
-            }
-        });
-    </script>
 }
-
 <div>
+    <p id="error-message" class="text-danger font-weight-bolder"></p>
     <a asp-action="Details" asp-route-id="@ViewBag.MemoryID">Voltar para detalhes</a>
 </div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}
+
+<link rel="stylesheet" href="~/css/datatables.min.css" />
+<script src="~/js/datatables.min.js"></script>
+
+<script>
+    $('#tableDados').dataTable({
+        responsive: true,
+        "oLanguage": {
+            "sProcessing": "Processando...",
+            "sLengthMenu": "Mostrar _MENU_ registros",
+            "sZeroRecords": "Não foram encontrados resultados",
+            "sInfo": "Mostrando de _START_ até _END_ de _TOTAL_ registros",
+            "sInfoEmpty": "Mostrando de 0 até 0 de 0 registros",
+            "sInfoFiltered": "",
+            "sInfoPostFix": "",
+            "sSearch": "Buscar : ",
+            "sUrl": "",
+            "oPaginate": {
+                "sFirst": "Primeiro",
+                "sPrevious": "Anterior",
+                "sNext": "Seguinte",
+                "sLast": "Último"
+            }
+        }
+    });
+
+    $('#submit-btn').on('click', function () {
+        $('#error-message').text('');
+        $(this).prop('disabled', true);
+        $(this).removeClass('btn-success');
+        $(this).addClass('btn-disabled');
+
+        var memoriaId = '@(ViewBag.MemoryID)';
+        var maximo_possivel = $('#maximo_possivel').val();
+        var tamanho_minimo = $('#tamanho_minimo').val();
+        var tamanho_maximo = $('#tamanho_maximo').val();
+
+        $.ajax({            
+            url: "/Memories/GerarProcessosInserir/",
+            type: "POST",
+            datatype: "text",
+            data:{
+                memoryID: memoriaId,
+                MemoryToFeelPerc: maximo_possivel,
+                ini: tamanho_minimo,
+                fin: tamanho_maximo
+            },        
+            success: function (response) {
+                if (response.success) {
+                    location.reload();
+                }
+                else {
+                    $('#error-message').text(response.error);
+                    $(this).prop('disabled', false);
+                    $(this).addClass('btn-success');
+                    $(this).removeClass('btn-disabled');
+                }     
+            }         
+        });
+    });
+</script>

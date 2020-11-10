@@ -21,19 +21,19 @@
                 <thead>
                     <tr>
                         <th>
-                            @Html.DisplayNameFor(model => model.Name)
+                            Nome
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.Size)
+                            Tamanho(bytes)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.FramesSize)
+                            FrameTam(bytes)
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.FramesQTD)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.IsGeneratedProcessList)
+                            GeradaLista
                         </th>
                         <th>
                             @Html.DisplayNameFor(model => model.CreateDate)
@@ -49,18 +49,18 @@
                             @Html.DisplayFor(modelItem => item.Name)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.Size)
+                            @string.Format("{0:#,0}", item.Size)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.FramesSize)
+                            @string.Format("{0:#,0}", item.FramesSize)
                         </td>
                         <td>
-                            @Html.DisplayFor(modelItem => item.FramesQTD)
+                            @string.Format("{0:#,0}", item.FramesQTD)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.IsGeneratedProcessList)
                         </td>
-                        <td>
+                        <td da>
                             @Html.DisplayFor(modelItem => item.CreateDate)
                         </td>
                         <td>
@@ -80,8 +80,9 @@
 <script src="~/js/datatables.min.js"></script>
 
 <script>
-    $('#tableDados').dataTable({
+    var table = $('#tableDados').dataTable({
         responsive: true,
+        "order": [[5, "desc"]],
         "oLanguage": {
             "sProcessing": "Processando...",
             "sLengthMenu": "Mostrar _MENU_ registros",

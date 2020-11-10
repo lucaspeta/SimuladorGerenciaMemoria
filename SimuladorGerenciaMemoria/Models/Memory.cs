@@ -45,68 +45,20 @@ namespace SimuladorGerenciaMemoria.Models
         public virtual Simulation Simulation { get; set; }
 
         [DisplayName("Dt Criação")]
+        [DisplayFormat(ApplyFormatInEditMode = true, DataFormatString = "{0:dd/MM/yyyy}")]
         public DateTime CreateDate { get; set; }
 
         public IEnumerable<Frame> Frames { get; set; }
 
         public IEnumerable<Process> Processes { get; set; }
 
+        [DisplayName("Usuário")]
+        public int? UserID { get; set; }
+
+        [ForeignKey("UserID")]
+        public virtual User User { get; set; }
+
         [DisplayName("Gerada lista processos?")]
         public bool IsGeneratedProcessList { get; set; }
-    }
-
-    /*private void InitializeMemory(List<Process> Processes)
-    {
-        Dictionary<long, Process> mapProcess = new Dictionary<long, Process>();
-
-        foreach (var forProcess in Processes)
-        {
-            mapProcess.Add(forProcess.RegB, forProcess);
-        }
-
-        int i = 0;
-
-        while (i < FramesQTD)
-        {
-            long memoryframeLocation = (i * Utils.IntPow(2, 10));
-
-            if (mapProcess.ContainsKey(memoryframeLocation))
-            {
-                Process processToInsertMemory = mapProcess[memoryframeLocation];
-
-                if (processToInsertMemory.RegL > this.FramesSize)
-                {
-                    decimal framesNeeded = Math.Ceiling((decimal)processToInsertMemory.RegL / this.FramesSize);
-
-                    for (int i2 = 0; i2 < framesNeeded; i2++)
-                    {
-                        memoryframeLocation = (i * Utils.IntPow(2, 10));
-
-                        Frame frameToInsert = new Frame(memoryframeLocation);
-                        frameToInsert.Process = processToInsertMemory;
-
-                        this.Frames.Add(frameToInsert);
-
-                        i++;
-                    }
-                }
-                else
-                {
-                    Frame frameToInsert = new Frame(memoryframeLocation);
-                    frameToInsert.Process = processToInsertMemory;
-
-                    this.Frames.Add(frameToInsert);
-                    i++;
-                }
-            }
-            else
-            {
-                Frame frameToInsert = new Frame(memoryframeLocation);
-                frameToInsert.Process = null;
-
-                this.Frames.Add(frameToInsert);
-                i++;
-            }
-        }
-    }*/
+    }    
 }

@@ -36,5 +36,7 @@ namespace SimuladorGerenciaMemoria.Models
         public string RepeatPassword { get; set; }
 
         public IEnumerable<Simulation> Simulations { get; set; }
+
+        public IEnumerable<Memory> Memories { get; set; }
     }
 }

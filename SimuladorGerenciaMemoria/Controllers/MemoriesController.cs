@@ -30,6 +30,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(
                 await _context.Memories
+                .Where(m => m.UserID == HttpContext.Session.GetInt32("UserID"))
                 .OrderBy(m => m.CreateDate)
                 .ToListAsync()
                 );
@@ -41,22 +42,25 @@ namespace SimuladorGerenciaMemoria.Controllers
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             ViewBag.memoriaID = id;
-            ViewBag.processQTD = 245;
+
+            ViewBag.processQTD = _context.Processes
+                .Where(p => p.isInitial == false)
+                .Where(p => p.MemoryID == id)
+                .Count();
 
             if (id == null)
-            {
-                return RedirectToAction("Error404", "Erros");
-            }
+                return RedirectToAction("Error404", "Erros");                   
 
             var memory = await _context.Memories
                 .Include(m => m.Simulation)
                 .Include(m => m.Frames)
-                .FirstOrDefaultAsync(m => m.ID == id);
+                .FirstOrDefaultAsync(m => m.ID == id);            
 
             if (memory == null)
-            {
                 return RedirectToAction("Error404", "Erros");
-            }
+
+            if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
 
             return View(memory);
         }
@@ -67,6 +71,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
+            ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
 
             return View();
         }
@@ -77,7 +82,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState")] Memory memory)
+        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState,UserID")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             memory.Size = memory.Size * 1024; //transfoma em bytes
@@ -135,12 +140,16 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.MemoryID = id;
 
             if (id == null) return RedirectToAction("Error404", "Erros");
 
             var memory = await _context.Memories.FindAsync(id);
 
             if (memory == null) return RedirectToAction("Error404", "Erros");
+
+            if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
 
             return View(memory);
         }
@@ -151,7 +160,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList")] Memory memory)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
@@ -170,13 +179,9 @@ namespace SimuladorGerenciaMemoria.Controllers
                 catch (DbUpdateConcurrencyException)
                 {
                     if (!MemoryExists(memory.ID))
-                    {
                         return RedirectToAction("Error404", "Erros");
-                    }
                     else
-                    {
                         throw;
-                    }
                 }
                 return RedirectToAction(nameof(Index));
             }
@@ -192,6 +197,9 @@ namespace SimuladorGerenciaMemoria.Controllers
             Memory _memory = _context.Memories.Find(id);
 
             ViewBag.isGenerated = _memory.IsGeneratedProcessList;
+
+            if (_memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
 
             switch (_memory.InitialState)
             {
@@ -209,7 +217,9 @@ namespace SimuladorGerenciaMemoria.Controllers
             if (id == null) return RedirectToAction("Error404", "Erros");
 
             return View(
-               await _context.Processes.Where(p => p.MemoryID == id)
+               await _context.Processes
+               .Where(p => p.MemoryID == id)
+               .Where(p => p.isInitial == false)
                .ToListAsync()
                );
         }
@@ -222,13 +232,19 @@ namespace SimuladorGerenciaMemoria.Controllers
             {
                 Memory _memory = _context.Memories.Find(memoryID);
 
-                long _memoryToFeel = (_memory.Size * (MemoryToFeelPerc / 100));
+                if(_memory == null)
+                    throw new Exception("Houve um erro! Memória não encontrada.");
+
+                long _memoryToFeel = (long) (_memory.Size * ((float)MemoryToFeelPerc / 100));
 
                 List<Models.Process> processToInsert = ScriptProcess.GerarProcessosList(memoryID, _memoryToFeel, ini, fin);
                 
                 _memory.IsGeneratedProcessList = true;
                 _context.Processes.AddRange(processToInsert);
                 _context.SaveChangesAsync();
+
+                if (_memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                    throw new Exception("Você não possui permissão para gerar processos para essa memória!");
 
                 return Json(
                     new

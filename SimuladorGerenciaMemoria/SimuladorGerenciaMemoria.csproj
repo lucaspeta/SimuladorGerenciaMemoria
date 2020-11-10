@@ -6,6 +6,13 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Migrations\20201110005549_add_user_memory.cs" />
+    <Compile Remove="Migrations\20201110005549_add_user_memory.Designer.cs" />
+    <Compile Remove="Migrations\20201110184516_memory_user_fk.cs" />
+    <Compile Remove="Migrations\20201110184516_memory_user_fk.Designer.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Content Remove="Views\Home\Index - Copy.cshtml" />
   </ItemGroup>
 
