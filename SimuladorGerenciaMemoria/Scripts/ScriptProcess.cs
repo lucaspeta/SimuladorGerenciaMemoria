@@ -150,8 +150,10 @@ namespace SimuladorGerenciaMemoria.Scripts
 
                     processToAdd.CreateDate = DateTime.Now;
                     processToAdd.Memory = this.Memory;
-                    processToAdd.Name = nameProcess;
-                    processToAdd.Size = regLimite[i];
+                    processToAdd.Name = nameProcess + process[i];                    
+                    processToAdd.isInitial = true;
+                    processToAdd.RegB = regBase[i];
+                    processToAdd.RegL = regLimite[i];
 
                     processesToInsert.Add(processToAdd);
                 }

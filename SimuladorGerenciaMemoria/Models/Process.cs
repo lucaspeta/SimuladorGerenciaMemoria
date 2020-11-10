@@ -27,6 +27,11 @@ namespace SimuladorGerenciaMemoria.Models
 
         public IEnumerable<Frame> Frames { get; set; }
 
+        [DisplayName("Registrador base")]
+        public long RegB { get; set; }
+
+        [DisplayName("Registrador limite")]
+        public long RegL { get; set; }
         public bool isInitial { get; set; }
     }
 }

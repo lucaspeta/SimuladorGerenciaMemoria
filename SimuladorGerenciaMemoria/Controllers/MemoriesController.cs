@@ -30,6 +30,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(
                 await _context.Memories
+                .OrderBy(m => m.CreateDate)
                 .ToListAsync()
                 );
         }
@@ -105,8 +106,25 @@ namespace SimuladorGerenciaMemoria.Controllers
             ScriptProcess scriptProcess = new ScriptProcess(memory, processesNeeded);
 
             List<Models.Process> processList = scriptProcess.CreateProcesses();
+            List<Models.Frame> framesList = new List<Models.Frame>();
+
+            //generate the frames
+            foreach (var item in processList) 
+            {
+                Frame frameToAdd = new Frame();
+
+                frameToAdd.Memory = memory;
+                frameToAdd.Name = item.Name;
+                frameToAdd.IsInitial = true;
+                frameToAdd.Process = item;
+                frameToAdd.RegB = item.RegB;
+                frameToAdd.RegL = item.RegL;
+
+                framesList.Add(frameToAdd);
+            }
 
             _context.AddRange(processList);
+            _context.AddRange(framesList);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
