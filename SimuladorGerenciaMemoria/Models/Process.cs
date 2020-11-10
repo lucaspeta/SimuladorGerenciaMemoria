@@ -26,5 +26,7 @@ namespace SimuladorGerenciaMemoria.Models
         public virtual Memory Memory { get; set; }
 
         public IEnumerable<Frame> Frames { get; set; }
+
+        public bool isInitial { get; set; }
     }
 }

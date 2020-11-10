@@ -24,7 +24,7 @@ namespace SimuladorGerenciaMemoria
             m.FramesSize = 1000;
             m.FramesQTD = m.Size / m.FramesSize;
 
-            ScriptProcess p = new ScriptProcess(m,100,m.ID);
+            ScriptProcess p = new ScriptProcess(m,100);
             p.CreateProcesses();
 
             CreateHostBuilder(args).Build().Run();

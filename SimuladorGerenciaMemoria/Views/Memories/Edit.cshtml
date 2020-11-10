@@ -18,11 +18,20 @@
             <input type="hidden" asp-for="FramesQTD" />
             <input type="hidden" asp-for="SimulationID" />
             <input type="hidden" asp-for="IsGeneratedProcessList" />
+
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
+            <div class="form-group">
+                <label class="control-label">Preenchimento inicial da memória</label>
+                @Html.DropDownList("InitialState",
+                    Html.GetEnumSelectList<Memory.InitialStatePickList>(),
+                    "Selecione...", new { @class = "form-control" })
+            </div>
+
             <div class="form-group">
                 <input type="submit" value="Salvar" class="btn btn-success" />
             </div>
@@ -31,7 +40,7 @@
 </div>
 
 <div>
-    <a asp-action="Index">Voltar para a lista</a>
+    <a asp-action="Details" asp-route-id="@ViewBag.MemoryID">Voltar para detalhes</a>
 </div>
 
 @section Scripts {
