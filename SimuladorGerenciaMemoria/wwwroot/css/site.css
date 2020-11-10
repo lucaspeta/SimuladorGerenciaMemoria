@@ -1,6 +1,7 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
 
+
 #menu {
     background-color: #008d83 !important;
 }
@@ -74,16 +75,44 @@ a:hover {
 
 /*
     About us
+
+
 */
-.bg-1 {
+
+#foto {
     background-color: #008d83; /* Green */
     color: #ffffff;
 }
 
-.bg-2 {
+#texto-foto {
     background-color: #474e5d; /* Dark Blue */
     color: #ffffff;
 }
+
+#bodyabout {
+    background-color: #dcdcdc;
+}
+
+.featurette-divider {
+    margin: 1rem 0;
+    
+}
+
+
+.featurette-heading {
+    font-weight: 14;
+    line-height: 1;
+    letter-spacing: -.01rem;
+    
+}
+
+.lead {
+    font-size: 15px;
+    
+}
+
+/* end about*/
+
 
 .btn-primary {
   color: #fff;
