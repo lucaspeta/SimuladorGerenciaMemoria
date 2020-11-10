@@ -9,6 +9,8 @@ using Microsoft.EntityFrameworkCore;
 using SimuladorGerenciaMemoria.Models;
 using SimuladorGerenciaMemoria.Utils;
 using SimuladorGerenciaMemoria.Scripts;
+using System.Collections.Generic;
+using System.Linq.Expressions;
 
 namespace SimuladorGerenciaMemoria.Controllers
 {
@@ -28,6 +30,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(
                 await _context.Memories
+                .OrderBy(m => m.CreateDate)
                 .ToListAsync()
                 );
         }
@@ -37,6 +40,8 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Details(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.memoriaID = id;
+            ViewBag.processQTD = 245;
 
             if (id == null)
             {
@@ -75,6 +80,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            memory.Size = memory.Size * 1024; //transfoma em bytes
             memory.CreateDate = DateTime.Now;
             memory.FramesQTD = memory.Size / memory.FramesSize;
 
@@ -97,11 +103,28 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             int processesNeeded = (int)memory.FramesQTD * initialState / 100;
 
-            ScriptProcess scriptProcess = new ScriptProcess(memory, processesNeeded, memory.ID);
+            ScriptProcess scriptProcess = new ScriptProcess(memory, processesNeeded);
 
-            var processList = scriptProcess.CreateProcesses();
+            List<Models.Process> processList = scriptProcess.CreateProcesses();
+            List<Models.Frame> framesList = new List<Models.Frame>();
 
-            _context.Add(processList);
+            //generate the frames
+            foreach (var item in processList) 
+            {
+                Frame frameToAdd = new Frame();
+
+                frameToAdd.Memory = memory;
+                frameToAdd.Name = item.Name;
+                frameToAdd.IsInitial = true;
+                frameToAdd.Process = item;
+                frameToAdd.RegB = item.RegB;
+                frameToAdd.RegL = item.RegL;
+
+                framesList.Add(frameToAdd);
+            }
+
+            _context.AddRange(processList);
+            _context.AddRange(framesList);
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
@@ -128,7 +151,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name")] Memory memory)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
@@ -160,215 +183,231 @@ namespace SimuladorGerenciaMemoria.Controllers
             return View(memory);
         }
 
-        // GET: Memories/Delete/5
         [RedirectAction]
-        public async Task<IActionResult> Delete(int? id)
+        public async Task<IActionResult> GerarProcessos(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.MemoryID = id;            
 
-            if (id == null)
+            Memory _memory = _context.Memories.Find(id);
+
+            ViewBag.isGenerated = _memory.IsGeneratedProcessList;
+
+            switch (_memory.InitialState)
             {
-                return RedirectToAction("Error404", "Erros");
+                case Memory.InitialStatePickList.Pequeno:
+                    ViewBag.MaximoPossivel = 99 - 25;
+                    break;
+                case Memory.InitialStatePickList.Medio:
+                    ViewBag.MaximoPossivel = 99 - 50;
+                    break;
+                case Memory.InitialStatePickList.Grande:
+                    ViewBag.MaximoPossivel = 99 - 75;
+                    break;
             }
 
-            var memory = await _context.Memories
-                .FirstOrDefaultAsync(m => m.ID == id);
-            if (memory == null)
-            {
-                return RedirectToAction("Error404", "Erros");
-            }
+            if (id == null) return RedirectToAction("Error404", "Erros");
 
-            return View(memory);
+            return View(
+               await _context.Processes.Where(p => p.MemoryID == id)
+               .ToListAsync()
+               );
         }
 
-        // POST: Memories/Delete/5
-        [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        [HttpPost]
+        public JsonResult GerarProcessosInserir(int memoryID, long MemoryToFeelPerc, int ini, int fin)
         {
-            ViewBag.userName = HttpContext.Session.GetString("UserName");
+            try
+            {
+                Memory _memory = _context.Memories.Find(memoryID);
 
-            var memory = await _context.Memories.FindAsync(id);
-            _context.Memories.Remove(memory);
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+                long _memoryToFeel = (_memory.Size * (MemoryToFeelPerc / 100));
+
+                List<Models.Process> processToInsert = ScriptProcess.GerarProcessosList(memoryID, _memoryToFeel, ini, fin);
+                
+                _memory.IsGeneratedProcessList = true;
+                _context.Processes.AddRange(processToInsert);
+                _context.SaveChangesAsync();
+
+                return Json(
+                    new
+                    {
+                        success = true
+                    }
+                );
+            }
+            catch (Exception e) 
+            {
+                return Json(
+                   new
+                   {
+                       success = false,
+                       error = e.Message
+                   }
+               );
+            }      
         }
+
 
         [RedirectAction]
         private bool MemoryExists(int id)
         {
             return _context.Memories.Any(e => e.ID == id);
-        }            
+        }
 
-        /*public void InsertProcess(int index, Process process)
-       {
-           var framesNeeded = process.RegL / this.FramesSize;
-           framesNeeded = process.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
-           Frame frame;
+        [HttpPost]
+        //public JsonResult QuickFitInsertion(Process pProcess, List<KeyValuePair<long, long>> mappedMemory, Dictionary<long, bool> allRegB)
+        public JsonResult QuickFitInsertion(int? id)
+        {
+            /*var framesNeeded = pProcess.RegL / this.FramesSize;
+            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-           try
-           {
-               if (this.Frames[index].Process != null)
-                   throw new Exception("Não é possível inserir o processo, pois esse local da mémoria já está sendo utilizado!");
-               else
-               {
-                   if (framesNeeded == 1)
-                   {
-                       frame = this.Frames[index];
-                       process.RegB = frame.RegB;
-                       if (frame.Process == null)
-                           frame.Process = process;
-                       else
-                           throw new Exception("Não é possível inserir o processo, pois esse local da mémoria já está sendo utilizado!");
-                   }
-                   else
-                   {
-                       for (int i = 0; i < framesNeeded; i++)
-                       {
-                           if (this.Frames[index + i].Process != null)
-                               throw new Exception("Não é possível inserir o processo, pois esse local da mémoria já está sendo utilizado!");
-                           else
-                           {
-                               frame = this.Frames[index + i];
-                               process.RegB = frame.RegB;
-                               frame.Process = process;
-                           }
-                       }
-                   }
-               }
-           }
-           catch (Exception ex)
-           {
-               Console.WriteLine(ex.Message);
-           }
-       }
+            if (!mappedMemory.Any(a => a.Value >= framesNeeded))
+                return -1;
 
-       public int FirstFitInsertion(Process pProcess)
-       {
-           var framesNeeded = pProcess.RegL / this.FramesSize;
-           framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+            var placeToInsert = mappedMemory.Where(w => w.Value >= framesNeeded).FirstOrDefault().Key;
+            var auxRegb = placeToInsert;
 
-           int indexToReturn = 0, auxIndex = 0;
+            for (long usedFrames = 1; usedFrames <= framesNeeded; usedFrames++, auxRegb += FramesSize)
+                allRegB[auxRegb] = true;
 
-           for (int i = 0; i < this.Frames.Count; ++i)
-           {
-               if (this.Frames[i].Process != null)
-                   indexToReturn = 0;
-               else
-               {
-                   if (indexToReturn == 0)
-                       auxIndex = i;
-                   indexToReturn++;
-               }
-               if (indexToReturn == framesNeeded)
-               {
-                   //pProcess.TimeToFindIndex = i;
-                   return auxIndex;
-               }
-           }
-           return -1;
-       }
+            pProcess.TimeToFindIndex = 0;
+            return Convert.ToInt32(placeToInsert);*/
 
-       public int BestFitInsertion(Process pProcess)
-       {
-           var framesNeeded = pProcess.RegL / this.FramesSize;
-           framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+            return Json(
+                new
+                {
+                    success = false
+                }
+            );
+        }
 
-           Dictionary<int, int> mapEmptyFrames = new Dictionary<int, int>();
-           int emptyFrames = 0, auxIndex = 0;
-           int i = 0;
-           for (i = 0; i < this.Frames.Count; ++i)
-           {
-               if (this.Frames[i].Process != null)
-                   emptyFrames = 0;
-               else
-               {
-                   if (emptyFrames == 0)
-                       auxIndex = i;
-                   emptyFrames++;
-               }
-               if ((i == this.Frames.Count - 1 || this.Frames[i + 1].Process != null) && emptyFrames > 0)
-               {
-                   mapEmptyFrames.Add(auxIndex, emptyFrames);
-                   if (emptyFrames == framesNeeded)
-                   {
-                       pProcess.TimeToFindIndex = i;
-                       return auxIndex;
-                   }
-               }
-           }
-           if (mapEmptyFrames.Count(w => w.Value >= framesNeeded) == 0)
-               return -1;
+        [HttpPost]
+        public JsonResult FirstFitInsertion(string id) 
+        {
+            Console.WriteLine("ID: "+ id);
 
-           var bestFit = mapEmptyFrames.Where(w => w.Value >= framesNeeded).OrderBy(o => o.Value).FirstOrDefault();
-           pProcess.TimeToFindIndex = i;
-           return bestFit.Key;
-       }
+            if (id != null) 
+            {
+                return Json(
+                    new
+                    {
+                        success = true
+                    }
+                );
+            }
 
-       public int WorstFitInsertion(Process pProcess)
-       {
-           var framesNeeded = pProcess.RegL / this.FramesSize;
-           framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+            /*var framesNeeded = pProcess.RegL / this.FramesSize;
+            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-           Dictionary<int, int> mapEmptyFrames = new Dictionary<int, int>();
-           int emptyFrames = 0, auxIndex = 0;
-           int i = 0;
-           for (i = 0; i < this.Frames.Count; ++i)
-           {
-               if (this.Frames[i].Process != null)
-                   emptyFrames = 0;
-               else
-               {
-                   if (emptyFrames == 0)
-                       auxIndex = i;
-                   emptyFrames++;
-               }
-               if ((i == this.Frames.Count - 1 || this.Frames[i + 1].Process != null) && emptyFrames > 0)
-                   mapEmptyFrames.Add(auxIndex, emptyFrames);
-           }
+            int indexToReturn = 0, auxIndex = 0;
 
-           if (mapEmptyFrames.Count(w => w.Value >= framesNeeded) == 0)
-               return -1;
+            for (int i = 0; i < this.Frames.Count; ++i)
+            {
+                if (this.Frames[i].Process != null)
+                    indexToReturn = 0;
+                else
+                {
+                    if (indexToReturn == 0)
+                        auxIndex = i;
+                    indexToReturn++;
+                }
+                if (indexToReturn == framesNeeded)
+                {
+                    //pProcess.TimeToFindIndex = i;
+                    return auxIndex;
+                }
+            }*/
 
-           var worstFit = mapEmptyFrames.Where(w => w.Value >= framesNeeded).OrderByDescending(o => o.Value).FirstOrDefault();
-           pProcess.TimeToFindIndex = i;
-           return worstFit.Key;
-       }
+            return Json(
+                new
+                {
+                    success = false
+                }
+            );
+        }
 
-       public int QuickFitInsertion(Process pProcess, List<KeyValuePair<long, long>> mappedMemory, Dictionary<long, bool> allRegB)
-       {
-           var framesNeeded = pProcess.RegL / this.FramesSize;
-           framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+        [HttpPost]
+        public JsonResult BestFitInsertion(int? id)
+        {
+            /*var framesNeeded = pProcess.RegL / this.FramesSize;
+            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-           if (!mappedMemory.Any(a => a.Value >= framesNeeded))
-               return -1;
+            Dictionary<int, int> mapEmptyFrames = new Dictionary<int, int>();
+            int emptyFrames = 0, auxIndex = 0;
+            int i = 0;
+            for (i = 0; i < this.Frames.Count; ++i)
+            {
+                if (this.Frames[i].Process != null)
+                    emptyFrames = 0;
+                else
+                {
+                    if (emptyFrames == 0)
+                        auxIndex = i;
+                    emptyFrames++;
+                }
+                if ((i == this.Frames.Count - 1 || this.Frames[i + 1].Process != null) && emptyFrames > 0)
+                {
+                    mapEmptyFrames.Add(auxIndex, emptyFrames);
+                    if (emptyFrames == framesNeeded)
+                    {
+                        pProcess.TimeToFindIndex = i;
+                        return auxIndex;
+                    }
+                }
+            }
+            if (mapEmptyFrames.Count(w => w.Value >= framesNeeded) == 0)
+                return -1;
 
-           var placeToInsert = mappedMemory.Where(w => w.Value >= framesNeeded).FirstOrDefault().Key;
-           var auxRegb = placeToInsert;
+            var bestFit = mapEmptyFrames.Where(w => w.Value >= framesNeeded).OrderBy(o => o.Value).FirstOrDefault();
+            pProcess.TimeToFindIndex = i;
+            return bestFit.Key;*/
 
-           for (long usedFrames = 1; usedFrames <= framesNeeded; usedFrames++, auxRegb += FramesSize)
-               allRegB[auxRegb] = true;
+            return Json(
+                new
+                {
+                    success = false
+                }
+            );
+        }
 
-           pProcess.TimeToFindIndex = 0;
-           return Convert.ToInt32(placeToInsert);
-       }
+        [HttpPost]
+        public JsonResult WorstFitInsertion(int? id)
+        {
+            /*var framesNeeded = pProcess.RegL / this.FramesSize;
+            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-       public void PrintMemory()
-       {
-           List<Frame> listToPrint = new List<Frame>();
-           listToPrint.AddRange(this.Frames);
-           //listToPrint.Reverse();
+            Dictionary<int, int> mapEmptyFrames = new Dictionary<int, int>();
+            int emptyFrames = 0, auxIndex = 0;
+            int i = 0;
+            for (i = 0; i < this.Frames.Count; ++i)
+            {
+                if (this.Frames[i].Process != null)
+                    emptyFrames = 0;
+                else
+                {
+                    if (emptyFrames == 0)
+                        auxIndex = i;
+                    emptyFrames++;
+                }
+                if ((i == this.Frames.Count - 1 || this.Frames[i + 1].Process != null) && emptyFrames > 0)
+                    mapEmptyFrames.Add(auxIndex, emptyFrames);
+            }
 
-           Console.WriteLine("--------------MEMORY-------------------\n");
-           foreach (var frame in listToPrint)
-           {
-               if (frame.Process != null)
-                   Console.WriteLine(String.Format("{1} - {2} => {0}", frame.Process.Name, frame.RegB, frame.RegB + this.FramesSize));
-               else
-                   Console.WriteLine(String.Format("{1} - {2} => {0}", "---", frame.RegB, frame.RegB + this.FramesSize));
-           }
-           Console.WriteLine("\n---------------------------------------\n\n\n");
-       }*/
+            if (mapEmptyFrames.Count(w => w.Value >= framesNeeded) == 0)
+                return -1;
+
+            var worstFit = mapEmptyFrames.Where(w => w.Value >= framesNeeded).OrderByDescending(o => o.Value).FirstOrDefault();
+            pProcess.TimeToFindIndex = i;
+            return worstFit.Key;*/
+
+            return Json(
+                new
+                {
+                    success = false
+                }
+            );
+        }        
     }
 }

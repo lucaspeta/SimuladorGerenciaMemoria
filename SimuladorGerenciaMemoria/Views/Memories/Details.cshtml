@@ -5,6 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/loading.css" />
+
 <h1>Detalhes da memória</h1>
 
 <div>
@@ -18,7 +20,7 @@
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.Name)
+            Memória
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Name)
@@ -32,35 +34,35 @@
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FramesQTD)
+            Quantidade de frames
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.FramesQTD)
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.FramesSize)
+            Tamanho dos frames
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.FramesSize)
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.IsGeneratedProcessList)
+            @Html.DisplayNameFor(model => model.InitialState)
         </dt>
         <dd class="col-sm-10">
-            @if (Model.IsGeneratedProcessList)
-            {
-                @Html.DisplayText("Sim") 
-            }
-            else
-            { 
-                @Html.DisplayText("Não")
-            }
+            @Html.DisplayFor(model => model.InitialState)
         </dd>
 
         <dt class="col-sm-2">
-            @Html.DisplayNameFor(model => model.CreateDate)
+            @Html.DisplayNameFor(model => model.IsGeneratedProcessList)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.IsGeneratedProcessList)
+        </dd>
+
+        <dt class="col-sm-2">
+            Data de Criação
         </dt>
         <dd class="col-sm-10">
             @Html.DisplayFor(model => model.CreateDate)
@@ -68,20 +70,27 @@
     </dl>
 </div>
 <div>
-    <a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.ID">Gerar Processos</a> |
-    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID">Quick-fit</a> |
-    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID">First-fit</a> |
-    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID">Best-fit</a> |
-    <a class="btn btn-success" asp-action="Edit" asp-route-id="@Model.ID">Worst-fit</a> |
+    <a class="btn btn-info" asp-action="GerarProcessos" asp-route-id="@Model.ID">Gerar Processos</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="FirstFit" class="btn btn-success btn-alg">First-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="BestFit" class="btn btn-success btn-alg">Best-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="WorstFit" class="btn btn-success btn-alg">Worst-fit</a> |
     <a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
     <a class="btn btn-info" asp-action="Index">Voltar para a lista</a>
 </div>
 
 <br />
 
+<div id="carregando" class="overlay">
+    <p style="font-weight: 800;">Carregando</p>
+    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
+        <span class="sr-only">Loading...</span>
+    </div>
+</div>
+
 <div class="panel">
     <div class="panel-heading">
-        <h3 class="text-success">Lista de processos inseridos na memória</h3>
+        <h3>Lista de processos inicial na memória</h3>
     </div>
     <div class="panel-body">
         <div class="table">
@@ -94,7 +103,9 @@
                         <th>
                             Registrador Base
                         </th>
-                        <th></th>
+                        <th>
+                            Registrador Limite
+                        </th>
                     </tr>
                 </thead>
                 <tbody>
@@ -109,6 +120,9 @@
                                 <td>
                                     @Html.DisplayFor(modelItem => item.RegB)
                                 </td>
+                                <td>
+                                    @Html.DisplayFor(modelItem => item.RegL)
+                                </td>
                             </tr>
                         }
                     }
@@ -118,41 +132,23 @@
     </div>
 </div>
 
-<div class="panel">
-    <div class="panel-heading">
-        <h3 class="text-danger">Lista de processos para inserir na memória</h3>
-    </div>
-    <div class="panel-body">
-        <div class="table">
-            <table cellpadding="0" cellspacing="0" border="0" class="table table-striped table-dark" id="tableDados2">
-                <thead>
-                    <tr>
-                        <th>
-                            Nome
-                        </th>
-                        <th>
-                            Tamanho
-                        </th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    @if (Model.Processes != null)
-                    {
-                        foreach (var item in Model.Processes)
-                        {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Size)
-                                </td>
-                            </tr>
-                        }
-                    }
-                </tbody>
-            </table>
+<!-- Modal -->
+<div class="modal fade" id="algModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalAlgTitle"></h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <p id="modal-body-text"></p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="iniciar-simulacao btn btn-success">Iniciar</button>
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </div>
         </div>
     </div>
 </div>
@@ -161,7 +157,47 @@
 <script src="~/js/datatables.min.js"></script>
 
 <script>
-    $('#tableDados, #tableDados2').dataTable({
+    $('.btn-alg').on('click', function (){
+        var algoritmo = $(this).data('alg');
+        var memoriaID = '@(ViewBag.memoriaID)';
+        var processQTD = '@(ViewBag.processQTD)';
+
+        $('#modalAlgTitle').text('Inicializar a simulação (' + algoritmo + ')');
+        $('#modal-body-text').text('Quantidade processos a serem inseridos na memória (' + processQTD + ')');
+
+        $('.iniciar-simulacao').data('alg', algoritmo);
+    });
+
+    $('.iniciar-simulacao').on('click', function () {
+        var algoritmo = $(this).data('alg');
+        var memoriaID = '@(ViewBag.memoriaID)';
+
+        var dataToController = { id: memoriaID };
+
+        console.log('memoriaID ' + JSON.stringify(dataToController));
+
+        $.ajax({
+            type: "POST",
+            url: "/Memories/" + algoritmo + "Insertion/",
+            data: JSON.stringify(dataToController),
+            datatype: "text",
+            success: function (msg) {
+                console.log(msg);
+            },
+            error: function (req, status, error) {
+                console.log(msg);
+            },
+            done: function (){
+            }
+        });
+    });
+
+    $('#algModal').on('hidden.bs.modal', function (e) {
+        $('#modalAlgTitle').text();
+        $('#modal-body-text').text();
+    });
+
+    $('#tableDados').dataTable({
         responsive: true,
         "oLanguage": {
             "sProcessing": "Processando...",
