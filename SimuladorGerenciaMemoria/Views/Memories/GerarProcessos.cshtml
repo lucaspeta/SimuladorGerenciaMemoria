@@ -86,6 +86,7 @@ else
 <script>
     $('#tableDados').dataTable({
         responsive: true,
+        "order": [[1, "asc"]],
         "oLanguage": {
             "sProcessing": "Processando...",
             "sLengthMenu": "Mostrar _MENU_ registros",
@@ -136,7 +137,10 @@ else
                     $(this).addClass('btn-success');
                     $(this).removeClass('btn-disabled');
                 }     
-            }         
+            },
+            error: function (req, status, error) {
+                console.log('Status: ' + status + ' Erro: ' + msg);
+            }
         });
     });
 </script>

@@ -29,7 +29,7 @@
         <dt class="col-sm-2">
             @Html.DisplayNameFor(model => model.Size)
         </dt>
-        <dd class="col-sm-10">            
+        <dd class="col-sm-10">
             @Html.DisplayFor(model => model.Size) bytes
         </dd>
 
@@ -111,19 +111,22 @@
                 <tbody>
                     @if (Model != null)
                     {
-                        foreach (var item in Model.Frames)
+                        foreach (var item in Model.Processes)
                         {
-                            <tr>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.Name)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.RegB)
-                                </td>
-                                <td>
-                                    @Html.DisplayFor(modelItem => item.RegL)
-                                </td>
-                            </tr>
+                            if (item.isInitial)
+                            {
+                                <tr>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.Name)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.RegB)
+                                    </td>
+                                    <td>
+                                        @Html.DisplayFor(modelItem => item.RegL)
+                                    </td>
+                                </tr>
+                            }
                         }
                     }
                 </tbody>
@@ -133,7 +136,7 @@
 </div>
 
 <!-- Modal -->
-<div class="modal fade" id="algModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+<div style="margin-top: 100px; margin-left:9px;" class="modal fade" id="algModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -148,6 +151,24 @@
             <div class="modal-footer">
                 <button type="button" class="iniciar-simulacao btn btn-success">Iniciar</button>
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Fechar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<link rel="stylesheet" href="~/css/response-modal.css" />
+
+<!-- Modal HTML -->
+<div id="response-modal" class="modal fade" style="margin-top: 40px;">
+    <div class="modal-dialog modal-confirm">
+        <div class="modal-content">
+            <div class="modal-header justify-content-center modal-response-header">
+                <h4 id="response-title" style="color: white;"></h4>
+            </div>
+            <div class="modal-body text-center">    
+                <p id="response-alg"></p>
+                <p id="response-message"></p>
+                <button class="btn btn-close-response">Fechar</button>
             </div>
         </div>
     </div>
@@ -168,29 +189,59 @@
         $('.iniciar-simulacao').data('alg', algoritmo);
     });
 
+    $('.btn-close-response').on('click', function () {
+        $('#response-modal').modal('hide');
+    });
+
     $('.iniciar-simulacao').on('click', function () {
         var algoritmo = $(this).data('alg');
-        var memoriaID = '@(ViewBag.memoriaID)';
-
-        var dataToController = { id: memoriaID };
-
-        console.log('memoriaID ' + JSON.stringify(dataToController));
+        var memoriaID = '@(ViewBag.memoriaID)';       
 
         $.ajax({
-            type: "POST",
             url: "/Memories/" + algoritmo + "Insertion/",
-            data: JSON.stringify(dataToController),
+            type: "POST",
             datatype: "text",
-            success: function (msg) {
-                console.log(msg);
+            data: { id: memoriaID },
+            success: function (res) {
+                //abre a modal de acordo com resposta do sevidor
+                /*if(res.success){
+                    var message = 'Foram inseridos (res.processos) process na mémoria.';
+
+                    openResponseModal(true, message);
+                }
+                else{
+                    var message = 'Houve um erro na simulação: '+ res.error;
+
+                    openResponseModal(false, message);
+                }*/
             },
             error: function (req, status, error) {
-                console.log(msg);
-            },
-            done: function (){
+                var message = 'Houve um erro na simulação: '+ error;
+
+                openResponseModal(false, message);
+                console.log('Status: '+ status + ' Erro: '+msg);
             }
         });
     });
+
+    function openResponseModal(isSuccess, message, alg)
+    {
+        $('#algModal').modal('hide');
+        $('#response-alg').text('Algoritmo: ' + alg);
+
+        if (isSuccess) {
+            $('.modal-response-header').addClass('modal-header-success');
+            $('#response-title').text('Sucesso!');            
+            $('#response-message').text(message);
+        }
+        else {
+            $('.modal-response-header').addClass('modal-header-error');
+            $('#response-title').text('Erro!');
+            $('#response-message').text(message);
+        }
+        
+        $('#response-modal').modal('show');
+    }
 
     $('#algModal').on('hidden.bs.modal', function (e) {
         $('#modalAlgTitle').text();
@@ -198,7 +249,7 @@
     });
 
     $('#tableDados').dataTable({
-        responsive: true,       
+        responsive: true,
         "order": [[1, "asc"]],
         "oLanguage": {
             "sProcessing": "Processando...",

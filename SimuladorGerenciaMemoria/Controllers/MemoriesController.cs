@@ -53,7 +53,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             var memory = await _context.Memories
                 .Include(m => m.Simulation)
-                .Include(m => m.Frames)
+                .Include(m => m.Processes)
                 .FirstOrDefaultAsync(m => m.ID == id);            
 
             if (memory == null)
@@ -116,16 +116,29 @@ namespace SimuladorGerenciaMemoria.Controllers
             //generate the frames
             foreach (var item in processList) 
             {
-                Frame frameToAdd = new Frame();
+                var framesNeeded = item.RegL / memory.FramesSize;
+                framesNeeded = item.RegL % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-                frameToAdd.Memory = memory;
-                frameToAdd.Name = item.Name;
-                frameToAdd.IsInitial = true;
-                frameToAdd.Process = item;
-                frameToAdd.RegB = item.RegB;
-                frameToAdd.RegL = item.RegL;
+                for (int i = 0; i < framesNeeded; ++i) 
+                {
+                    Frame frameToAdd = new Frame();
 
-                framesList.Add(frameToAdd);
+                    frameToAdd.Memory = memory;
+                    frameToAdd.Name = item.Name;
+                    frameToAdd.IsInitial = true;
+                    frameToAdd.Process = item;
+                    frameToAdd.RegB = item.RegB + (i * memory.FramesSize);
+                    frameToAdd.FrameNumber = frameToAdd.RegB > 0 ? (int)(memory.Size / frameToAdd.RegB) : 0;
+                    frameToAdd.FrameSize = (int) memory.FramesSize;
+
+                    //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
+                    if (i + 1 == framesNeeded)
+                        frameToAdd.CapacidadeUtilizada = (int) (item.RegL % memory.FramesSize);
+                    else
+                        frameToAdd.CapacidadeUtilizada = (int)memory.FramesSize;                   
+
+                    framesList.Add(frameToAdd);
+                }                
             }
 
             _context.AddRange(processList);

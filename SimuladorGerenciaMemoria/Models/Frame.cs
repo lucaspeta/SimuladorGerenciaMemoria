@@ -24,9 +24,6 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Registrador Base")]
         public long RegB { get; set; }
 
-        [DisplayName("Registrador Limite")]
-        public long RegL { get; set; }
-
         [DisplayName("Memoria")]
         public int MemoryID { get; set; }
         public virtual Memory Memory { get; set; }
@@ -42,5 +39,11 @@ namespace SimuladorGerenciaMemoria.Models
         }
 
         public TipoAlgVal? TipoAlg { get; set; }
+
+        public int FrameNumber { get; set; }
+
+        public int FrameSize { get; set; }
+
+        public int CapacidadeUtilizada { get; set; }
     }
 }

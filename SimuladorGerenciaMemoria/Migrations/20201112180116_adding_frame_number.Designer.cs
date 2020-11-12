@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201112180116_adding_frame_number")]
+    partial class adding_frame_number
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -26,13 +28,7 @@ namespace SimuladorGerenciaMemoria.Migrations
                         .HasColumnType("int")
                         .HasAnnotation("SqlServer:ValueGenerationStrategy", SqlServerValueGenerationStrategy.IdentityColumn);
 
-                    b.Property<int>("CapacidadeUtilizada")
-                        .HasColumnType("int");
-
                     b.Property<int>("FrameNumber")
-                        .HasColumnType("int");
-
-                    b.Property<int>("FrameSize")
                         .HasColumnType("int");
 
                     b.Property<bool>("IsInitial")
@@ -48,6 +44,9 @@ namespace SimuladorGerenciaMemoria.Migrations
                         .HasColumnType("int");
 
                     b.Property<long>("RegB")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("RegL")
                         .HasColumnType("bigint");
 
                     b.Property<int?>("TipoAlg")
