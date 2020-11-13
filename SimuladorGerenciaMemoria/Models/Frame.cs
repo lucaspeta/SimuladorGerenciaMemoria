@@ -8,6 +8,14 @@ using System.Threading.Tasks;
 
 namespace SimuladorGerenciaMemoria.Models
 {
+    //InnerClass para gerenciamento de espaços livres
+    public class EspacoLivre 
+    {
+        public int Index { get; set; }
+        public long RegB { get; set; }
+        public int EspacosLivres { get; set; }
+    }
+
     public class Frame
     {
         [Key]

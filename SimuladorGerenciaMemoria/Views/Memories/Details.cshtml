@@ -71,10 +71,10 @@
 </div>
 <div>
     <a class="btn btn-info" asp-action="GerarProcessos" asp-route-id="@Model.ID">Gerar Processos</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="FirstFit" class="btn btn-success btn-alg">First-fit</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="BestFit" class="btn btn-success btn-alg">Best-fit</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="WorstFit" class="btn btn-success btn-alg">Worst-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |
     <a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
     <a class="btn btn-info" asp-action="Index">Voltar para a lista</a>
 </div>
@@ -203,9 +203,8 @@
             datatype: "text",
             data: { id: memoriaID },
             success: function (res) {
-                //abre a modal de acordo com resposta do sevidor
-                /*if(res.success){
-                    var message = 'Foram inseridos (res.processos) process na mémoria.';
+                if(res.success){
+                    var message = 'Foram inseridos ('+res.processos+') process na mémoria.';
 
                     openResponseModal(true, message);
                 }
@@ -213,7 +212,7 @@
                     var message = 'Houve um erro na simulação: '+ res.error;
 
                     openResponseModal(false, message);
-                }*/
+                }
             },
             error: function (req, status, error) {
                 var message = 'Houve um erro na simulação: '+ error;

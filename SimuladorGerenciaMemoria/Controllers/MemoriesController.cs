@@ -49,12 +49,12 @@ namespace SimuladorGerenciaMemoria.Controllers
                 .Count();
 
             if (id == null)
-                return RedirectToAction("Error404", "Erros");                   
+                return RedirectToAction("Error404", "Erros");
 
             var memory = await _context.Memories
                 .Include(m => m.Simulation)
                 .Include(m => m.Processes)
-                .FirstOrDefaultAsync(m => m.ID == id);            
+                .FirstOrDefaultAsync(m => m.ID == id);
 
             if (memory == null)
                 return RedirectToAction("Error404", "Erros");
@@ -91,7 +91,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             int initialState = 25;
 
-            switch (memory.InitialState) 
+            switch (memory.InitialState)
             {
                 case Memory.InitialStatePickList.Pequeno:
                     initialState = 25;
@@ -102,9 +102,9 @@ namespace SimuladorGerenciaMemoria.Controllers
                 case Memory.InitialStatePickList.Grande:
                     initialState = 75;
                     break;
-            }            
+            }
 
-            _context.Add(memory);                
+            _context.Add(memory);
 
             int processesNeeded = (int)memory.FramesQTD * initialState / 100;
 
@@ -114,12 +114,12 @@ namespace SimuladorGerenciaMemoria.Controllers
             List<Models.Frame> framesList = new List<Models.Frame>();
 
             //generate the frames
-            foreach (var item in processList) 
+            foreach (var item in processList)
             {
                 var framesNeeded = item.RegL / memory.FramesSize;
                 framesNeeded = item.RegL % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
-                for (int i = 0; i < framesNeeded; ++i) 
+                for (int i = 0; i < framesNeeded; ++i)
                 {
                     Frame frameToAdd = new Frame();
 
@@ -129,16 +129,16 @@ namespace SimuladorGerenciaMemoria.Controllers
                     frameToAdd.Process = item;
                     frameToAdd.RegB = item.RegB + (i * memory.FramesSize);
                     frameToAdd.FrameNumber = frameToAdd.RegB > 0 ? (int)(memory.Size / frameToAdd.RegB) : 0;
-                    frameToAdd.FrameSize = (int) memory.FramesSize;
+                    frameToAdd.FrameSize = (int)memory.FramesSize;
 
                     //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
                     if (i + 1 == framesNeeded)
-                        frameToAdd.CapacidadeUtilizada = (int) (item.RegL % memory.FramesSize);
+                        frameToAdd.CapacidadeUtilizada = (int)(item.RegL % memory.FramesSize);
                     else
-                        frameToAdd.CapacidadeUtilizada = (int)memory.FramesSize;                   
+                        frameToAdd.CapacidadeUtilizada = (int)memory.FramesSize;
 
                     framesList.Add(frameToAdd);
-                }                
+                }
             }
 
             _context.AddRange(processList);
@@ -205,7 +205,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> GerarProcessos(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            ViewBag.MemoryID = id;            
+            ViewBag.MemoryID = id;
 
             Memory _memory = _context.Memories.Find(id);
 
@@ -245,13 +245,13 @@ namespace SimuladorGerenciaMemoria.Controllers
             {
                 Memory _memory = _context.Memories.Find(memoryID);
 
-                if(_memory == null)
+                if (_memory == null)
                     throw new Exception("Houve um erro! Memória não encontrada.");
 
-                long _memoryToFeel = (long) (_memory.Size * ((float)MemoryToFeelPerc / 100));
+                long _memoryToFeel = (long)(_memory.Size * ((float)MemoryToFeelPerc / 100));
 
                 List<Models.Process> processToInsert = ScriptProcess.GerarProcessosList(memoryID, _memoryToFeel, ini, fin);
-                
+
                 _memory.IsGeneratedProcessList = true;
                 _context.Processes.AddRange(processToInsert);
                 _context.SaveChangesAsync();
@@ -266,7 +266,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                     }
                 );
             }
-            catch (Exception e) 
+            catch (Exception e)
             {
                 return Json(
                    new
@@ -275,9 +275,8 @@ namespace SimuladorGerenciaMemoria.Controllers
                        error = e.Message
                    }
                );
-            }      
+            }
         }
-
 
         [RedirectAction]
         private bool MemoryExists(int id)
@@ -285,76 +284,193 @@ namespace SimuladorGerenciaMemoria.Controllers
             return _context.Memories.Any(e => e.ID == id);
         }
 
-        [HttpPost]
-        //public JsonResult QuickFitInsertion(Process pProcess, List<KeyValuePair<long, long>> mappedMemory, Dictionary<long, bool> allRegB)
-        public JsonResult QuickFitInsertion(int? id)
+        //Processos que foram gerados para a simulação
+        private List<Models.Process> GetProcessesToInsert(int? id)
         {
-            /*var framesNeeded = pProcess.RegL / this.FramesSize;
-            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+            List<Models.Process> processToInsert = _context.Processes
+                .Where(p => p.MemoryID == id)
+                .Where(p => p.isInitial == false)
+                .ToList();
 
-            if (!mappedMemory.Any(a => a.Value >= framesNeeded))
-                return -1;
+            return processToInsert;
+        }
 
-            var placeToInsert = mappedMemory.Where(w => w.Value >= framesNeeded).FirstOrDefault().Key;
-            var auxRegb = placeToInsert;
+        //Frames Inicialmente ocupados
+        private List<Models.Frame> GetInitialFrames(int? id) 
+        {            
+            List<Models.Frame> framesIniciais = _context.Frames
+                .Where(f => f.MemoryID == id)
+                .Where(f => f.IsInitial == true)
+                .OrderBy(f => f.RegB)
+                .ToList();
 
-            for (long usedFrames = 1; usedFrames <= framesNeeded; usedFrames++, auxRegb += FramesSize)
-                allRegB[auxRegb] = true;
+            return framesIniciais;
+        }
 
-            pProcess.TimeToFindIndex = 0;
-            return Convert.ToInt32(placeToInsert);*/
+        //Gera a lista para gerenciar espaços livres
+        private List<EspacoLivre> GeraListaLivres(Memory memory, List<Frame> InitialFrames) 
+        {
+            //lista de espacos livres na memoria
+            List<EspacoLivre> listaEspacoLivre = new List<EspacoLivre>();
 
-            return Json(
-                new
+            //long -> RegB, int -> id(Frame), 
+            Dictionary<long, int> mapFrame = new Dictionary<long, int>();
+
+            //Mapeia todos os frames utilizados
+            foreach (var item in InitialFrames) 
+                mapFrame.Add(item.RegB, item.ID);
+
+            //frames disponiveis
+            int framesLivres = 0;
+
+            //index na lista de livres
+            int espacoLivresIndex = 0;
+
+            //guarda o regB do primeiro frame livre
+            long regB = 0;
+
+            //passa por todos registradores base da memória
+            for (long i = 0; i < memory.Size; i += memory.FramesSize)
+            {
+                //verifica se o frame está livre
+                //(está livre)
+                if (!mapFrame.ContainsKey(i))
                 {
-                    success = false
+                    //guarda o registrador base do primerio frame disponivel
+                    if (framesLivres == 0) regB = i;
+
+                    //soma a quantidade de frames livres
+                    framesLivres++;
                 }
-            );
+                //(Não está livre)
+                else
+                {
+                    //Verifica se é necessário criar o objeto
+                    if (framesLivres != 0) 
+                    {
+                        EspacoLivre espacoLivre = new EspacoLivre
+                        {
+                            Index = espacoLivresIndex,
+                            EspacosLivres = framesLivres,
+                            RegB = regB
+                        };
+
+                        listaEspacoLivre.Add(espacoLivre);
+
+                        //reseta a quantidade de frames livres
+                        framesLivres = 0;
+
+                        //soma o index na lista 
+                        espacoLivresIndex++;
+                    }                    
+                }
+            }
+
+            return listaEspacoLivre;
         }
 
         [HttpPost]
-        public JsonResult FirstFitInsertion(string id) 
+        public JsonResult FirstFitInsertion(int? id) 
         {
-            Console.WriteLine("ID: "+ id);
+            try
+            {
+                if (id != null)
+                {
+                    Memory memory = _context.Memories.Find(id);
+                    List<Process> processToInsert = GetProcessesToInsert(id);
+                    List<Frame> initialFrames = GetInitialFrames(id);
+                    List<Frame> framesToInsert = new List<Frame>();
+                    List<EspacoLivre> espacosLivres = GeraListaLivres(memory, initialFrames);
 
-            if (id != null) 
+                    int processInserted = 0;
+
+                    foreach (var process in processToInsert)
+                    {
+                        int framesNeeded = (int) (process.Size / memory.FramesSize);
+                        framesNeeded = process.Size % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+
+                        for (int i = 0; i < espacosLivres.Count; ++i) 
+                        {
+                            //se o processo caber no espaco disponivel na memória
+                            if (espacosLivres[i].EspacosLivres >= framesNeeded) 
+                            {
+                                for (int j = 0; j < framesNeeded; ++j) 
+                                {
+                                    Frame newFrame = new Frame
+                                    {
+                                        IsInitial = false,
+                                        RegB = espacosLivres[i].RegB + (memory.FramesSize * j),
+                                        TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                        MemoryID = memory.ID,
+                                        ProcessID = process.ID,
+                                        Name = process.Name,
+                                        FrameSize = (int)memory.FramesSize
+                                    };
+
+                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+
+                                    //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
+                                    if (j + 1 == framesNeeded)
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
+                                    }
+                                    else 
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
+                                    }                                        
+                                }
+
+                                //se for necessario remove o item da lista de livre
+                                if (espacosLivres[i].EspacosLivres - framesNeeded == 0) 
+                                {
+                                    espacosLivres.RemoveAt(i);
+                                }                                    
+                                else 
+                                {
+                                    //Atualiza a lista de espacos livres
+                                    int quantidadeLivreAnt = espacosLivres[i].EspacosLivres;
+                                    long regBAnt = espacosLivres[i].RegB;
+
+                                    espacosLivres.RemoveAt(i);
+
+                                    espacosLivres[i] = new EspacoLivre {
+                                        Index = i,
+                                        RegB = regBAnt + (memory.FramesSize * framesNeeded),
+                                        EspacosLivres = quantidadeLivreAnt - framesNeeded
+                                    };
+                                }
+
+                                processInserted++;
+                                break;
+                            }
+                        }                                           
+                    }
+
+                    _context.Frames.AddRange(framesToInsert);
+                    _context.SaveChanges();
+
+                    return Json(
+                        new
+                        {
+                            processos = processInserted,
+                            success = true
+                        }
+                    );
+                }
+                else 
+                {
+                    throw new Exception("Mémoria não informada!");
+                }
+            }
+            catch (Exception e) 
             {
                 return Json(
                     new
                     {
-                        success = true
+                        success = false
                     }
                 );
-            }
-
-            /*var framesNeeded = pProcess.RegL / this.FramesSize;
-            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
-
-            int indexToReturn = 0, auxIndex = 0;
-
-            for (int i = 0; i < this.Frames.Count; ++i)
-            {
-                if (this.Frames[i].Process != null)
-                    indexToReturn = 0;
-                else
-                {
-                    if (indexToReturn == 0)
-                        auxIndex = i;
-                    indexToReturn++;
-                }
-                if (indexToReturn == framesNeeded)
-                {
-                    //pProcess.TimeToFindIndex = i;
-                    return auxIndex;
-                }
-            }*/
-
-            return Json(
-                new
-                {
-                    success = false
-                }
-            );
+            }  
         }
 
         [HttpPost]
@@ -437,6 +553,33 @@ namespace SimuladorGerenciaMemoria.Controllers
                     success = false
                 }
             );
-        }        
+        }
+
+        [HttpPost]
+        //public JsonResult QuickFitInsertion(Process pProcess, List<KeyValuePair<long, long>> mappedMemory, Dictionary<long, bool> allRegB)
+        public JsonResult QuickFitInsertion(int? id)
+        {
+            /*var framesNeeded = pProcess.RegL / this.FramesSize;
+            framesNeeded = pProcess.RegL % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+
+            if (!mappedMemory.Any(a => a.Value >= framesNeeded))
+                return -1;
+
+            var placeToInsert = mappedMemory.Where(w => w.Value >= framesNeeded).FirstOrDefault().Key;
+            var auxRegb = placeToInsert;
+
+            for (long usedFrames = 1; usedFrames <= framesNeeded; usedFrames++, auxRegb += FramesSize)
+                allRegB[auxRegb] = true;
+
+            pProcess.TimeToFindIndex = 0;
+            return Convert.ToInt32(placeToInsert);*/
+
+            return Json(
+                new
+                {
+                    success = false
+                }
+            );
+        }
     }
 }
