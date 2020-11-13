@@ -516,10 +516,156 @@ namespace SimuladorGerenciaMemoria.Controllers
 
                         if (Alg == "BestFit") 
                         {
+                            int? melhorEspaco = null;
+
+                            for (int i = 0; i < espacosLivres.Count; ++i)
+                            {
+                                if (espacosLivres[i].EspacosLivres >= framesNeeded) 
+                                {
+                                    if (melhorEspaco == null)
+                                    {
+                                        melhorEspaco = espacosLivres[i].Index;
+                                    }
+                                    else 
+                                    {
+                                        if (espacosLivres[(int)melhorEspaco].EspacosLivres > espacosLivres[i].EspacosLivres) 
+                                        {
+                                            melhorEspaco = espacosLivres[i].Index;
+                                        }                                        
+                                    }                                   
+                                }
+                            }
+
+                            //se o processo caber no espaco disponivel na memória
+                            if (melhorEspaco != null)
+                            {
+                                for (int j = 0; j < framesNeeded; ++j)
+                                {
+                                    Frame newFrame = new Frame
+                                    {
+                                        IsInitial = false,
+                                        RegB = espacosLivres[(int)melhorEspaco].RegB + (memory.FramesSize * j),
+                                        TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                        MemoryID = memory.ID,
+                                        ProcessID = process.ID,
+                                        Name = process.Name,
+                                        FrameSize = (int)memory.FramesSize
+                                    };
+
+                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+
+                                    //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
+                                    if (j + 1 == framesNeeded)
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
+                                    }
+                                    else
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
+                                    }
+                                }
+
+                                //se for necessario remove o item da lista de livre
+                                if (espacosLivres[(int)melhorEspaco].EspacosLivres - framesNeeded == 0)
+                                {
+                                    espacosLivres.RemoveAt((int)melhorEspaco);
+                                }
+                                else
+                                {
+                                    //Atualiza a lista de espacos livres
+                                    int quantidadeLivreAnt = espacosLivres[(int)melhorEspaco].EspacosLivres;
+                                    long regBAnt = espacosLivres[(int)melhorEspaco].RegB;
+
+                                    espacosLivres.RemoveAt((int)melhorEspaco);
+
+                                    espacosLivres[(int)melhorEspaco] = new EspacoLivre
+                                    {
+                                        Index = (int)melhorEspaco,
+                                        RegB = regBAnt + (memory.FramesSize * framesNeeded),
+                                        EspacosLivres = quantidadeLivreAnt - framesNeeded
+                                    };
+                                }
+
+                                processInserted++;
+                                break;
+                            }
                         }
 
                         if (Alg == "WorstFit")
                         {
+                            int? piorEspaco = null;
+
+                            for (int i = 0; i < espacosLivres.Count; ++i)
+                            {
+                                if (espacosLivres[i].EspacosLivres >= framesNeeded)
+                                {
+                                    if (piorEspaco == null)
+                                    {
+                                        piorEspaco = espacosLivres[i].Index;
+                                    }
+                                    else
+                                    {
+                                        if (espacosLivres[(int)piorEspaco].EspacosLivres < espacosLivres[i].EspacosLivres)
+                                        {
+                                            piorEspaco = espacosLivres[i].Index;
+                                        }
+                                    }
+                                }
+                            }
+
+                            //se o processo caber no espaco disponivel na memória
+                            if (piorEspaco != null)
+                            {
+                                for (int j = 0; j < framesNeeded; ++j)
+                                {
+                                    Frame newFrame = new Frame
+                                    {
+                                        IsInitial = false,
+                                        RegB = espacosLivres[(int)piorEspaco].RegB + (memory.FramesSize * j),
+                                        TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                        MemoryID = memory.ID,
+                                        ProcessID = process.ID,
+                                        Name = process.Name,
+                                        FrameSize = (int)memory.FramesSize
+                                    };
+
+                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+
+                                    //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
+                                    if (j + 1 == framesNeeded)
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
+                                    }
+                                    else
+                                    {
+                                        newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
+                                    }
+                                }
+
+                                //se for necessario remove o item da lista de livre
+                                if (espacosLivres[(int)piorEspaco].EspacosLivres - framesNeeded == 0)
+                                {
+                                    espacosLivres.RemoveAt((int)piorEspaco);
+                                }
+                                else
+                                {
+                                    //Atualiza a lista de espacos livres
+                                    int quantidadeLivreAnt = espacosLivres[(int)piorEspaco].EspacosLivres;
+                                    long regBAnt = espacosLivres[(int)piorEspaco].RegB;
+
+                                    espacosLivres.RemoveAt((int)piorEspaco);
+
+                                    espacosLivres[(int)piorEspaco] = new EspacoLivre
+                                    {
+                                        Index = (int)piorEspaco,
+                                        RegB = regBAnt + (memory.FramesSize * framesNeeded),
+                                        EspacosLivres = quantidadeLivreAnt - framesNeeded
+                                    };
+                                }
+
+                                processInserted++;
+                                break;
+                            }
                         }
                     }
 

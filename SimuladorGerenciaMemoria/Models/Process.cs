@@ -33,5 +33,7 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Registrador limite")]
         public long RegL { get; set; }
         public bool isInitial { get; set; }
+
+        public double TimeToFindFrame { get; set; }
     }
 }
