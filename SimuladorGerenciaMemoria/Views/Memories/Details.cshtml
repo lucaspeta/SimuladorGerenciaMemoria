@@ -72,9 +72,10 @@
 <div>
     <a class="btn btn-info" asp-action="GerarProcessos" asp-route-id="@Model.ID">Gerar Processos</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="FirstFit" class="btn btn-success btn-alg">First-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="NextFit" class="btn btn-success btn-alg">Next-fit</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="BestFit" class="btn btn-success btn-alg">Best-fit</a> |
     <a data-toggle="modal" data-target="#algModal" data-alg="WorstFit" class="btn btn-success btn-alg">Worst-fit</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |
+    <!--<a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |-->
     <a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
     <a class="btn btn-info" asp-action="Index">Voltar para a lista</a>
 </div>
@@ -198,10 +199,10 @@
         var memoriaID = '@(ViewBag.memoriaID)';       
 
         $.ajax({
-            url: "/Memories/" + algoritmo + "Insertion/",
+            url: "/Memories/AlgSimulation/",
             type: "POST",
             datatype: "text",
-            data: { id: memoriaID },
+            data: { id: memoriaID, Alg: algoritmo },
             success: function (res) {
                 if(res.success){
                     var message = 'Foram inseridos ('+res.processos+') process na mémoria.';
