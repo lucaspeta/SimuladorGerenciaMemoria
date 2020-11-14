@@ -13,157 +13,98 @@ namespace SimuladorGerenciaMemoria.Scripts
 {
     public class ScriptProcess
     {
-        public long MemorySize { get; set; }
-        public int MemoryOccupied { get; set; }
-        public long FramesSize { get; set; }
-        public long FramesQTD { get; set; }
-        public Dictionary<long, bool> AllRegBase { get; set; }
-
-        public Memory Memory { get; set; }
-
-        public ScriptProcess(Memory inicialMemory, int memoryO) {
-            MemorySize = inicialMemory.Size;
-            FramesSize = inicialMemory.FramesSize;
-            FramesQTD = inicialMemory.FramesQTD;
-            Memory = inicialMemory;
-
-            MemoryOccupied = memoryO;
-
-            AllRegBase = new Dictionary<long, bool>();
-
-            for (long memorySize = 0; memorySize < inicialMemory.Size; memorySize = memorySize + inicialMemory.FramesSize)
-                AllRegBase.Add(memorySize, false);
-        }
-
-        public List<long> GetRegBase(long framesNeeded)
+        /*
+         * Memory memory -> memoria criada
+         * long MemoyToFeel -> quantidade da memória que será ocupada
+         * int ini -> tamanho minimo do processo
+         * int fin -> tamanho maximo do processo
+         */
+        public static List<Process> GerarProcessosIniciais(Memory memory, int initialState, int ini, int fin)
         {
-            List<long> validIndexes = new List<long>();
-            if (AllRegBase != null)
+            List<Process> processListToReturn = new List<Process>();
+
+            //lista de registradores base disponivel para inserir processos
+            List<long> listRegB = new List<long>();
+            for (long i = 0; i < memory.Size; i += memory.FramesSize) listRegB.Add(i);
+
+            int processCount = 1;
+
+            double memory_perc = ((double) initialState / 100);
+
+            long _memoryToFeel = (long)(memory.Size * memory_perc);
+            
+            Random r = new Random();
+
+            while (_memoryToFeel > 0 && listRegB.Count() > 0)
             {
-                var regBase = new Dictionary<long, bool>();
-                int regBaseValid = 0;
-                long firstIndexValid = -1;
-                foreach (var item in AllRegBase)
-                {
-                    if (!item.Value)
+                bool isIndexValid = false;
+                Process processToInsert = new Process();
+                long _processSize = r.Next(ini, fin);
+                long regB = -1;
+
+                long framesNeeded = (_processSize / memory.FramesSize);
+                framesNeeded = _processSize % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+
+                if (_processSize > _memoryToFeel)
+                    _processSize = _memoryToFeel;
+
+                //Tenta encontrar um regB para inserir o processo aleatoriamente em 10 tentativas
+                for (int tentativas = 0; tentativas < 10; tentativas++) 
+                {                    
+                    regB = listRegB[r.Next(0, (listRegB.Count() - 1))];
+
+                    if (framesNeeded == 1) isIndexValid = true;
+                    else 
                     {
-                        if (firstIndexValid.Equals(-1))
-                            firstIndexValid = item.Key;
-                        regBaseValid++;
-                    }
-                    else
-                    {
-                        if (regBaseValid >= framesNeeded && !firstIndexValid.Equals(-1))
+                        //verifica se os proximos frames sao validos para insercao
+                        for (int j = 0; j < framesNeeded; j++)
                         {
-                            for (long i = firstIndexValid; i <= firstIndexValid + (this.FramesSize * (regBaseValid - framesNeeded)); i += this.FramesSize)
+                            long regAtual = regB + (j * memory.FramesSize);
+                            
+                            if (listRegB.Contains(regAtual))
                             {
-                                var currentRegB = AllRegBase.Where(w => w.Key.Equals(i)).FirstOrDefault();
-                                regBase.Add(currentRegB.Key, currentRegB.Value);
-                                validIndexes.Add(currentRegB.Key);
+                                if (j == (framesNeeded - 1))
+                                {
+                                    isIndexValid = true;
+                                }
                             }
-                            firstIndexValid = -1;
-                        }
-                        regBaseValid = 0;
+                            else
+                            {
+                                break;
+                            }
+                        }                        
                     }
+
+                    if (isIndexValid) break;
                 }
-                if (!validIndexes.Any(w => w.Equals(firstIndexValid)))
+
+                if (isIndexValid) 
                 {
-                    if (regBaseValid >= framesNeeded)
-                    {
-                        for (long i = firstIndexValid; i <= firstIndexValid + (this.FramesSize * (regBaseValid - framesNeeded)); i += this.FramesSize)
-                        {
-                            var currentRegB = AllRegBase.Where(w => w.Key.Equals(i)).FirstOrDefault();
-                            regBase.Add(currentRegB.Key, currentRegB.Value);
-                            validIndexes.Add(currentRegB.Key);
-                        }
-                    }
-                }
-            }
-            else
-                validIndexes.Add(0);
+                    //remove os registradores que serao usados
+                    for (int j = 0; j < framesNeeded; j++)
+                        listRegB.Remove(regB + (j * memory.FramesSize));
 
-            return validIndexes;
-        }
-        public List<Models.Process> CreateProcesses(string nameProcess = "Process")
-        {
-            List<int> process = new List<int>(); // process
-            List<long> regBase = new List<long>(); // beggining
-            List<long> regLimite = new List<long>();  // size
-            List<Process> processesToInsert = new List<Process>(); // list to return
-
-            Random p = new Random();
-
-            // Generate the process numbers
-            for (int i = 0; process.Count < this.MemoryOccupied; i++)
-            {
-                int pValue = p.Next(MemoryOccupied);
-
-                if (!process.Contains(pValue))
-                    process.Add(pValue);
+                    processToInsert.Name = "InitialProcess_" + processCount;
+                    processToInsert.Memory = memory;
+                    processToInsert.CreateDate = DateTime.Now;
+                    processToInsert.isInitial = true;
+                    processToInsert.Size = _processSize;
+                    processToInsert.RegL = _processSize;
+                    processToInsert.RegB = regB;
+                    _memoryToFeel -= _processSize;
+                    processCount++;
+                    processListToReturn.Add(processToInsert);
+                }                
             }
 
-            for (int i = 0; regLimite.Count < MemoryOccupied; i++)
-            {
-                long regValor = 0;
-                do
-                {
-                    regValor = p.Next((int)((this.MemorySize) / this.MemoryOccupied));
-                } while (regValor.Equals(0));
-
-                if (!regLimite.Contains(regValor))
-                {
-                    regLimite.Add(regValor);
-                    this.MemorySize = this.MemorySize - regLimite[regLimite.Count - 1];
-                }
-            }
-
-            process.Sort();
-
-            for (int i = 0; i < regLimite.Count; i++)
-            {
-                long framesNeeded = 0;
-                framesNeeded += (regLimite[i] / this.FramesSize);
-                framesNeeded = regLimite[i] % this.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
-
-                var avaiableRegB = GetRegBase(framesNeeded);
-
-                if (!avaiableRegB.Count.Equals(0) && AllRegBase != null)
-                {
-                    Random randomRegB = new Random();
-                    long regB = randomRegB.Next(0, avaiableRegB.Count);
-                    regB = avaiableRegB[Convert.ToInt32(regB)];
-                    regBase.Add(regB);
-
-                    for (long usedFrames = 1; usedFrames <= framesNeeded; usedFrames++, regB += FramesSize)
-                        AllRegBase[regB] = true;
-                }
-                else regBase.Add(0);
-            }
-
-            using (StreamWriter writer = new StreamWriter("Output/Output.txt", false))
-            {
-                for (int i = 0; i < process.Count; i++)
-                {
-                    writer.WriteLine(nameProcess + process[i] + ";" + regBase[i] + ";" + regLimite[i]);
-
-                    Models.Process processToAdd = new Models.Process();
-
-                    processToAdd.CreateDate = DateTime.Now;
-                    processToAdd.Memory = this.Memory;
-                    processToAdd.Name = nameProcess + process[i];                    
-                    processToAdd.isInitial = true;
-                    processToAdd.RegB = regBase[i];
-                    processToAdd.RegL = regLimite[i];
-
-                    processesToInsert.Add(processToAdd);
-                }
-            }
-
-            return processesToInsert;
+            return processListToReturn;
         }
 
         /*
+         * memoryID -> Id da memoria
          * long MemoyToFeel -> quantidade da memória que será ocupada
+         * int ini -> tamanho minimo do processo
+         * int fin -> tamanho maximo do processo
          */
         public static List<Models.Process> GerarProcessosList(int memoryID, long MemoryToFeel, int ini, int fin) 
         {

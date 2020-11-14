@@ -207,12 +207,12 @@
                 if(res.success){
                     var message = 'Foram inseridos ('+res.processos+') process na mémoria.';
 
-                    openResponseModal(true, message);
+                    openResponseModal(true, message, algoritmo);
                 }
                 else{
                     var message = 'Houve um erro na simulação: '+ res.error;
 
-                    openResponseModal(false, message);
+                    openResponseModal(false, message, algoritmo);
                 }
             },
             error: function (req, status, error) {

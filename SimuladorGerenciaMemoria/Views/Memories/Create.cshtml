@@ -38,6 +38,18 @@
             </div>
 
             <div class="form-group">
+                <label class="control-label">Tamanho mínimo dos processos iniciais (bytes)</label>
+                <input asp-for="InitialProcessMin" class="form-control" />
+                <span asp-validation-for="InitialProcessMin" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Tamanho máximo dos processos iniciais (bytes)</label>
+                <input asp-for="InitialProcessMax" class="form-control" />
+                <span asp-validation-for="InitialProcessMax" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
                 <label class="control-label">Preenchimento inicial da memória</label>
                 @Html.DropDownList("InitialState",
                     Html.GetEnumSelectList<Memory.InitialStatePickList>(),

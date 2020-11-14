@@ -17,7 +17,7 @@ namespace SimuladorGerenciaMemoria
         {
             
             // testes para geração do script
-            Memory m = new Memory();
+            /*Memory m = new Memory();
             m.ID = 1;
             m.Name = "Memoria 1";
             m.Size = 100000;
@@ -25,7 +25,7 @@ namespace SimuladorGerenciaMemoria
             m.FramesQTD = m.Size / m.FramesSize;
 
             ScriptProcess p = new ScriptProcess(m,100);
-            p.CreateProcesses();
+            p.CreateProcesses();*/
 
             CreateHostBuilder(args).Build().Run();
         }

@@ -34,6 +34,6 @@ namespace SimuladorGerenciaMemoria.Models
         public long RegL { get; set; }
         public bool isInitial { get; set; }
 
-        public double TimeToFindFrame { get; set; }
+        public long TimeToFindIndex { get; set; }
     }
 }

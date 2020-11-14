@@ -31,6 +31,12 @@ namespace SimuladorGerenciaMemoria.Models
         [DisplayName("Estado inicial")]
         public InitialStatePickList InitialState { get; set; }
 
+        [DisplayName("Tamanho mínimo dos processos iniciais (bytes)")]
+        public int InitialProcessMin { get; set; }
+
+        [DisplayName("Tamanho máximo dos processos iniciais (bytes)")]
+        public int InitialProcessMax { get; set; }
+
         [DisplayName("Tamanho")]
         public long Size { get; set; }
         [DisplayName("FrameTamanho")]

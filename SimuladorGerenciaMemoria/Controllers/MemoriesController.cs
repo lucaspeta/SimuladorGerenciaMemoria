@@ -82,7 +82,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState,UserID")] Memory memory)
+        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState,UserID,InitialProcessMin,InitialProcessMax")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             memory.Size = memory.Size * 1024; //transfoma em bytes
@@ -108,9 +108,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             int processesNeeded = (int)memory.FramesQTD * initialState / 100;
 
-            ScriptProcess scriptProcess = new ScriptProcess(memory, processesNeeded);
-
-            List<Models.Process> processList = scriptProcess.CreateProcesses();
+            List<Models.Process> processList = ScriptProcess.GerarProcessosIniciais(memory, initialState, memory.InitialProcessMin, memory.InitialProcessMax);
             List<Models.Frame> framesList = new List<Models.Frame>();
 
             //generate the frames
@@ -386,6 +384,9 @@ namespace SimuladorGerenciaMemoria.Controllers
 
                     foreach (var process in processToInsert)
                     {
+                        // tempo de execução para acha o index do processo
+                        var watch = System.Diagnostics.Stopwatch.StartNew();
+
                         int framesNeeded = (int)(process.Size / memory.FramesSize);
                         framesNeeded = process.Size % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
@@ -664,12 +665,17 @@ namespace SimuladorGerenciaMemoria.Controllers
                                 }
 
                                 processInserted++;
+                                watch.Stop();
+
+                                var elepsedMS = watch.ElapsedMilliseconds;
+                                process.TimeToFindIndex = elepsedMS;
                                 break;
                             }
-                        }
+                        }                        
                     }
 
                     _context.Frames.AddRange(framesToInsert);
+                    _context.Processes.UpdateRange(processToInsert);
                     _context.SaveChanges();
 
                     return Json(
@@ -690,7 +696,8 @@ namespace SimuladorGerenciaMemoria.Controllers
                 return Json(
                     new
                     {
-                        success = false
+                        success = false,
+                        error = e.Message
                     }
                 );
             }

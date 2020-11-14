@@ -3,15 +3,17 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using SimuladorGerenciaMemoria.Models;
 
 namespace SimuladorGerenciaMemoria.Migrations
 {
     [DbContext(typeof(SimuladorContext))]
-    partial class SimuladorContextModelSnapshot : ModelSnapshot
+    [Migration("20201113213957_time_to_find_index_process")]
+    partial class time_to_find_index_process
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -77,12 +79,6 @@ namespace SimuladorGerenciaMemoria.Migrations
 
                     b.Property<long>("FramesSize")
                         .HasColumnType("bigint");
-
-                    b.Property<int>("InitialProcessMax")
-                        .HasColumnType("int");
-
-                    b.Property<int>("InitialProcessMin")
-                        .HasColumnType("int");
 
                     b.Property<int>("InitialState")
                         .HasColumnType("int");
