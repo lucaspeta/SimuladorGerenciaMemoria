@@ -62,6 +62,11 @@ namespace SimuladorGerenciaMemoria.Controllers
             if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
                 return RedirectToAction("Error403", "Erros");
 
+            ViewBag.First = memory.IsFirstFitCompleted;
+            ViewBag.Next = memory.IsNextFitCompleted;
+            ViewBag.Best = memory.IsBestFitCompleted;
+            ViewBag.Worst = memory.IsWorstFitCompleted;
+
             return View(memory);
         }
 
@@ -85,65 +90,86 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState,UserID,InitialProcessMin,InitialProcessMax")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            memory.Size = memory.Size * 1024; //transfoma em bytes
-            memory.CreateDate = DateTime.Now;
-            memory.FramesQTD = memory.Size / memory.FramesSize;
+            ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
+            ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
 
-            int initialState = 25;
-
-            switch (memory.InitialState)
+            try
             {
-                case Memory.InitialStatePickList.Pequeno:
-                    initialState = 25;
-                    break;
-                case Memory.InitialStatePickList.Medio:
-                    initialState = 50;
-                    break;
-                case Memory.InitialStatePickList.Grande:
-                    initialState = 75;
-                    break;
-            }
+                if (memory.InitialProcessMin > memory.InitialProcessMax) 
+                    throw new Exception("O tamanho máximo do processo precisa ser maior que o mínimo.");                
 
-            _context.Add(memory);
+                memory.Size = memory.Size * 1024; //transfoma em bytes
+                memory.CreateDate = DateTime.Now;
+                memory.FramesQTD = memory.Size / memory.FramesSize;
+                memory.IsFirstFitCompleted = false;
+                memory.IsNextFitCompleted = false;
+                memory.IsBestFitCompleted = false;
+                memory.IsWorstFitCompleted = false;
 
-            int processesNeeded = (int)memory.FramesQTD * initialState / 100;
+                int initialState = 25;
 
-            List<Models.Process> processList = ScriptProcess.GerarProcessosIniciais(memory, initialState, memory.InitialProcessMin, memory.InitialProcessMax);
-            List<Models.Frame> framesList = new List<Models.Frame>();
-
-            //generate the frames
-            foreach (var item in processList)
-            {
-                var framesNeeded = item.RegL / memory.FramesSize;
-                framesNeeded = item.RegL % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
-
-                for (int i = 0; i < framesNeeded; ++i)
+                switch (memory.InitialState)
                 {
-                    Frame frameToAdd = new Frame();
-
-                    frameToAdd.Memory = memory;
-                    frameToAdd.Name = item.Name;
-                    frameToAdd.IsInitial = true;
-                    frameToAdd.Process = item;
-                    frameToAdd.RegB = item.RegB + (i * memory.FramesSize);
-                    frameToAdd.FrameNumber = frameToAdd.RegB > 0 ? (int)(memory.Size / frameToAdd.RegB) : 0;
-                    frameToAdd.FrameSize = (int)memory.FramesSize;
-
-                    //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
-                    if (i + 1 == framesNeeded)
-                        frameToAdd.CapacidadeUtilizada = (int)(item.RegL % memory.FramesSize);
-                    else
-                        frameToAdd.CapacidadeUtilizada = (int)memory.FramesSize;
-
-                    framesList.Add(frameToAdd);
+                    case Memory.InitialStatePickList.Pequeno:
+                        initialState = 20;
+                        break;
+                    case Memory.InitialStatePickList.Medio:
+                        initialState = 40;
+                        break;
+                    case Memory.InitialStatePickList.Medio_Grande:
+                        initialState = 60;
+                        break;
+                    case Memory.InitialStatePickList.Grande:
+                        initialState = 80;
+                        break;
                 }
+
+                _context.Add(memory);
+
+                int processesNeeded = (int)memory.FramesQTD * initialState / 100;
+
+                List<Models.Process> processList = ScriptProcess.GerarProcessosIniciais(memory, initialState, memory.InitialProcessMin, memory.InitialProcessMax);
+                List<Models.Frame> framesList = new List<Models.Frame>();
+
+                //generate the frames
+                foreach (var item in processList)
+                {
+                    var framesNeeded = item.RegL / memory.FramesSize;
+                    framesNeeded = item.RegL % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
+
+                    for (int i = 0; i < framesNeeded; ++i)
+                    {
+                        Frame frameToAdd = new Frame();
+
+                        frameToAdd.Memory = memory;
+                        frameToAdd.Name = item.Name;
+                        frameToAdd.IsInitial = true;
+                        frameToAdd.Process = item;
+                        frameToAdd.RegB = item.RegB + (i * memory.FramesSize);
+                        frameToAdd.FrameNumber = frameToAdd.RegB > 0 ? (int)(frameToAdd.RegB / memory.FramesSize) : 0;
+                        frameToAdd.FrameSize = (int)memory.FramesSize;
+
+                        //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
+                        if (i + 1 == framesNeeded)
+                            frameToAdd.CapacidadeUtilizada = (int)(item.RegL % memory.FramesSize);
+                        else
+                            frameToAdd.CapacidadeUtilizada = (int)memory.FramesSize;
+
+                        framesList.Add(frameToAdd);
+                    }
+                }
+
+                _context.AddRange(processList);
+                _context.AddRange(framesList);
+
+                await _context.SaveChangesAsync();
+                return RedirectToAction(nameof(Index));
             }
-
-            _context.AddRange(processList);
-            _context.AddRange(framesList);
-
-            await _context.SaveChangesAsync();
-            return RedirectToAction(nameof(Index));
+            catch (Exception e) 
+            {
+                ViewBag.Error = e.Message;
+                return View();
+            }            
         }
 
         // GET: Memories/Edit/5
@@ -171,7 +197,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID")] Memory memory)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID,IsBestFitCompleted,IsFirstFitCompleted,IsWorstFitCompleted,IsNextFitCompleted,InitialProcessMin,InitialProcessMax")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
@@ -215,13 +241,16 @@ namespace SimuladorGerenciaMemoria.Controllers
             switch (_memory.InitialState)
             {
                 case Memory.InitialStatePickList.Pequeno:
-                    ViewBag.MaximoPossivel = 99 - 25;
+                    ViewBag.MaximoPossivel = 100 - 20;
                     break;
                 case Memory.InitialStatePickList.Medio:
-                    ViewBag.MaximoPossivel = 99 - 50;
+                    ViewBag.MaximoPossivel = 100 - 40;
+                    break;
+                case Memory.InitialStatePickList.Medio_Grande:
+                    ViewBag.MaximoPossivel = 100 - 60;
                     break;
                 case Memory.InitialStatePickList.Grande:
-                    ViewBag.MaximoPossivel = 99 - 75;
+                    ViewBag.MaximoPossivel = 100 - 80;
                     break;
             }
 
@@ -241,6 +270,9 @@ namespace SimuladorGerenciaMemoria.Controllers
         {
             try
             {
+                if(ini > fin)
+                    throw new Exception("O tamanho máximo do processo precisa ser maior que o mínimo!");
+
                 Memory _memory = _context.Memories.Find(memoryID);
 
                 if (_memory == null)
@@ -321,9 +353,6 @@ namespace SimuladorGerenciaMemoria.Controllers
             //frames disponiveis
             int framesLivres = 0;
 
-            //index na lista de livres
-            int espacoLivresIndex = 0;
-
             //guarda o regB do primeiro frame livre
             long regB = 0;
 
@@ -348,7 +377,6 @@ namespace SimuladorGerenciaMemoria.Controllers
                     {
                         EspacoLivre espacoLivre = new EspacoLivre
                         {
-                            Index = espacoLivresIndex,
                             EspacosLivres = framesLivres,
                             RegB = regB
                         };
@@ -357,9 +385,6 @@ namespace SimuladorGerenciaMemoria.Controllers
 
                         //reseta a quantidade de frames livres
                         framesLivres = 0;
-
-                        //soma o index na lista 
-                        espacoLivresIndex++;
                     }
                 }
             }
@@ -375,6 +400,24 @@ namespace SimuladorGerenciaMemoria.Controllers
                 if (id != null)
                 {
                     Memory memory = _context.Memories.Find(id);
+
+                    if (!memory.IsGeneratedProcessList) 
+                        throw new Exception("É necessário gerar a lista de processos.");
+
+                    string algSimuExistenteError = "Já foi gerada a simulação para esse algoritmo.";
+
+                    if(memory.IsFirstFitCompleted && Alg == "FirstFit")
+                        throw new Exception(algSimuExistenteError);
+
+                    if (memory.IsNextFitCompleted && Alg == "NextFit")
+                        throw new Exception(algSimuExistenteError);
+
+                    if (memory.IsBestFitCompleted && Alg == "BestFit")
+                        throw new Exception(algSimuExistenteError);
+
+                    if (memory.IsWorstFitCompleted && Alg == "WorstFit")
+                        throw new Exception(algSimuExistenteError);
+
                     List<Process> processToInsert = GetProcessesToInsert(id);
                     List<Frame> initialFrames = GetInitialFrames(id);
                     List<Frame> framesToInsert = new List<Frame>();
@@ -382,11 +425,12 @@ namespace SimuladorGerenciaMemoria.Controllers
 
                     int processInserted = 0;
 
+                    // tempo de execução para acha o index do processo
+                    var watch = System.Diagnostics.Stopwatch.StartNew();
+
                     foreach (var process in processToInsert)
                     {
-                        // tempo de execução para acha o index do processo
-                        var watch = System.Diagnostics.Stopwatch.StartNew();
-
+                        watch.Start();
                         int framesNeeded = (int)(process.Size / memory.FramesSize);
                         framesNeeded = process.Size % memory.FramesSize > 0 ? framesNeeded + 1 : framesNeeded;
 
@@ -410,41 +454,34 @@ namespace SimuladorGerenciaMemoria.Controllers
                                             FrameSize = (int)memory.FramesSize
                                         };
 
-                                        newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+                                        newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(newFrame.RegB / memory.FramesSize) : 0;
 
                                         //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
                                         if (j + 1 == framesNeeded)
-                                        {
-                                            newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
-                                        }
+                                            newFrame.CapacidadeUtilizada = (int)(process.Size % memory.FramesSize);
                                         else
-                                        {
                                             newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
-                                        }
+
+                                        framesToInsert.Add(newFrame);
                                     }
 
                                     //se for necessario remove o item da lista de livre
                                     if (espacosLivres[i].EspacosLivres - framesNeeded == 0)
-                                    {
                                         espacosLivres.RemoveAt(i);
-                                    }
                                     else
                                     {
                                         //Atualiza a lista de espacos livres
                                         int quantidadeLivreAnt = espacosLivres[i].EspacosLivres;
                                         long regBAnt = espacosLivres[i].RegB;
 
-                                        espacosLivres.RemoveAt(i);
-
                                         espacosLivres[i] = new EspacoLivre
-                                        {
-                                            Index = i,
+                                        {                                            
                                             RegB = regBAnt + (memory.FramesSize * framesNeeded),
                                             EspacosLivres = quantidadeLivreAnt - framesNeeded
                                         };
                                     }
 
-                                    processInserted++;
+                                    processInserted++;                                   
                                     break;
                                 }
                             }
@@ -465,48 +502,41 @@ namespace SimuladorGerenciaMemoria.Controllers
                                         {
                                             IsInitial = false,
                                             RegB = espacosLivres[i].RegB + (memory.FramesSize * j),
-                                            TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                            TipoAlg = Frame.TipoAlgVal.NextFit,
                                             MemoryID = memory.ID,
                                             ProcessID = process.ID,
                                             Name = process.Name,
                                             FrameSize = (int)memory.FramesSize
                                         };
 
-                                        newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+                                        newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(newFrame.RegB / memory.FramesSize) : 0;
 
                                         //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
                                         if (j + 1 == framesNeeded)
-                                        {
-                                            newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
-                                        }
+                                            newFrame.CapacidadeUtilizada = (int)(process.Size % memory.FramesSize);
                                         else
-                                        {
                                             newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
-                                        }
+
+                                        framesToInsert.Add(newFrame);
                                     }
 
                                     //se for necessario remove o item da lista de livre
                                     if (espacosLivres[i].EspacosLivres - framesNeeded == 0)
-                                    {
                                         espacosLivres.RemoveAt(i);
-                                    }
                                     else
                                     {
                                         //Atualiza a lista de espacos livres
                                         int quantidadeLivreAnt = espacosLivres[i].EspacosLivres;
                                         long regBAnt = espacosLivres[i].RegB;
 
-                                        espacosLivres.RemoveAt(i);
-
                                         espacosLivres[i] = new EspacoLivre
-                                        {
-                                            Index = i,
+                                        {                                            
                                             RegB = regBAnt + (memory.FramesSize * framesNeeded),
                                             EspacosLivres = quantidadeLivreAnt - framesNeeded
                                         };
                                     }
 
-                                    processInserted++;
+                                    processInserted++;                                    
                                     break;
                                 }
 
@@ -524,15 +554,11 @@ namespace SimuladorGerenciaMemoria.Controllers
                                 if (espacosLivres[i].EspacosLivres >= framesNeeded) 
                                 {
                                     if (melhorEspaco == null)
-                                    {
-                                        melhorEspaco = espacosLivres[i].Index;
-                                    }
+                                        melhorEspaco = i;
                                     else 
                                     {
                                         if (espacosLivres[(int)melhorEspaco].EspacosLivres > espacosLivres[i].EspacosLivres) 
-                                        {
-                                            melhorEspaco = espacosLivres[i].Index;
-                                        }                                        
+                                            melhorEspaco = i;                                 
                                     }                                   
                                 }
                             }
@@ -546,49 +572,41 @@ namespace SimuladorGerenciaMemoria.Controllers
                                     {
                                         IsInitial = false,
                                         RegB = espacosLivres[(int)melhorEspaco].RegB + (memory.FramesSize * j),
-                                        TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                        TipoAlg = Frame.TipoAlgVal.BestFit,
                                         MemoryID = memory.ID,
                                         ProcessID = process.ID,
                                         Name = process.Name,
                                         FrameSize = (int)memory.FramesSize
                                     };
 
-                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(newFrame.RegB / memory.FramesSize) : 0;
 
                                     //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
                                     if (j + 1 == framesNeeded)
-                                    {
-                                        newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
-                                    }
+                                        newFrame.CapacidadeUtilizada = (int)(process.Size % memory.FramesSize);
                                     else
-                                    {
                                         newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
-                                    }
+
+                                    framesToInsert.Add(newFrame);
                                 }
 
                                 //se for necessario remove o item da lista de livre
                                 if (espacosLivres[(int)melhorEspaco].EspacosLivres - framesNeeded == 0)
-                                {
                                     espacosLivres.RemoveAt((int)melhorEspaco);
-                                }
                                 else
                                 {
                                     //Atualiza a lista de espacos livres
                                     int quantidadeLivreAnt = espacosLivres[(int)melhorEspaco].EspacosLivres;
                                     long regBAnt = espacosLivres[(int)melhorEspaco].RegB;
 
-                                    espacosLivres.RemoveAt((int)melhorEspaco);
-
                                     espacosLivres[(int)melhorEspaco] = new EspacoLivre
-                                    {
-                                        Index = (int)melhorEspaco,
+                                    {                                        
                                         RegB = regBAnt + (memory.FramesSize * framesNeeded),
                                         EspacosLivres = quantidadeLivreAnt - framesNeeded
                                     };
                                 }
 
-                                processInserted++;
-                                break;
+                                processInserted++;                      
                             }
                         }
 
@@ -601,14 +619,12 @@ namespace SimuladorGerenciaMemoria.Controllers
                                 if (espacosLivres[i].EspacosLivres >= framesNeeded)
                                 {
                                     if (piorEspaco == null)
-                                    {
-                                        piorEspaco = espacosLivres[i].Index;
-                                    }
+                                        piorEspaco = i;
                                     else
                                     {
                                         if (espacosLivres[(int)piorEspaco].EspacosLivres < espacosLivres[i].EspacosLivres)
                                         {
-                                            piorEspaco = espacosLivres[i].Index;
+                                            piorEspaco = i;
                                         }
                                     }
                                 }
@@ -623,24 +639,22 @@ namespace SimuladorGerenciaMemoria.Controllers
                                     {
                                         IsInitial = false,
                                         RegB = espacosLivres[(int)piorEspaco].RegB + (memory.FramesSize * j),
-                                        TipoAlg = Frame.TipoAlgVal.FirstFit,
+                                        TipoAlg = Frame.TipoAlgVal.WorstFit,
                                         MemoryID = memory.ID,
                                         ProcessID = process.ID,
                                         Name = process.Name,
                                         FrameSize = (int)memory.FramesSize
                                     };
 
-                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(memory.Size / newFrame.RegB) : 0;
+                                    newFrame.FrameNumber = newFrame.RegB > 0 ? (int)(newFrame.RegB / memory.FramesSize) : 0;
 
                                     //se for o ultimo frame, verifica qual a capacidade utilizada do mesmo
                                     if (j + 1 == framesNeeded)
-                                    {
-                                        newFrame.CapacidadeUtilizada = (int)(process.RegL % memory.FramesSize);
-                                    }
+                                        newFrame.CapacidadeUtilizada = (int)(process.Size % memory.FramesSize);
                                     else
-                                    {
                                         newFrame.CapacidadeUtilizada = (int)memory.FramesSize;
-                                    }
+
+                                    framesToInsert.Add(newFrame);
                                 }
 
                                 //se for necessario remove o item da lista de livre
@@ -654,28 +668,45 @@ namespace SimuladorGerenciaMemoria.Controllers
                                     int quantidadeLivreAnt = espacosLivres[(int)piorEspaco].EspacosLivres;
                                     long regBAnt = espacosLivres[(int)piorEspaco].RegB;
 
-                                    espacosLivres.RemoveAt((int)piorEspaco);
-
                                     espacosLivres[(int)piorEspaco] = new EspacoLivre
-                                    {
-                                        Index = (int)piorEspaco,
+                                    {                                        
                                         RegB = regBAnt + (memory.FramesSize * framesNeeded),
                                         EspacosLivres = quantidadeLivreAnt - framesNeeded
                                     };
                                 }
 
                                 processInserted++;
-                                watch.Stop();
-
-                                var elepsedMS = watch.ElapsedMilliseconds;
-                                process.TimeToFindIndex = elepsedMS;
-                                break;
                             }
-                        }                        
+                        }
+
+                        watch.Stop();
+                        // Get the elapsed time as a TimeSpan value.
+                        TimeSpan ts = watch.Elapsed;
+
+                        process.TimeToFindIndex = String.Format("{0:00}:{1:0000000000}",
+                            ts.Seconds,
+                            ts.Milliseconds);
+                    }
+
+                    switch (Alg) 
+                    {
+                        case "FirstFit":
+                            memory.IsFirstFitCompleted = true;
+                            break;
+                        case "NextFit":
+                            memory.IsNextFitCompleted = true;
+                            break;
+                        case "BestFit":
+                            memory.IsBestFitCompleted = true;
+                            break;
+                        case "WorstFit":
+                            memory.IsWorstFitCompleted = true;
+                            break;
                     }
 
                     _context.Frames.AddRange(framesToInsert);
                     _context.Processes.UpdateRange(processToInsert);
+                    _context.Memories.Update(memory);
                     _context.SaveChanges();
 
                     return Json(

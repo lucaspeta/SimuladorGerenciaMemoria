@@ -11,7 +11,6 @@ namespace SimuladorGerenciaMemoria.Models
     //InnerClass para gerenciamento de espaços livres
     public class EspacoLivre 
     {
-        public int Index { get; set; }
         public long RegB { get; set; }
         public int EspacosLivres { get; set; }
     }
@@ -39,9 +38,9 @@ namespace SimuladorGerenciaMemoria.Models
         public bool IsInitial { get; set; }
 
         public enum TipoAlgVal 
-        {
-            QuickFit,
+        {            
             FirstFit,
+            NextFit,
             BestFit,
             WorstFit
         }

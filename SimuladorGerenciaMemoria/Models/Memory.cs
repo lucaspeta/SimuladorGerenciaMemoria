@@ -20,11 +20,13 @@ namespace SimuladorGerenciaMemoria.Models
 
         public enum InitialStatePickList
         {
-            [Display(Name = "25%")]
+            [Display(Name = "20%")]
             Pequeno,
-            [Display(Name = "50%")]
+            [Display(Name = "40%")]
             Medio,
-            [Display(Name = "75%")]
+            [Display(Name = "60%")]
+            Medio_Grande,
+            [Display(Name = "80%")]
             Grande
         }
 
@@ -66,5 +68,9 @@ namespace SimuladorGerenciaMemoria.Models
 
         [DisplayName("Gerada lista processos?")]
         public bool IsGeneratedProcessList { get; set; }
+        public bool IsFirstFitCompleted { get; set; }
+        public bool IsNextFitCompleted { get; set; }
+        public bool IsBestFitCompleted { get; set; }
+        public bool IsWorstFitCompleted { get; set; }
     }    
 }

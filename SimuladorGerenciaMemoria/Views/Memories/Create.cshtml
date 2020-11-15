@@ -59,6 +59,7 @@
             <input type="hidden" asp-for="IsGeneratedProcessList" value="0" />
             <input type="hidden" asp-for="UserID" value="@ViewBag.UserID" />
 
+            <b id="error-message" class="text-danger">@ViewBag.Error</b><br/>
             <div class="form-group">
                 <input id="submit-btn" type="submit" value="Criar" class="btn btn-success" />
             </div>
@@ -74,10 +75,14 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 <script>
     $('#submit-btn').on('click', function () {
-        $(this).prop('disabled', true);
-        $(this).addClass('btn-disabled');
-        $(this).removeClass('btn-success');
+        $(setTimeout, function () {
+            $(this).prop('disabled', true);
+            $(this).addClass('btn-disabled');
+            $(this).removeClass('btn-success');
+        }, 100);        
     });    
 </script>

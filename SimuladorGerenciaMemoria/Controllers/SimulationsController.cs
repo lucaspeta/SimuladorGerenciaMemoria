@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Http;
@@ -159,10 +160,9 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (id == null)
                 return RedirectToAction("Error404", "Erros");
-
-            
-
+                        
             var simulation = await _context.Simulations
+                .Include(s => s.User)
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (simulation == null)
@@ -181,10 +181,18 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            var memoriesFrames = await _context.Frames.Where(f => f.Memory.SimulationID == id).ToListAsync();
+            var memoriesProcess = await _context.Processes.Where(p => p.Memory.SimulationID == id).ToListAsync();
+            var SimulacaoMemorias = await _context.Memories.Where(m => m.SimulationID == id).ToListAsync();
+            var simulation = await _context.Simulations.FindAsync(id);                    
 
-            var simulation = await _context.Simulations.FindAsync(id);
+            _context.Frames.RemoveRange(memoriesFrames);
+            _context.Processes.RemoveRange(memoriesProcess);
+            _context.Memories.RemoveRange(SimulacaoMemorias);
             _context.Simulations.Remove(simulation);
+
             await _context.SaveChangesAsync();
+
             return RedirectToAction(nameof(Index));
         }
 

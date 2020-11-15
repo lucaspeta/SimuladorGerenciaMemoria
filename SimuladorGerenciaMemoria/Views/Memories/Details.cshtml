@@ -71,10 +71,10 @@
 </div>
 <div>
     <a class="btn btn-info" asp-action="GerarProcessos" asp-route-id="@Model.ID">Gerar Processos</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="FirstFit" class="btn btn-success btn-alg">First-fit</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="NextFit" class="btn btn-success btn-alg">Next-fit</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="BestFit" class="btn btn-success btn-alg">Best-fit</a> |
-    <a data-toggle="modal" data-target="#algModal" data-alg="WorstFit" class="btn btn-success btn-alg">Worst-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="FirstFit" class="btn btn-success btn-alg btn-FirstFit" disabled="@ViewBag.First">First-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="NextFit" class="btn btn-success btn-alg btn-NextFit" disabled="@ViewBag.Next">Next-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="BestFit" class="btn btn-success btn-alg btn-BestFit" disabled="@ViewBag.Best">Best-fit</a> |
+    <a data-toggle="modal" data-target="#algModal" data-alg="WorstFit" class="btn btn-success btn-alg btn-WorstFit" disabled="@ViewBag.Worst">Worst-fit</a> |
     <!--<a data-toggle="modal" data-target="#algModal" data-alg="QuickFit" class="btn btn-success btn-alg">Quick-fit</a> |-->
     <a class="btn btn-info" asp-action="Edit" asp-route-id="@Model.ID">Editar</a> |
     <a class="btn btn-info" asp-action="Index">Voltar para a lista</a>
@@ -82,10 +82,13 @@
 
 <br />
 
-<div id="carregando" class="overlay">
-    <p style="font-weight: 800;">Carregando</p>
-    <div class="spinner-border" style="width: 3rem; height: 3rem;" role="status">
-        <span class="sr-only">Loading...</span>
+<!-- Loading -->
+<div style="margin-top: 250px; margin-left:9px;" class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <p style="margin-left: 150px; font-size: 30pt; font-weight: 800; color: white; display: inline-block; position: relative;">Carregando&nbsp;</p>
+        <div style="color: white;" class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
     </div>
 </div>
 
@@ -166,7 +169,7 @@
             <div class="modal-header justify-content-center modal-response-header">
                 <h4 id="response-title" style="color: white;"></h4>
             </div>
-            <div class="modal-body text-center">    
+            <div class="modal-body text-center">
                 <p id="response-alg"></p>
                 <p id="response-message"></p>
                 <button class="btn btn-close-response">Fechar</button>
@@ -179,6 +182,21 @@
 <script src="~/js/datatables.min.js"></script>
 
 <script>
+    $(document).ready(function () {
+        var first = '@(ViewBag.First)';
+        var next = '@(ViewBag.Next)';
+        var best = '@(ViewBag.Best)';
+        var worst = '@(ViewBag.Worst)';
+
+        if (first == true) $('.btn-FirstFit').addClass('disabled');
+
+        if (next == true) $('.btn-NextFit').addClass('disabled');
+
+        if (best == true) $('.btn-BestFit').addClass('disabled');
+
+        if (worst == true) $('.btn-WorstFit').addClass('disabled');
+    });
+
     $('.btn-alg').on('click', function (){
         var algoritmo = $(this).data('alg');
         var memoriaID = '@(ViewBag.memoriaID)';
@@ -196,7 +214,10 @@
 
     $('.iniciar-simulacao').on('click', function () {
         var algoritmo = $(this).data('alg');
-        var memoriaID = '@(ViewBag.memoriaID)';       
+        var memoriaID = '@(ViewBag.memoriaID)';
+
+        $('#algModal').modal('hide');
+        $('#loadingModal').modal('show');
 
         $.ajax({
             url: "/Memories/AlgSimulation/",
@@ -205,18 +226,23 @@
             data: { id: memoriaID, Alg: algoritmo },
             success: function (res) {
                 if(res.success){
-                    var message = 'Foram inseridos ('+res.processos+') process na mémoria.';
+                    var message = 'Foram inseridos (' + res.processos + ') process na mémoria.';
 
+                    $('#loadingModal').modal('hide');
                     openResponseModal(true, message, algoritmo);
+                    $('.btn-' + algoritmo).addClass('disabled');
+                    $('.btn-' + algoritmo).prop('disabled', true);
                 }
                 else{
-                    var message = 'Houve um erro na simulação: '+ res.error;
+                    var message = 'Houve um erro na simulação: ' + res.error;
+                    $('#loadingModal').modal('hide');
 
                     openResponseModal(false, message, algoritmo);
                 }
             },
             error: function (req, status, error) {
-                var message = 'Houve um erro na simulação: '+ error;
+                var message = 'Houve um erro na simulação: ' + error;
+                $('#loadingModal').modal('hide');
 
                 openResponseModal(false, message);
                 console.log('Status: '+ status + ' Erro: '+msg);
@@ -225,13 +251,12 @@
     });
 
     function openResponseModal(isSuccess, message, alg)
-    {
-        $('#algModal').modal('hide');
+    {        
         $('#response-alg').text('Algoritmo: ' + alg);
 
         if (isSuccess) {
             $('.modal-response-header').addClass('modal-header-success');
-            $('#response-title').text('Sucesso!');            
+            $('#response-title').text('Sucesso!');
             $('#response-message').text(message);
         }
         else {
@@ -239,13 +264,18 @@
             $('#response-title').text('Erro!');
             $('#response-message').text(message);
         }
-        
+
         $('#response-modal').modal('show');
     }
 
     $('#algModal').on('hidden.bs.modal', function (e) {
         $('#modalAlgTitle').text();
         $('#modal-body-text').text();
+    });
+
+    $('#response-modal').on('hidden.bs.modal', function (e) {
+        $('.modal-response-header').removeClass('modal-header-error');
+        $('.modal-response-header').removeClass('modal-header-success');
     });
 
     $('#tableDados').dataTable({
