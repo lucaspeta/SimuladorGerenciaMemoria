@@ -188,13 +188,17 @@
         var best = '@(ViewBag.Best)';
         var worst = '@(ViewBag.Worst)';
 
-        if (first == true) $('.btn-FirstFit').addClass('disabled');
+        if (first == 'True') $('.btn-FirstFit').addClass('disabled');
+        else $('.btn-FirstFit').removeClass('disabled');
 
-        if (next == true) $('.btn-NextFit').addClass('disabled');
+        if (next == 'True') $('.btn-NextFit').addClass('disabled');
+        else $('.btn-NextFit').removeClass('disabled');
 
-        if (best == true) $('.btn-BestFit').addClass('disabled');
+        if (best == 'True') $('.btn-BestFit').addClass('disabled');
+        else $('.btn-BestFit').removeClass('disabled');
 
-        if (worst == true) $('.btn-WorstFit').addClass('disabled');
+        if (worst == 'True') $('.btn-WorstFit').addClass('disabled');
+        else $('.btn-WorstFit').removeClass('disabled');
     });
 
     $('.btn-alg').on('click', function (){
