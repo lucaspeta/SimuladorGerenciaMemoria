@@ -62,10 +62,85 @@ namespace SimuladorGerenciaMemoria.Controllers
             if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
                 return RedirectToAction("Error403", "Erros");
 
-            ViewBag.First = memory.IsFirstFitCompleted;
-            ViewBag.Next = memory.IsNextFitCompleted;
-            ViewBag.Best = memory.IsBestFitCompleted;
-            ViewBag.Worst = memory.IsWorstFitCompleted;
+            if (memory.IsFirstFitCompleted)
+                ViewBag.First = memory.IsFirstFitCompleted;
+
+
+            if (memory.IsNextFitCompleted)
+                ViewBag.Next = memory.IsNextFitCompleted;
+
+            if (memory.IsBestFitCompleted)
+                ViewBag.Best = memory.IsBestFitCompleted;
+
+
+            if (memory.IsWorstFitCompleted)
+                ViewBag.Worst = memory.IsWorstFitCompleted;
+
+            var framesInicial = await _context.Frames
+                .Where(f => f.MemoryID == id && f.IsInitial == true) 
+                .ToListAsync();
+
+            //charts data
+
+            //Map: int -> FrameNumber, int -> FrameID 
+            Dictionary<int, int> mapFrameUsed = new Dictionary<int, int>();
+
+            long memoriaUsada = 0;            
+            long memoriaInutil = 0;
+
+            long framesLivre_10 = 0;
+            long framesLivre_20 = 0;
+            long framesLivre_30 = 0;
+            long framesLivre_40 = 0;
+            long framesLivre_50 = 0;
+            long framesLivre_60 = 0;
+            long framesLivre_70 = 0;
+            long framesLivre_80 = 0;
+            long framesLivre_90 = 0;
+            long framesLivre_100 = 0;
+
+            foreach (var item in framesInicial) {
+                mapFrameUsed.Add(item.FrameNumber, item.ID);
+
+                if (item.CapacidadeUtilizada != memory.FramesSize) 
+                    memoriaInutil += (memory.FramesSize - item.CapacidadeUtilizada);
+
+                memoriaUsada += memory.FramesSize;
+            }
+
+            for (int i = 0; i < memory.FramesQTD; i++) 
+            {
+                //descobre a qual porcentagem da memoria o frame se encontra
+                double porc = ((i * 100) / memory.FramesQTD);
+
+                if (porc <= 10) if (!mapFrameUsed.ContainsKey(i)) framesLivre_10++;
+                if (porc <= 20) if (!mapFrameUsed.ContainsKey(i)) framesLivre_20++;
+                if (porc <= 30) if (!mapFrameUsed.ContainsKey(i)) framesLivre_30++;
+                if (porc <= 40) if (!mapFrameUsed.ContainsKey(i)) framesLivre_40++;
+                if (porc <= 50) if (!mapFrameUsed.ContainsKey(i)) framesLivre_50++;
+                if (porc <= 60) if (!mapFrameUsed.ContainsKey(i)) framesLivre_60++;
+                if (porc <= 70) if (!mapFrameUsed.ContainsKey(i)) framesLivre_70++;
+                if (porc <= 80) if (!mapFrameUsed.ContainsKey(i)) framesLivre_80++;
+                if (porc <= 90) if (!mapFrameUsed.ContainsKey(i)) framesLivre_90++;
+                else if(!mapFrameUsed.ContainsKey(i)) framesLivre_100++;
+            }
+
+            long memoriaLivre = memory.Size - memoriaUsada;
+
+            ViewBag.memoriaUsada = memoriaUsada;
+            ViewBag.memoriaLivre = memoriaLivre;
+            ViewBag.memoriaInutil = memoriaInutil;
+
+            ViewBag.framesLivre_10 = framesLivre_10;
+            ViewBag.framesLivre_20 = framesLivre_20;
+            ViewBag.framesLivre_30 = framesLivre_30;
+            ViewBag.framesLivre_40 = framesLivre_40;
+            ViewBag.framesLivre_50 = framesLivre_50;
+            ViewBag.framesLivre_60 = framesLivre_60;
+            ViewBag.framesLivre_70 = framesLivre_70;
+            ViewBag.framesLivre_80 = framesLivre_80;
+            ViewBag.framesLivre_90 = framesLivre_90;
+            ViewBag.framesLivre_100 = framesLivre_100;
 
             return View(memory);
         }
@@ -732,6 +807,48 @@ namespace SimuladorGerenciaMemoria.Controllers
                     }
                 );
             }
+        }
+
+        // GET: Simulations/Delete/5
+        [RedirectAction]
+        public async Task<IActionResult> Delete(int? id)
+        {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+
+            if (id == null)
+                return RedirectToAction("Error404", "Erros");
+
+            var memory = await _context.Memories
+                .Include(s => s.User)
+                .FirstOrDefaultAsync(m => m.ID == id);
+
+            if (memory == null)
+                return RedirectToAction("Error404", "Erros");
+
+            if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                return RedirectToAction("Error403", "Erros");
+
+            return View(memory);
+        }
+
+        // POST: Simulations/Delete/5
+        [HttpPost, ActionName("Delete")]
+        [ValidateAntiForgeryToken]
+        [RedirectAction]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            ViewBag.userName = HttpContext.Session.GetString("UserName");
+            var memoriesFrames = await _context.Frames.Where(f => f.MemoryID == id).ToListAsync();
+            var memoriesProcess = await _context.Processes.Where(p => p.MemoryID == id).ToListAsync();            
+            var memory = await _context.Memories.FindAsync(id);
+
+            _context.Frames.RemoveRange(memoriesFrames);
+            _context.Processes.RemoveRange(memoriesProcess);
+            _context.Memories.Remove(memory);
+
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
         }
     }
 }

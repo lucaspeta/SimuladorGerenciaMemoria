@@ -25,6 +25,8 @@ namespace SimuladorGerenciaMemoria.Controllers
         public IActionResult Index()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.isDashboard = true;
+
             return View();
         }
 

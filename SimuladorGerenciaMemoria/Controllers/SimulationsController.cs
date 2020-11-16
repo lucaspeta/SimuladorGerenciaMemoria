@@ -49,6 +49,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             var simulation = await _context.Simulations
                 .Include(s => s.User)
+                .Include(s => s.Memories)
                 .FirstOrDefaultAsync(m => m.ID == id);
 
             if (simulation == null)
@@ -96,6 +97,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Edit(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.ID = id;
 
             if (id == null)
             {
@@ -122,6 +124,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,UserID")] Simulation simulation)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
+            ViewBag.ID = id;
 
             if (id != simulation.ID)
                 return RedirectToAction("Error404", "Erros");

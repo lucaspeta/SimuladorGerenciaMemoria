@@ -49,9 +49,12 @@ namespace SimuladorGerenciaMemoria.Scripts
                     _processSize = _memoryToFeel;
 
                 //Tenta encontrar um regB para inserir o processo aleatoriamente em 10 tentativas
-                for (int tentativas = 0; tentativas < 10; tentativas++) 
-                {                    
-                    regB = listRegB[r.Next(0, (listRegB.Count() - 1))];
+                for (int tentativas = 0; tentativas < 10; tentativas++)
+                {
+                    if (listRegB.Count() > (memory.FramesQTD * 0.5))
+                        regB = listRegB[r.Next((int)(listRegB.Count()*0.9), (listRegB.Count()-1))];
+                    else
+                        regB = listRegB[r.Next(0, (listRegB.Count()-1))];                    
 
                     if (framesNeeded == 1) isIndexValid = true;
                     else 

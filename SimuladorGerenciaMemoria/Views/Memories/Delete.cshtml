@@ -1,0 +1,42 @@
+﻿@model SimuladorGerenciaMemoria.Models.Memory
+
+@{
+    ViewData["Title"] = "Apagar Memória";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h1>Apagar Memória</h1>
+<hr />
+<h4>Você tem certeza em prosseguir com a remoção dessa memória?</h4>
+<h4>Todas os dados vinculados serão removios.</h4>
+<div>    
+    <hr />
+    <dl class="row">
+        <dt class="col-sm-2">
+            Memória
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.Name)
+        </dd>
+        <dt class="col-sm-2">
+            Usuário
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.User.Name)
+        </dd>
+        <dt class="col-sm-2">
+            @Html.DisplayNameFor(model => model.CreateDate)
+        </dt>
+        <dd class="col-sm-10">
+            @Html.DisplayFor(model => model.CreateDate)
+        </dd>
+    </dl>
+
+    <form asp-action="Delete">
+        <input type="hidden" asp-for="ID" />
+        <input type="submit" value="Apagar" class="btn btn-danger" />
+    </form>
+    <br/>
+    <br/>
+    <a asp-action="Index">Voltar para a lista</a>
+</div>

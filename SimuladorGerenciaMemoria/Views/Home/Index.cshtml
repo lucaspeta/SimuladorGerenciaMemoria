@@ -2,16 +2,48 @@
     ViewData["Title"] = "Dashboard";
 }
 
-<div>
+<link rel="stylesheet" href="~/css/PixelAdmin/pixeladmin.min.css" />
+<link rel="stylesheet" href="~/css/PixelAdmin/widgets.min.css" />
+
+<!-- animation CSS -->
+<link href="css/PixelAdmin/animate.min.css" rel="stylesheet">
+
+<!-- color CSS -->
+<link href="css/Colors/default.css" id="theme" rel="stylesheet">
+
+<!--CSS -->
+<link href="css/style.css" id="theme" rel="stylesheet">
+
+<div class="container-fluid">
+    <h1>Dashboard</h1>
     <hr />
-</div>
-
-<h1>Dashboard</h1>
-
-<div>
-    <hr />
-
     <h3>Simulação</h3>
+
+    <div class="row">
+        <div class="col-md-3 col-lg-3 col-xs-3">
+            <div class="white-box">
+                <h3 class="box-title">NEW CLIENTS</h3>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-md-12 col-lg-12 col-xs-12">
+            <div class="white-box">
+                <h3 class="box-title">Bar Chart</h3>
+                <div class="flot-chart">
+                    <div class="flot-chart-content" id="flot-bar-chart"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <br />
+    <br />
+    <br />
 </div>
 
 <link rel="stylesheet" href="~/css/Chart.min.css" />
