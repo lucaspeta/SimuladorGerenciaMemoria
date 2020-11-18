@@ -51,10 +51,11 @@ namespace SimuladorGerenciaMemoria.Scripts
                 //Tenta encontrar um regB para inserir o processo aleatoriamente em 10 tentativas
                 for (int tentativas = 0; tentativas < 10; tentativas++)
                 {
-                    if (listRegB.Count() > (memory.FramesQTD * 0.5))
-                        regB = listRegB[r.Next((int)(listRegB.Count()*0.9), (listRegB.Count()-1))];
-                    else
-                        regB = listRegB[r.Next(0, (listRegB.Count()-1))];                    
+                    //se tiver mais da metade da mémoria disponivel, prioriza inserir o registro na parte superior da memória
+                    if (listRegB.Count() > (memory.FramesQTD * 0.98)) 
+                        regB = listRegB[r.Next((int)(listRegB.Count()*0.4), (int)(listRegB.Count()-1))];                
+                    else 
+                        regB = listRegB[r.Next(0, (int)(listRegB.Count() - 1))];                 
 
                     if (framesNeeded == 1) isIndexValid = true;
                     else 

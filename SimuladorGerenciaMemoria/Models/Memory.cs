@@ -16,22 +16,10 @@ namespace SimuladorGerenciaMemoria.Models
         [Required(ErrorMessage = "É necessário preencher o nome da memória.")]
         public string Name { get; set; }
 
-        public string InitialStateVal { get; set; }
-
-        public enum InitialStatePickList
-        {
-            [Display(Name = "20%")]
-            Pequeno,
-            [Display(Name = "40%")]
-            Medio,
-            [Display(Name = "60%")]
-            Medio_Grande,
-            [Display(Name = "80%")]
-            Grande
-        }
+        public string InitialStateVal { get; set; }        
 
         [DisplayName("Estado inicial")]
-        public InitialStatePickList InitialState { get; set; }
+        public int InitialState { get; set; }
 
         [DisplayName("Tamanho mínimo dos processos iniciais (bytes)")]
         public int InitialProcessMin { get; set; }
@@ -72,5 +60,10 @@ namespace SimuladorGerenciaMemoria.Models
         public bool IsNextFitCompleted { get; set; }
         public bool IsBestFitCompleted { get; set; }
         public bool IsWorstFitCompleted { get; set; }
+
+        public int FirstFitInseridos { get; set; }
+        public int NextFitInseridos { get; set; }
+        public int BestFitInseridos { get; set; }
+        public int WorstFitInseridos { get; set; }
     }    
 }

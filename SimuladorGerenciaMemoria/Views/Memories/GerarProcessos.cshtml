@@ -18,13 +18,13 @@
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label">Tamanho mínimo do Processo (bytes)</label>
-                    <input id="tamanho_minimo" class="form-control" type="number" />
+                    <label class="control-label">Tamanho mínimo dos processos (bytes)</label>
+                    <input min="500" id="tamanho_minimo" class="form-control" type="number" placeholder="(bytes)"/>
                 </div>
 
                 <div class="form-group">
-                    <label class="control-label">Tamanho máximo do Processo (bytes)</label>
-                    <input id="tamanho_maximo" class="form-control" type="number" />
+                    <label class="control-label">Tamanho máximo dos processos (bytes)</label>
+                    <input min="500" id="tamanho_maximo" class="form-control" type="number" placeholder="(bytes)"/>
                 </div>
 
                 <div class="form-group">
@@ -93,12 +93,52 @@ else
 <link rel="stylesheet" href="~/css/datatables.min.css" />
 <script src="~/js/datatables.min.js"></script>
 
-<script>  
-    $('#maximo_possivel').on('keyup', function () {
-        var val = $(this).val();
-        var max = '@(ViewBag.MaximoPossivel)';
+<script>
 
-        if (val > max) $(this).val('');
+    function habilitarSubmit() {
+        $('#submit-btn').prop('disabled', false);
+        $('#submit-btn').removeClass('btn-disabled');
+        $('#submit-btn').addClass('btn-success');
+    }
+
+    function desabilitarSubmit() {
+        $('#submit-btn').prop('disabled', true);
+        $('#submit-btn').removeClass('btn-success');
+        $('#submit-btn').addClass('btn-disabled');
+    }
+
+    $('#tamanho_minimo, #tamanho_maximo').on('focusout', function () {
+        var val = $(this).val();
+        var min = 500;
+
+        var tam_min = parseInt($('#tamanho_minimo').val());
+        var tam_max = parseInt($('#tamanho_maximo').val());
+
+        if (val < min) {
+            $(this).val('');
+            $('#error-message').text('O valor mínimo para o tamanho dos processo é de 500 bytes');
+            desabilitarSubmit();
+        }
+        else {
+            $('#error-message').text('');
+            habilitarSubmit();
+        }
+    });
+
+    $('#maximo_possivel').on('focusout', function () {
+        var val = parseInt($('#maximo_possivel').val());
+        var max = parseInt('@(ViewBag.MaximoPossivel)');
+
+        if (val > max || val < 0) {
+            $('#maximo_possivel').val('');
+            desabilitarSubmit();
+            $('#error-message').text('Valor para preencher a memória inválido.');
+        }
+        else
+        {
+            habilitarSubmit();
+            $('#error-message').text('');
+        }
     });
 
     $('#tableDados').dataTable({
@@ -148,16 +188,18 @@ else
             },
             success: function (response) {
                 if (response.success) {
-                    setTimeout(function () {                        
+                    setTimeout(function () {
                         location.reload();
                     }, 3000);
                 }
                 else {
-                    $('#loadingModal').modal('hide');
-                    $('#error-message').text(response.error);
-                    $('#submit-btn').prop('disabled', false);
-                    $('#submit-btn').addClass('btn-success');
-                    $('#submit-btn').removeClass('btn-disabled');
+                    setTimeout(function () {
+                        $('#loadingModal').modal('hide');
+                        $('#error-message').text(response.error);
+                        $('#submit-btn').prop('disabled', false);
+                        $('#submit-btn').addClass('btn-success');
+                        $('#submit-btn').removeClass('btn-disabled');
+                    }, 1000);                    
                 }
             },
             error: function (req, status, error) {

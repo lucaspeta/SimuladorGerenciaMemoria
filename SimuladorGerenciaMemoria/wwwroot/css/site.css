@@ -1,9 +1,28 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+.link {
+    display: inline-block;
+    float: right;
+    margin-top: -30px;
+}
+
+.field-required {
+    display: inline-block !important;
+    color: red !important;
+    margin-bottom: -50px !important;
+}
+
 .btn-disabled {
     background-color: gray !important;
     color: white !important;
     border: white;
+}
+
+.btn-link-filtro {
+    color: black !important;
+    border: none!important; 
+    background: 0 0 !important;
+    box-shadow: none !important;
 }
 
 #menu {

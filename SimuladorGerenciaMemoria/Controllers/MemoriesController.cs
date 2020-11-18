@@ -11,6 +11,7 @@ using SimuladorGerenciaMemoria.Utils;
 using SimuladorGerenciaMemoria.Scripts;
 using System.Collections.Generic;
 using System.Linq.Expressions;
+using Newtonsoft.Json;
 
 namespace SimuladorGerenciaMemoria.Controllers
 {
@@ -88,16 +89,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             long memoriaUsada = 0;            
             long memoriaInutil = 0;
 
-            long framesLivre_10 = 0;
-            long framesLivre_20 = 0;
-            long framesLivre_30 = 0;
-            long framesLivre_40 = 0;
-            long framesLivre_50 = 0;
-            long framesLivre_60 = 0;
-            long framesLivre_70 = 0;
-            long framesLivre_80 = 0;
-            long framesLivre_90 = 0;
-            long framesLivre_100 = 0;
+            List<int> framesLivres = new List<int>{0,0,0,0,0,0,0,0,0,0};                       
 
             foreach (var item in framesInicial) {
                 mapFrameUsed.Add(item.FrameNumber, item.ID);
@@ -113,34 +105,24 @@ namespace SimuladorGerenciaMemoria.Controllers
                 //descobre a qual porcentagem da memoria o frame se encontra
                 double porc = ((i * 100) / memory.FramesQTD);
 
-                if (porc <= 10) if (!mapFrameUsed.ContainsKey(i)) framesLivre_10++;
-                if (porc <= 20) if (!mapFrameUsed.ContainsKey(i)) framesLivre_20++;
-                if (porc <= 30) if (!mapFrameUsed.ContainsKey(i)) framesLivre_30++;
-                if (porc <= 40) if (!mapFrameUsed.ContainsKey(i)) framesLivre_40++;
-                if (porc <= 50) if (!mapFrameUsed.ContainsKey(i)) framesLivre_50++;
-                if (porc <= 60) if (!mapFrameUsed.ContainsKey(i)) framesLivre_60++;
-                if (porc <= 70) if (!mapFrameUsed.ContainsKey(i)) framesLivre_70++;
-                if (porc <= 80) if (!mapFrameUsed.ContainsKey(i)) framesLivre_80++;
-                if (porc <= 90) if (!mapFrameUsed.ContainsKey(i)) framesLivre_90++;
-                else if(!mapFrameUsed.ContainsKey(i)) framesLivre_100++;
+                if (porc <= 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[0] += 1;
+                if (porc <= 20 && porc > 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[1] += 1;
+                if (porc <= 30 && porc > 20) if (!mapFrameUsed.ContainsKey(i)) framesLivres[2] += 1;
+                if (porc <= 40 && porc > 30) if (!mapFrameUsed.ContainsKey(i)) framesLivres[3] += 1;
+                if (porc <= 50 && porc > 40) if (!mapFrameUsed.ContainsKey(i)) framesLivres[4] += 1;
+                if (porc <= 60 && porc > 50) if (!mapFrameUsed.ContainsKey(i)) framesLivres[5] += 1;
+                if (porc <= 70 && porc > 60) if (!mapFrameUsed.ContainsKey(i)) framesLivres[6] += 1;
+                if (porc <= 80 && porc > 70) if (!mapFrameUsed.ContainsKey(i)) framesLivres[7] += 1;
+                if (porc <= 90 && porc > 80) if (!mapFrameUsed.ContainsKey(i)) framesLivres[8] += 1;
+                if (porc <= 100 && porc > 90) if (!mapFrameUsed.ContainsKey(i)) framesLivres[9] += 1;
             }
 
             long memoriaLivre = memory.Size - memoriaUsada;
 
             ViewBag.memoriaUsada = memoriaUsada;
             ViewBag.memoriaLivre = memoriaLivre;
-            ViewBag.memoriaInutil = memoriaInutil;
-
-            ViewBag.framesLivre_10 = framesLivre_10;
-            ViewBag.framesLivre_20 = framesLivre_20;
-            ViewBag.framesLivre_30 = framesLivre_30;
-            ViewBag.framesLivre_40 = framesLivre_40;
-            ViewBag.framesLivre_50 = framesLivre_50;
-            ViewBag.framesLivre_60 = framesLivre_60;
-            ViewBag.framesLivre_70 = framesLivre_70;
-            ViewBag.framesLivre_80 = framesLivre_80;
-            ViewBag.framesLivre_90 = framesLivre_90;
-            ViewBag.framesLivre_100 = framesLivre_100;
+            ViewBag.memoriaInutil = memoriaInutil;            
+            ViewBag.framesLivres = JsonConvert.SerializeObject(framesLivres);
 
             return View(memory);
         }
@@ -156,13 +138,9 @@ namespace SimuladorGerenciaMemoria.Controllers
             return View();
         }
 
-        // POST: Memories/Create
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
-        [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Create([Bind("ID,Name,SimulationID,Size,FramesSize,IsGeneratedProcessList,InitialState,UserID,InitialProcessMin,InitialProcessMax")] Memory memory)
+        public JsonResult Create(string Name, int SimulationID, long Size, long FramesSize, int InitialState, int InitialProcessMin, int InitialProcessMax)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
@@ -170,10 +148,26 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             try
             {
+                if (Name == null || SimulationID == 0 || Size == 0 || FramesSize == 0 || InitialState == 0 || InitialProcessMin == 0 || InitialProcessMax == 0)
+                    throw new Exception("É necessário preencher os campos obrigatórios.");
+
+                Memory memory = new Memory
+                {
+                    Name = Name,
+                    UserID = HttpContext.Session.GetInt32("UserID"),
+                    IsGeneratedProcessList = false,
+                    SimulationID = SimulationID,
+                    Size = Size,
+                    FramesSize = FramesSize,
+                    InitialState = InitialState,
+                    InitialProcessMin = InitialProcessMin,
+                    InitialProcessMax = InitialProcessMax
+                };
+
                 if (memory.InitialProcessMin > memory.InitialProcessMax) 
                     throw new Exception("O tamanho máximo do processo precisa ser maior que o mínimo.");                
 
-                memory.Size = memory.Size * 1024; //transfoma em bytes
+                memory.Size = Size * 1024; //transfoma em bytes
                 memory.CreateDate = DateTime.Now;
                 memory.FramesQTD = memory.Size / memory.FramesSize;
                 memory.IsFirstFitCompleted = false;
@@ -181,23 +175,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 memory.IsBestFitCompleted = false;
                 memory.IsWorstFitCompleted = false;
 
-                int initialState = 25;
-
-                switch (memory.InitialState)
-                {
-                    case Memory.InitialStatePickList.Pequeno:
-                        initialState = 20;
-                        break;
-                    case Memory.InitialStatePickList.Medio:
-                        initialState = 40;
-                        break;
-                    case Memory.InitialStatePickList.Medio_Grande:
-                        initialState = 60;
-                        break;
-                    case Memory.InitialStatePickList.Grande:
-                        initialState = 80;
-                        break;
-                }
+                int initialState = memory.InitialState;               
 
                 _context.Add(memory);
 
@@ -237,13 +215,24 @@ namespace SimuladorGerenciaMemoria.Controllers
                 _context.AddRange(processList);
                 _context.AddRange(framesList);
 
-                await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                _context.SaveChangesAsync();
+
+                return Json(
+                   new
+                   {
+                       success = true                       
+                   }
+               );
             }
             catch (Exception e) 
             {
-                ViewBag.Error = e.Message;
-                return View();
+                return Json(
+                   new
+                   {
+                       success = false,
+                       error = e.Message
+                   }
+               );
             }            
         }
 
@@ -272,7 +261,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID,IsBestFitCompleted,IsFirstFitCompleted,IsWorstFitCompleted,IsNextFitCompleted,InitialProcessMin,InitialProcessMax")] Memory memory)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID,IsBestFitCompleted,IsFirstFitCompleted,IsWorstFitCompleted,IsNextFitCompleted,InitialProcessMin,InitialProcessMax,BestFitInseridos,FirstFitInseridos,WorstFitInseridos,NextFitInseridos")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
@@ -312,23 +301,9 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             if (_memory.UserID != HttpContext.Session.GetInt32("UserID"))
                 return RedirectToAction("Error403", "Erros");
-
-            switch (_memory.InitialState)
-            {
-                case Memory.InitialStatePickList.Pequeno:
-                    ViewBag.MaximoPossivel = 100 - 20;
-                    break;
-                case Memory.InitialStatePickList.Medio:
-                    ViewBag.MaximoPossivel = 100 - 40;
-                    break;
-                case Memory.InitialStatePickList.Medio_Grande:
-                    ViewBag.MaximoPossivel = 100 - 60;
-                    break;
-                case Memory.InitialStatePickList.Grande:
-                    ViewBag.MaximoPossivel = 100 - 80;
-                    break;
-            }
-
+    
+            ViewBag.MaximoPossivel = 100 - _memory.InitialState;
+    
             if (id == null) return RedirectToAction("Error404", "Erros");
 
             return View(
@@ -352,6 +327,9 @@ namespace SimuladorGerenciaMemoria.Controllers
 
                 if (_memory == null)
                     throw new Exception("Houve um erro! Memória não encontrada.");
+
+                if ((_memory.InitialState+MemoryToFeelPerc) > 100)
+                    throw new Exception("Valor para preencher inválido!");
 
                 long _memoryToFeel = (long)(_memory.Size * ((float)MemoryToFeelPerc / 100));
 
@@ -758,8 +736,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                         // Get the elapsed time as a TimeSpan value.
                         TimeSpan ts = watch.Elapsed;
 
-                        process.TimeToFindIndex = String.Format("{0:00}:{1:0000000000}",
-                            ts.Seconds,
+                        process.TimeToFindIndex = String.Format("{0:0000000000}",
                             ts.Milliseconds);
                     }
 
@@ -767,15 +744,19 @@ namespace SimuladorGerenciaMemoria.Controllers
                     {
                         case "FirstFit":
                             memory.IsFirstFitCompleted = true;
+                            memory.FirstFitInseridos = processInserted;
                             break;
                         case "NextFit":
                             memory.IsNextFitCompleted = true;
+                            memory.NextFitInseridos = processInserted;
                             break;
                         case "BestFit":
                             memory.IsBestFitCompleted = true;
+                            memory.BestFitInseridos = processInserted;
                             break;
                         case "WorstFit":
                             memory.IsWorstFitCompleted = true;
+                            memory.WorstFitInseridos = processInserted;
                             break;
                     }
 

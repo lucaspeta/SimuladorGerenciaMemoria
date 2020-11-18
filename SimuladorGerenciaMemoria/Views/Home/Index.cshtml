@@ -4,25 +4,204 @@
 
 <link rel="stylesheet" href="~/css/PixelAdmin/pixeladmin.min.css" />
 <link rel="stylesheet" href="~/css/PixelAdmin/widgets.min.css" />
-
 <!-- animation CSS -->
 <link href="css/PixelAdmin/animate.min.css" rel="stylesheet">
-
 <!-- color CSS -->
 <link href="css/Colors/default.css" id="theme" rel="stylesheet">
-
 <!--CSS -->
 <link href="css/style.css" id="theme" rel="stylesheet">
+<!--CHART JS-->
+<link rel="stylesheet" href="~/css/Chart.min.css" />
+<script src="~/js/Chart.min.js"></script>
 
 <div class="container-fluid">
     <h1>Dashboard</h1>
     <hr />
-    <h3>Simulação</h3>
+
+    <div id="accordion">
+        <div class="card">
+            <div class="card-header" id="headingOne">
+                <h5 class="mb-0">
+                    <button class="btn btn-link" data-toggle="collapse" data-target="#filtros" aria-expanded="false" aria-controls="filtros">
+                        Filtros
+                    </button>
+                </h5>
+            </div>
+
+            <div id="filtros" class="collapse" aria-labelledby="headingOne" data-parent="#accordion">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-2 col-lg-2 col-xs-2">
+                            <div class="form-group">
+                                <label class="control-label">Simulação</label>
+                                <select id="simulacao_select" class="form-control">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-lg-2 col-xs-2">
+                            <div class="form-group">
+                                <label class="control-label">Mémoria</label>
+                                <select id="memoria_select" class="form-control">
+                                    <option></option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-lg-2 col-xs-2">
+                            <div class="form-group">
+                                <label class="control-label">Algoritmos</label>
+                                <select id="alg_select" class="form-control">
+                                    <option value="all">Todos</option>
+                                    <option value="First-Fit">First-Fit</option>
+                                    <option value="Next-Fit">Next-Fit</option>
+                                    <option value="Best-Fit">Best-Fit</option>
+                                    <option value="Worst-Fit">Worst-Fit</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 col-lg-2 col-xs-2">
+                            <div class="form-group">
+                                <button id="btn-filtrar" style="margin-top: 32px;" class="btn btn-success">Filtrar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <hr />
+    <h3>STATUS DA MEMÓRIA</h3>
 
     <div class="row">
         <div class="col-md-3 col-lg-3 col-xs-3">
             <div class="white-box">
-                <h3 class="box-title">NEW CLIENTS</h3>
+                <h3 class="box-title">INICIAL</h3>
+                <canvas id="memoriaUtilizacao" width="400" height="400"></canvas>
+            </div>
+        </div>
+
+        <div class="col-md-3 col-lg-3 col-xs-3">
+            <div class="white-box">
+                <h3 class="box-title">SIMULAÇÂO QUICK-FIT</h3>
+                <canvas id="memoriaUtilizacao" width="400" height="400"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        var memoriaUtilizacaoInicial = document.getElementById('memoriaUtilizacao').getContext('2d');
+
+        var memoriaUsada = '@(ViewBag.memoriaInicialUsada)';
+        var memoriaLivre = '@(ViewBag.memoriaInicialLivre)';
+        var memoriaInutil = '@(ViewBag.memoriaInicialInutil)';
+
+        var memoriaChart = new Chart(memoriaUtilizacaoInicial, {
+            type: 'pie',
+            data: {
+                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                datasets: [{
+                    label: '# of Votes',
+                    data: [memoriaUsada, memoriaLivre, memoriaInutil],
+                    backgroundColor: [
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(75, 192, 192, 0.2)',
+                        'rgba(255, 99, 132, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(75, 192, 192, 1)',
+                        'rgba(255, 99, 132, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    yAxes: [{
+                        ticks: {
+                            beginAtZero: true
+                        },
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipItem, data) {
+                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                    if (label) {
+                                        label += ' bytes';
+                                    }
+
+                                    return label;
+                                }
+                            }
+                        }
+                    }]
+                }
+            }
+        });
+    </script>
+
+    <hr />
+    <h3>SIMULAÇÂO (QUICK-FIT)</h3>
+
+    <div class="row">
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TAMANHO MÍNIMO (Processo)</h3>
+                <p>(bytes)</p>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TAMANHO MÁXIMO (Processo)</h3>
+                <p>(bytes)</p>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TAMANHO MÉDIO (Processo)</h3>
+                <p>(bytes)</p>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TEMPO MÍNIMO DE INSERÇÃO</h3>
+                <p>(Milissegundos)</p>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TEMPO MÁXIMO DE INSERÇÃO</h3>
+                <p>(Milissegundos)</p>
+                <ul class="list-inline two-part">
+                    <li><i class="icon-people text-info"></i></li>
+                    <li class="text-right"><span class="counter">23</span></li>
+                </ul>
+            </div>
+        </div>
+        <div class="col-md-2 col-lg-2 col-xs-2">
+            <div class="white-box">
+                <h3 class="box-title">TEMPO MÉDIO DE INSEÇÂO</h3>
+                <p>(Milissegundos)</p>
                 <ul class="list-inline two-part">
                     <li><i class="icon-people text-info"></i></li>
                     <li class="text-right"><span class="counter">23</span></li>
@@ -30,21 +209,162 @@
             </div>
         </div>
     </div>
+    <br />
+    <hr />
+    <h3>DADOS FINAIS DOS ALGORITMOS</h3>
+    <hr />
     <div class="row">
-        <div class="col-md-12 col-lg-12 col-xs-12">
+        <div class="col-sm-12">
             <div class="white-box">
-                <h3 class="box-title">Bar Chart</h3>
-                <div class="flot-chart">
-                    <div class="flot-chart-content" id="flot-bar-chart"></div>
+                <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
+                <div>
+                    <canvas id="fragmentacaoInterna" height="70"></canvas>
                 </div>
             </div>
         </div>
     </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
+                <div>
+                    <canvas id="fragmentacaoExterna" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="row">
+        <div class="col-sm-12">
+            <div class="white-box">
+                <h3 class="box-title">TEMPO DE INSERÇÃO (Linha do tempo)</h3>
+                <div>
+                    <canvas id="tempoInsercao" height="70"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!--FRAGMENTACAO INTERNA-->
+    <script>
+        var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
+
+        var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
+            type: 'line',
+            data: {
+                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+                datasets: [{
+                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+                    label: "Africa",
+                    borderColor: "#3e95cd",
+                    fill: false
+                }, {
+                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+                    label: "Asia",
+                    borderColor: "#8e5ea2",
+                    fill: false
+                }, {
+                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
+                    label: "Europe",
+                    borderColor: "#3cba9f",
+                    fill: false
+                }, {
+                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
+                    label: "Latin America",
+                    borderColor: "#e8c3b9",
+                    fill: false
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'World population per region (in millions)'
+                }
+            }
+        });
+    </script>
+
+    <!--FRAGMENTACAO EXTERNA-->
+    <script>
+        var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
+
+        var fragmentacaoExternaChart = new Chart(fragmentacaoExterna, {
+            type: 'line',
+            data: {
+                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+                datasets: [{
+                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+                    label: "Africa",
+                    borderColor: "#3e95cd",
+                    fill: false
+                }, {
+                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+                    label: "Asia",
+                    borderColor: "#8e5ea2",
+                    fill: false
+                }, {
+                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
+                    label: "Europe",
+                    borderColor: "#3cba9f",
+                    fill: false
+                }, {
+                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
+                    label: "Latin America",
+                    borderColor: "#e8c3b9",
+                    fill: false
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'World population per region (in millions)'
+                }
+            }
+        });
+    </script>
+
+    <!--TEMPO DE INSERCAO-->
+    <script>
+        var tempoInsercao = document.getElementById('tempoInsercao').getContext('2d');
+
+        var tempoInsercaoChart = new Chart(tempoInsercao, {
+            type: 'line',
+            data: {
+                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+                datasets: [{
+                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+                    label: "Africa",
+                    borderColor: "#3e95cd",
+                    fill: false
+                }, {
+                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+                    label: "Asia",
+                    borderColor: "#8e5ea2",
+                    fill: false
+                }, {
+                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
+                    label: "Europe",
+                    borderColor: "#3cba9f",
+                    fill: false
+                }, {
+                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
+                    label: "Latin America",
+                    borderColor: "#e8c3b9",
+                    fill: false
+                }]
+            },
+            options: {
+                title: {
+                    display: true,
+                    text: 'World population per region (in millions)'
+                }
+            }
+        });
+    </script>
+
+    <br />
+    <br />
     <br />
     <br />
     <br />
     <br />
 </div>
-
-<link rel="stylesheet" href="~/css/Chart.min.css" />
-<script src="~/js/Chart.min.js"></script>

@@ -7,6 +7,9 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <link rel="icon" type="image/ico" href="~/favicon.ico" sizes="32x32">
+    <!--FONT AWESOME-->
+    <link rel="stylesheet" href="~/css/fontawesome.min.css" />
+    <script src="~/js/fontawesome.min.js"></script>
 </head>
 <body style="background-color:#dcdcdc;">
     <header>
@@ -43,15 +46,13 @@
                         <ul class="dropdown-menu">
                             <li><a href="@Url.Action("ChangePassword", "Account")">&nbsp;&nbsp;Trocar senha</a></li>
                             <li class="divider"></li>
-                            <li><a href="@Url.Action("Logout", "Account")"><i class="dropdown-icon fa fa-sign-out"></i>&nbsp;&nbsp;Sair</a></li>
+                            <li><a href="@Url.Action("Logout", "Account")"><i class="dropdown-icon fas fa-sign-out"></i>&nbsp;&nbsp;Sair</a></li>
                         </ul>
                     </li>
                 </ul>
             </div>
         </nav>
     </header>
-
-
 
     @if (ViewBag.isDashboard == true)
     {

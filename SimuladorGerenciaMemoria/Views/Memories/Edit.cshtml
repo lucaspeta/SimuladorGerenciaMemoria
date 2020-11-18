@@ -25,6 +25,10 @@
             <input type="hidden" asp-for="IsNextFitCompleted" />
             <input type="hidden" asp-for="InitialProcessMin" />
             <input type="hidden" asp-for="InitialProcessMax" />
+            <input type="hidden" asp-for="BestFitInseridos" />
+            <input type="hidden" asp-for="FirstFitInseridos" />
+            <input type="hidden" asp-for="WorstFitInseridos" />
+            <input type="hidden" asp-for="NextFitInseridos" />
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
@@ -35,10 +39,10 @@
             @if (!Model.IsGeneratedProcessList)
             {
                 <div class="form-group">
-                    <label class="control-label">Preenchimento inicial da memória</label>
-                    @Html.DropDownList("InitialState",
-                        Html.GetEnumSelectList<Memory.InitialStatePickList>(),
-                        "Selecione...", new { @class = "form-control" })
+                    <div class="form-group">
+                        <label class="control-label">Preenchimento inicial da memória em "%"</label><p class="field-required">&nbsp;*</p>
+                        <input min="1" max="100" id="preencher-tamanho" asp-for="InitialState" class="form-control" placeholder="(5 - 95)%" />
+                    </div>
                 </div>
             }
             else
@@ -47,16 +51,46 @@
             }
 
             <div class="form-group">
-                <input type="submit" value="Salvar" class="btn btn-success" />
+                <input id="submit-btn" type="submit" value="Salvar" class="btn btn-success" />
             </div>
         </form>
     </div>
 </div>
 
 <div>
+    <b id="error-message" class="text-danger"></b>
+    <br />
     <a asp-action="Details" asp-route-id="@ViewBag.MemoryID">Voltar para detalhes</a>
 </div>
 
 @section Scripts {
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
+
+<script>
+    function habilitarSubmit() {
+        $('#submit-btn').prop('disabled', false);
+        $('#submit-btn').removeClass('btn-disabled');
+        $('#submit-btn').addClass('btn-success');
+    }
+
+    function desabilitarSubmit() {
+        $('#submit-btn').prop('disabled', true);
+        $('#submit-btn').removeClass('btn-success');
+        $('#submit-btn').addClass('btn-disabled');
+    }
+
+    $('#preencher-tamanho').on('focusout', function () {
+        var val = $(this).val();
+
+        if (val < 5 || val > 95) {
+            $(this).val('');
+            $('#error-message').text('A porcentagem precisa ser entre (5 - 90)%.');
+            desabilitarSubmit();
+        }
+        else {
+            $('#error-message').text('');
+            habilitarSubmit();
+        }
+    });
+</script>

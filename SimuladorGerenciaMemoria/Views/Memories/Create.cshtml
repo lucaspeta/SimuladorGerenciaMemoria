@@ -5,6 +5,8 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
+<link rel="stylesheet" href="~/css/site.css" />
+
 <h1>Criar Memória</h1>
 
 <hr />
@@ -14,60 +16,57 @@
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <div class="form-group">
-                @Html.LabelFor(model => model.SimulationID, "Simulação", htmlAttributes: new { @class = "control-label" })
-                @Html.DropDownList("SimulationID", null, htmlAttributes: new { @class = "form-control" })
+                @Html.LabelFor(model => model.SimulationID, "Simulação", htmlAttributes: new { @class = "control-label" })<p class="field-required">&nbsp;*</p>
+                @Html.DropDownList("SimulationID", null, htmlAttributes: new { @class = "form-control required" })
                 @Html.ValidationMessageFor(model => model.SimulationID, "", new { @class = "text-danger" })
             </div>
 
             <div class="form-group">
-                <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <label class="control-label">Nome</label><p class="field-required">&nbsp;*</p>
+                <input id="name" asp-for="Name" class="form-control required" placeholder="Digite o nome da memória" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label class="control-label">Tamanho da memória (KiB)</label>
-                <input asp-for="Size" class="form-control" />
+                <label class="control-label">Tamanho da memória (KiB)</label><p class="field-required">&nbsp;*</p>
+                <input id="tamanho" asp-for="Size" class="form-control" placeholder="(KiB)" />
                 <span asp-validation-for="Size" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label class="control-label">Tamanho do frame (bytes)</label>
-                <input asp-for="FramesSize" class="form-control" />
+                <label class="control-label">Tamanho do frame (bytes)</label><p class="field-required">&nbsp;*</p>
+                <input id="frame-tamanho" asp-for="FramesSize" class="form-control" placeholder="(bytes)" />
                 <span asp-validation-for="FramesSize" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label class="control-label">Tamanho mínimo dos processos iniciais (bytes)</label>
-                <input asp-for="InitialProcessMin" class="form-control" />
+                <label class="control-label">Preenchimento inicial da memória em "%"</label><p class="field-required">&nbsp;*</p>
+                <input min="1" max="100" id="preencher-tamanho" asp-for="InitialState" class="form-control" placeholder="(5 - 95)%" />
+            </div>
+
+            <div class="form-group">
+                <label class="control-label">Tamanho mínimo dos processos iniciais (bytes)</label><p class="field-required">&nbsp;*</p>
+                <input min="500" id="tamanho-process-min" asp-for="InitialProcessMin" class="form-control" placeholder="(bytes)" />
                 <span asp-validation-for="InitialProcessMin" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label class="control-label">Tamanho máximo dos processos iniciais (bytes)</label>
-                <input asp-for="InitialProcessMax" class="form-control" />
+                <label class="control-label">Tamanho máximo dos processos iniciais (bytes)</label><p class="field-required">&nbsp;*</p>
+                <input id="tamanho-process-max" asp-for="InitialProcessMax" class="form-control" min="500" placeholder="(bytes)" />
                 <span asp-validation-for="InitialProcessMax" class="text-danger"></span>
             </div>
 
             <div class="form-group">
-                <label class="control-label">Preenchimento inicial da memória</label>
-                @Html.DropDownList("InitialState",
-                    Html.GetEnumSelectList<Memory.InitialStatePickList>(),
-                    "Selecione...", new { @class = "form-control" })
-            </div>
-
-            <input type="hidden" asp-for="IsGeneratedProcessList" value="0" />
-            <input type="hidden" asp-for="UserID" value="@ViewBag.UserID" />
-
-            <b id="error-message" class="text-danger">@ViewBag.Error</b><br/>
-            <div class="form-group">
-                <input id="submit-btn" type="submit" value="Criar" class="btn btn-success" />
+                <input id="submit-btn" type="button" value="Criar" class="btn btn-success" />
             </div>
         </form>
-    </div>
+    </div>    
 </div>
 
 <div>
+    <b id="error-message" class="text-danger"></b>
+    <br />
+    <br />
     <a asp-action="Index">Voltar para a lista</a>
 </div>
 
@@ -77,12 +76,102 @@
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
 
+<!-- Loading -->
+<div style="margin-top: 250px; margin-left:9px;" class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <p style="margin-left: 150px; font-size: 30pt; font-weight: 800; color: white; display: inline-block; position: relative;">Carregando&nbsp;</p>
+        <div style="color: white;" class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+
 <script>
+    function habilitarSubmit()
+    {
+        $('#submit-btn').prop('disabled', false);
+        $('#submit-btn').removeClass('btn-disabled');
+        $('#submit-btn').addClass('btn-success');        
+    }
+
+    function desabilitarSubmit()
+    {
+        $('#submit-btn').prop('disabled', true);
+        $('#submit-btn').removeClass('btn-success');
+        $('#submit-btn').addClass('btn-disabled');        
+    }
+
+    $('#tamanho-process-min, #tamanho-process-max').on('focusout', function () {
+        var val = $(this).val();
+        var min = 500;
+
+        if (val < min) {
+            $(this).val('');
+            $('#error-message').text('O valor mínimo para o tamanho dos processo é de 500 bytes');
+            desabilitarSubmit();
+        }
+        else
+        {
+            $('#error-message').text('');
+            habilitarSubmit();
+        } 
+    });
+
+    $('#preencher-tamanho').on('focusout', function () {
+        var val = $(this).val();
+
+        if (val < 5 || val > 95) {
+            $(this).val('');
+            $('#error-message').text('A porcentagem precisa ser entre (5 - 90)%.');
+            desabilitarSubmit();
+        }
+        else
+        {
+            $('#error-message').text('');
+            habilitarSubmit(); 
+        }        
+    });
+
     $('#submit-btn').on('click', function () {
-        $(setTimeout, function () {
-            $(this).prop('disabled', true);
-            $(this).addClass('btn-disabled');
-            $(this).removeClass('btn-success');
-        }, 100);        
-    });    
+        desabilitarSubmit();
+        $('#error-message').text('');
+        $('#loadingModal').modal('show');
+
+        var data = {
+            Name: $('#name').val(),
+            SimulationID: $('#SimulationID').val(),
+            Size: $('#tamanho').val(),
+            FramesSize: $('#frame-tamanho').val(),
+            InitialState: $('#preencher-tamanho').val(),
+            InitialProcessMin: $('#tamanho-process-min').val(),
+            InitialProcessMax: $('#tamanho-process-max').val()
+        };
+
+        $.ajax({
+            url: "/Memories/Create/",
+            type: "POST",
+            datatype: "text",
+            data: data,
+            success: function (response) {
+                if (response.success) {
+                    setTimeout(function () {
+                        window.location.href = "/Memories/";
+                    }, 1000);
+                }
+                else {      
+                    setTimeout(function () {
+                        $('#loadingModal').modal('hide');
+                        $('#error-message').text(response.error);
+                        habilitarSubmit();
+                    }, 1000);                   
+                }
+            },
+            error: function (req, status, error) {
+                console.log('Status: ' + status + ' Erro: ' + msg);
+                $('#error-message').text(msg);                
+                $('#loadingModal').modal('hide');
+                habilitarSubmit();
+            }
+        });
+    });
 </script>
