@@ -7,7 +7,15 @@
 
 <link rel="stylesheet" href="~/css/site.css" />
 
-<h1>Criar Memória</h1>
+
+<h1><i class="fas fa-memory"></i> Criar Memória</h1>
+
+<div class="alert alert-warning alert-dismissible fade show" role="alert">
+    <strong>Atenção!</strong> A criação da memória pode demorar minutos de acordo com o respectivo tamanho.
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+        <span aria-hidden="true">&times;</span>
+    </button>
+</div>
 
 <hr />
 <div class="row">
@@ -101,6 +109,14 @@
         $('#submit-btn').addClass('btn-disabled');        
     }
 
+    /*$('#name').on('focusout', function () {
+        var str = $(this).val();
+
+        var newStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s/g, '');
+
+        $(this).val(newStr);
+    });*/
+
     $('#tamanho-process-min, #tamanho-process-max').on('focusout', function () {
         var val = $(this).val();
         var min = 500;
@@ -137,8 +153,11 @@
         $('#error-message').text('');
         $('#loadingModal').modal('show');
 
+        var name = $('#name').val();
+        //var name = strName.normalize('NFD').replace(/[\u0300-\u036f]/g, "").toLowerCase().replace(/\s/g, '');
+
         var data = {
-            Name: $('#name').val(),
+            Name: name,
             SimulationID: $('#SimulationID').val(),
             Size: $('#tamanho').val(),
             FramesSize: $('#frame-tamanho').val(),

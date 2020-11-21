@@ -5,25 +5,36 @@
 <link rel="stylesheet" href="~/css/PixelAdmin/pixeladmin.min.css" />
 <link rel="stylesheet" href="~/css/PixelAdmin/widgets.min.css" />
 <!-- animation CSS -->
-<link href="css/PixelAdmin/animate.min.css" rel="stylesheet">
+<link href="~/css/PixelAdmin/animate.min.css" rel="stylesheet">
 <!-- color CSS -->
-<link href="css/Colors/default.css" id="theme" rel="stylesheet">
+<link href="~/css/Colors/default.css" id="theme" rel="stylesheet">
 <!--CSS -->
-<link href="css/style.css" id="theme" rel="stylesheet">
+<link href="~/css/style.css" rel="stylesheet">
+<link href="~/css/site.css" rel="stylesheet">
 <!--CHART JS-->
 <link rel="stylesheet" href="~/css/Chart.min.css" />
 <script src="~/js/Chart.min.js"></script>
 
-<div class="container-fluid">
-    <h1>Dashboard</h1>
+<!-- Loading -->
+<div style="margin-top: 250px; margin-left:9px;" class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
+    <div class="modal-dialog" role="document">
+        <p style="margin-left: 100px; font-size: 30pt; font-weight: 800; color: white; display: inline-block; position: relative;">Carregando&nbsp;</p>
+        <div style="color: white;" class="spinner-border" role="status">
+            <span class="sr-only">Loading...</span>
+        </div>
+    </div>
+</div>
+
+<div class="container-fluid display-none">
+    <h1><i class="fas fa-chart-line"></i> Dashboard</h1>
     <hr />
 
     <div id="accordion">
-        <div class="card">
+        <div class="card border border-dark">
             <div class="card-header" id="headingOne">
                 <h5 class="mb-0">
                     <button class="btn btn-link" data-toggle="collapse" data-target="#filtros" aria-expanded="false" aria-controls="filtros">
-                        Filtros
+                        <i class="fa fa-filter"></i> Filtros
                     </button>
                 </h5>
             </div>
@@ -34,9 +45,7 @@
                         <div class="col-md-2 col-lg-2 col-xs-2">
                             <div class="form-group">
                                 <label class="control-label">Simulação</label>
-                                <select id="simulacao_select" class="form-control">
-                                    <option></option>
-                                </select>
+                                @Html.DropDownList("SimulationID", null, htmlAttributes: new { @class = "form-control required simulation_id" })
                             </div>
                         </div>
 
@@ -44,7 +53,6 @@
                             <div class="form-group">
                                 <label class="control-label">Mémoria</label>
                                 <select id="memoria_select" class="form-control">
-                                    <option></option>
                                 </select>
                             </div>
                         </div>
@@ -53,16 +61,16 @@
                             <div class="form-group">
                                 <label class="control-label">Algoritmos</label>
                                 <select id="alg_select" class="form-control">
-                                    <option value="all">Todos</option>
-                                    <option value="First-Fit">First-Fit</option>
-                                    <option value="Next-Fit">Next-Fit</option>
-                                    <option value="Best-Fit">Best-Fit</option>
-                                    <option value="Worst-Fit">Worst-Fit</option>
+                                    <option value="all" selected="selected">Todos</option>
+                                    <option value="first">First-Fit</option>
+                                    <option value="next">Next-Fit</option>
+                                    <option value="best">Best-Fit</option>
+                                    <option value="worst">Worst-Fit</option>
                                 </select>
                             </div>
                         </div>
 
-                        <div class="col-md-2 col-lg-2 col-xs-2">
+                        <div class="col-md-3 col-lg-3 col-xs-3">
                             <div class="form-group">
                                 <button id="btn-filtrar" style="margin-top: 32px;" class="btn btn-success">Filtrar</button>
                             </div>
@@ -73,174 +81,441 @@
         </div>
     </div>
 
-    <hr />
-    <h3>STATUS DA MEMÓRIA</h3>
+    <div id="div-all" class="display-none">
+        <hr />
+        <h3>STATUS DA MEMÓRIA (INICIAL)</h3>
 
-    <div class="row">
-        <div class="col-md-3 col-lg-3 col-xs-3">
-            <div class="white-box">
-                <h3 class="box-title">INICIAL</h3>
-                <canvas id="memoriaUtilizacao" width="400" height="400"></canvas>
+        <div class="row">
+            <!-- .col -->
+            <div class="col-md-4 col-sm-12 col-xs-12">
+                <div class="white-box text-center border border-dark">
+                    <h1 id="memory_tamanho" class="counter text-dash-box"></h1>
+                    <p>TAMANHO DA MÉMORIA</p>
+                </div>
+            </div>
+            <!-- /.col -->
+            <!-- .col -->
+            <div class="col-md-2 col-sm-12">
+                <div class="white-box text-center border border-dark">
+                    <h1 id="process_qtd" class="counter text-dash-box"></h1>
+                    <p>QTD DE PROCESSOS</p>
+                </div>
+            </div>
+            <!-- /.col -->
+            <!-- .col -->
+            <div class="col-md-2 col-sm-12">
+                <div class="white-box text-center border border-dark">
+                    <h1 id="menor_process" class="counter text-dash-box"></h1>
+                    <p>MENOR PROCESSO</p>
+                </div>
+            </div>
+            <!-- /.col -->
+            <!-- .col -->
+            <div class="col-md-2 col-sm-12">
+                <div class="white-box text-center border border-dark">
+                    <h1 id="media_process" class="counter text-dash-box"></h1>
+                    <p>MÉDIA PROCESSO</p>
+                </div>
+            </div>
+            <!-- /.col -->
+            <!-- .col -->
+            <div class="col-md-2 col-sm-12">
+                <div class="white-box text-center border border-dark">
+                    <h1 id="maior_process" class="counter text-dash-box"></h1>
+                    <p>MAIOR PROCESSO</p>
+                </div>
+            </div>
+            <!-- /.col -->
+        </div>
+
+        <!-- /.row -->
+        <div class="row">
+            <!-- .col -->
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="white-box border border-dark">
+                    <h3 class="box-title">Capacidade da Memória</h3>
+                    <p>(Estado inicial)</p>
+                    <a id="downloadStatus"
+                       download="StatusMemoriaInicial.jpg"
+                       href=""
+                       class="link"
+                       title="Baixar Gráfico">
+                        Download
+                    </a>
+                    <canvas id="memoriaUtilizacao" height="100" width="250"></canvas>
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12 col-xs-12">
+                <div class="white-box border border-dark">
+                    <h3 class="box-title">Frames quantidade livres (Estado Inicial)</h3>
+                    <p>Agrupado por % da distribuição da memória</p>
+                    <a id="download"
+                       download="EspacoLivresMemoriaInicial.jpg"
+                       href=""
+                       class="link"
+                       title="Baixar Gráfico">
+                        Download
+                    </a>
+                    <canvas id="espacosLivres" height="100" width="250"></canvas>
+                </div>
             </div>
         </div>
 
-        <div class="col-md-3 col-lg-3 col-xs-3">
-            <div class="white-box">
-                <h3 class="box-title">SIMULAÇÂO QUICK-FIT</h3>
-                <canvas id="memoriaUtilizacao" width="400" height="400"></canvas>
+        <!--FIRST FIT SECTION *******BEGIN*********-->
+
+        <div id="div-first" class="display-none">
+            <hr />
+            <h3>SIMULAÇÂO (FIRST-FIT)</h3>
+
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-menor-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÍNIMA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-media-insercao" class=" counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÉDIA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-maior-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MAXÍMO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-processo-inserido" class="counter text-dash-box"></h1>
+                        <p class="text-box">QTD PROCESSOS INSERIDOS</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-menor-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MENOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="first-maior-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MAIOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Status da Memória</h3>
+                        <p>(First-Fit)</p>
+                        <a id="downloadStatusFirst"
+                           download="StatusMemoriaFirst.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="memoriaUtilizacaoFirst" height="100" width="250"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Frames quantidade Livres (First-Fit)</h3>
+                        <p>Agrupado por % da distribuição da memória</p>
+                        <a id="downloadFirst"
+                           download="EspacoLivresMemoriaFirst.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="espacosLivresFirst" height="100" width="250"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
+        <!--FIRST FIT SECTION *******FINISH*********-->
+        <!--NEXT FIT SECTION  *******BEGIN*********-->
 
-    <script>
-        var memoriaUtilizacaoInicial = document.getElementById('memoriaUtilizacao').getContext('2d');
+        <div id="div-next" class="display-none">
+            <hr />
+            <h3>SIMULAÇÂO (NEXT-FIT)</h3>
 
-        var memoriaUsada = '@(ViewBag.memoriaInicialUsada)';
-        var memoriaLivre = '@(ViewBag.memoriaInicialLivre)';
-        var memoriaInutil = '@(ViewBag.memoriaInicialInutil)';
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-menor-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÍNIMA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-media-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÉDIA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-maior-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MAXÍMO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-processo-inserido" class="counter text-dash-box"></h1>
+                        <p class="text-box">QTD PROCESSOS INSERIDOS</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-menor-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MENOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="next-maior-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MAIOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+            </div>
 
-        var memoriaChart = new Chart(memoriaUtilizacaoInicial, {
-            type: 'pie',
-            data: {
-                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
-                datasets: [{
-                    label: '# of Votes',
-                    data: [memoriaUsada, memoriaLivre, memoriaInutil],
-                    backgroundColor: [
-                        'rgba(54, 162, 235, 0.2)',
-                        'rgba(75, 192, 192, 0.2)',
-                        'rgba(255, 99, 132, 0.2)'
-                    ],
-                    borderColor: [
-                        'rgba(54, 162, 235, 1)',
-                        'rgba(75, 192, 192, 1)',
-                        'rgba(255, 99, 132, 1)'
-                    ],
-                    borderWidth: 1
-                }]
-            },
-            options: {
-                scales: {
-                    yAxes: [{
-                        ticks: {
-                            beginAtZero: true
-                        },
-                        tooltips: {
-                            callbacks: {
-                                label: function (tooltipItem, data) {
-                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+            <br />
 
-                                    if (label) {
-                                        label += ' bytes';
-                                    }
-
-                                    return label;
-                                }
-                            }
-                        }
-                    }]
-                }
-            }
-        });
-    </script>
-
-    <hr />
-    <h3>SIMULAÇÂO (QUICK-FIT)</h3>
-
-    <div class="row">
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TAMANHO MÍNIMO (Processo)</h3>
-                <p>(bytes)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Status da Memória</h3>
+                        <p>(Next-Fit)</p>
+                        <a id="downloadStatusNext"
+                           download="StatusMemoriaNext.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="memoriaUtilizacaoNext" height="100" width="250"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Frames quantidade Livres (Next-Fit)</h3>
+                        <p>Agrupado por % da distribuição da memória</p>
+                        <a id="downloadNext"
+                           download="EspacoLivresMemoriaNext.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="espacosLivresNext" height="100" width="250"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TAMANHO MÁXIMO (Processo)</h3>
-                <p>(bytes)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
+        <!--NEXT FIT SECTION *******FINISH*********-->
+        <!--BEST FIT SECTION  *******BEGIN*********-->
+
+        <div id="div-best" class="display-none">
+            <hr />
+            <h3>SIMULAÇÂO (BEST-FIT)</h3>
+
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-menor-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÍNIMA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-media-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÉDIA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-maior-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MAXÍMO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-processo-inserido" class="counter text-dash-box"></h1>
+                        <p class="text-box">QTD PROCESSOS INSERIDOS</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-menor-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MENOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="best-maior-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MAIOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Status da Memória</h3>
+                        <p>(Best-Fit)</p>
+                        <a id="downloadStatusBest"
+                           download="StatusMemoriaBest.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="memoriaUtilizacaoBest" height="100" width="250"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Frames quantidade Livres (Best-Fit)</h3>
+                        <p>Agrupado por % da distribuição da memória</p>
+                        <a id="downloadBest"
+                           download="EspacoLivresMemoriaBest.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="espacosLivresBest" height="100" width="250"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TAMANHO MÉDIO (Processo)</h3>
-                <p>(bytes)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
+        <!--BEST FIT SECTION *******FINISH*********-->
+        <!--WORST FIT SECTION  *******BEGIN*********-->
+
+        <div id="div-worst" class="display-none">
+            <hr />
+            <h3>SIMULAÇÂO (WORST-FIT)</h3>
+
+            <div class="row">
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-menor-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÍNIMA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-media-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MÉDIA</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-maior-insercao" class="counter text-dash-box"></h1>
+                        <p class="text-box">INSERÇÃO MAXÍMO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-processo-inserido" class="counter text-dash-box"></h1>
+                        <p class="text-box">QTD PROCESSOS INSERIDOS</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-menor-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MENOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+                <div class="col-md-2 col-sm-12">
+                    <div class="white-box text-center border border-dark">
+                        <h1 id="worst-maior-processo" class="counter text-dash-box"></h1>
+                        <p class="text-box">MAIOR PROCESSO INSERIDO</p>
+                    </div>
+                </div>
+            </div>
+
+            <br />
+
+            <div class="row">
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Status da Memória</h3>
+                        <p>(Worst-Fit)</p>
+                        <a id="downloadStatusWorst"
+                           download="StatusMemoriaWorst.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="memoriaUtilizacaoWorst" height="100" width="250"></canvas>
+                    </div>
+                </div>
+                <div class="col-md-6 col-sm-12 col-xs-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">Frames quantidade Livres (Worst-Fit)</h3>
+                        <p>Agrupado por % da distribuição da memória</p>
+                        <a id="downloadWorst"
+                           download="EspacoLivresMemoriaWorst.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="espacosLivresWorst" height="100" width="250"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TEMPO MÍNIMO DE INSERÇÃO</h3>
-                <p>(Milissegundos)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
+        <!--WORST FIT SECTION *******FINISH*********-->
+
+        <hr />
+        <h3>DADOS FINAIS DOS ALGORITMOS</h3>
+
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="white-box border border-dark">
+                    <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
+                    <div>
+                        <canvas id="fragmentacaoInterna" height="70"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TEMPO MÁXIMO DE INSERÇÃO</h3>
-                <p>(Milissegundos)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="white-box border border-dark">
+                    <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
+                    <div>
+                        <canvas id="fragmentacaoExterna" height="70"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <div class="col-md-2 col-lg-2 col-xs-2">
-            <div class="white-box">
-                <h3 class="box-title">TEMPO MÉDIO DE INSEÇÂO</h3>
-                <p>(Milissegundos)</p>
-                <ul class="list-inline two-part">
-                    <li><i class="icon-people text-info"></i></li>
-                    <li class="text-right"><span class="counter">23</span></li>
-                </ul>
-            </div>
-        </div>
-    </div>
-    <br />
-    <hr />
-    <h3>DADOS FINAIS DOS ALGORITMOS</h3>
-    <hr />
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="white-box">
-                <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
-                <div>
-                    <canvas id="fragmentacaoInterna" height="70"></canvas>
+        <div class="row">
+            <div class="col-sm-12">
+                <div class="white-box border border-dark">
+                    <h3 class="box-title">TEMPO DE INSERÇÃO (Linha do tempo)</h3>
+                    <div>
+                        <canvas id="tempoInsercao" height="70"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="white-box">
-                <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
-                <div>
-                    <canvas id="fragmentacaoExterna" height="70"></canvas>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class="row">
-        <div class="col-sm-12">
-            <div class="white-box">
-                <h3 class="box-title">TEMPO DE INSERÇÃO (Linha do tempo)</h3>
-                <div>
-                    <canvas id="tempoInsercao" height="70"></canvas>
-                </div>
-            </div>
+
+    <div id="NA-graficos">
+        <div class="row">
+            <h3 style="margin-left: 10px; margin-top: 10px;" class="box-title">NÃO FOI ENCONTRADO NENHUM REGISTRO PARA EXIBIR.</h3>
         </div>
     </div>
 
@@ -368,3 +643,957 @@
     <br />
     <br />
 </div>
+
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
+<script>
+    //Variaveis de controlle
+    var isSetGet = false;
+    var isInitial = true;
+    var isFirstCompleted = false;
+    var isNextCompleted = false;
+    var isBestCompleted = false;
+    var isWorstCompleted = false;
+
+    //se mudar o picklist de simulações busca as memorias da simulação escolhida
+    $('.simulation_id').change(function () {
+        feelMemoriesPicklist();
+    });
+
+    //chama assim que o doc carregar
+    $(document).ready(function () {
+        feelMemoriesPicklist();
+        $('#loadingModal').modal('show');
+    });
+
+    //Inicializa o picklist de memoria e verifica se há o GET na URl
+    function feelMemoriesPicklist() {
+        console.log('method:feelMemoriesPicklist() -> Start*');
+        var memoriaGetParameter = '@(ViewBag.MemorySelected)';
+        var simulationGetParameter = '@(ViewBag.SimulationSelected)';
+
+        //se tiver o parametro no get
+        if (simulationGetParameter != '' && !isSetGet)
+        {
+            $('.simulation_id').val(simulationGetParameter);
+            isSetGet = true;
+        }
+
+        var simulationSelected = $('.simulation_id').val();
+
+        if (simulationSelected != '') {
+            $.ajax({
+                url: "/Home/GetMemories/",
+                type: "POST",
+                datatype: "text",
+                data: { simulationId: simulationSelected },
+                success: function (res) {
+                    if (res.success) {
+                        $('#memoria_select').empty();
+
+                        var responseMap = $.parseJSON(res.memoriesMap);
+
+                        var jsonArr = Object.keys(responseMap).map(function (key) {
+                            return [key, responseMap[key]];
+                        });
+
+                        jsonArr = jsonArr.reverse();
+
+                        $.each(jsonArr, function (i, item) {
+                            //se tiver o parametro no get
+                            if (memoriaGetParameter != '') {
+                                //seleciona a memoia passada por parametro
+                                if (item[0] == memoriaGetParameter) $('#memoria_select').append('<option selected="selected" value="' + item[0] + '">' + item[1] + '</option>');
+                                else $('#memoria_select').append('<option value="' + item[0] + '">' + item[1] + '</option>');
+                            }
+                            else
+                            {
+                                if (i == 0) $('#memoria_select').append('<option selected="selected" value="' + item[0] + '">' + item[1] + '</option>');
+                                else $('#memoria_select').append('<option value="' + item[0] + '">' + item[1] + '</option>');
+                            }
+                        });
+                    }
+                    else {
+                        console.log('Erro ao buscar memorias');
+                        console.log('erro -> ' + res.error);
+                    }
+                },
+                error: function (req, status, error) {
+                    var message = 'Houve um erro na simulação: ' + error;
+                    console.log('Status: ' + status + ' Erro: ' + msg);
+                }
+            }).done(function () {
+                if (isInitial) {
+                    isInitial = false;
+                    inicializaGraficos();
+                }
+            });
+        }
+        console.log('method:feelMemoriesPicklist() -> Finish*');
+    }
+
+    $('#btn-filtrar').on('click', function () {
+        inicializaGraficos();
+    });
+
+    //pega os valores dos picklists e chama a funcao inicializaDadosIniciais()
+    function inicializaGraficos() {
+        console.log('method:inicializaGraficos() -> Start*');
+
+        var simulation = $('.simulation_id').val();
+        var memoria = $('#memoria_select').val();
+        var algs = $('#alg_select').val();
+
+        console.log('simulation ' + simulation);
+        console.log('memoria ' + memoria);
+        console.log('algs ' + algs);
+
+        if (memoria != '')
+        {
+            $('#div-all').removeClass('display-none');
+            $('#NA-graficos').addClass('display-none');
+            inicializaDadosIniciais(memoria, algs);
+        }
+
+        console.log('method:inicializaGraficos() -> Finish*');
+    }
+
+    //pega os dados da memoria inicial
+    function inicializaDadosIniciais(memory_id, algs)
+    {
+        console.log('method:inicializaDadosIniciais() -> Start*');
+
+        $('#memory_tamanho').empty();
+        $('#process_qtd').text();
+        $('#menor_process').text();
+        $('#maior_process').text();
+        $('#media_process').text();
+
+        $.ajax({
+            url: "/Home/GetMemoriesInicialDados/",
+            type: "POST",
+            datatype: "text",
+            data: { memoryID: memory_id },
+            success: function (res) {
+                if (res.success) {
+                    isFirstCompleted = res.isFirstCompleted;
+                    isNextCompleted = res.isNextCompleted;
+                    isBestCompleted = res.isBestCompleted;
+                    isWorstCompleted = res.isWorstCompleted;
+
+                    $('#memory_tamanho').append('<i class="fas fa-memory"></i> ' + res.memoriaTamanho.toFixed(2)+' MiB');
+
+                    $('#process_qtd').text(res.numeroProcessos);
+                    $('#menor_process').text(res.menorProcesso.toFixed(2)+' KiB');
+                    $('#maior_process').text(res.maiorProcesso.toFixed(2)+' KiB');
+                    $('#media_process').text(res.mediaProcesso.toFixed(2)+' KiB');
+                }
+                else {
+                    console.log('Erro ao buscar memorias');
+                    console.log('erro -> ' + res.error);
+                }
+            },
+            error: function (req, status, error) {
+                var message = 'Houve um erro na simulação: ' + error;
+                console.log('Status: ' + status + ' Erro: ' + message);
+            }
+        }).done(function () {
+            inicializaStatusInicial(memory_id);
+        });
+
+        console.log('method:inicializaDadosIniciais() -> Finish*');
+    }
+
+    //Inicializa os graficos da memoria inicial (status e frames livres)
+    function inicializaStatusInicial(memory_id)
+    {
+        console.log('method:inicializaStatusInicial() -> Start*');
+
+        $.ajax({
+            url: "/Home/GetMemoriesStatusInicial/",
+            type: "POST",
+            datatype: "text",
+            data: { memoryID: memory_id },
+            success: function (res) {
+                if (res.success) {
+                    //SUCCESS
+
+                    //BEGIN STATUS MEMORIA *****
+                    var memoriaUtilizacaoInicial = document.getElementById('memoriaUtilizacao').getContext('2d');
+
+                    var memoriaUsada = res.memoriaUtilizada.toFixed(2);
+                    var memoriaLivre = res.memoriaLivre.toFixed(2);
+                    var memoriaInutil = res.memoriaInutil.toFixed(2);
+
+                    var memoriaChart = new Chart(memoriaUtilizacaoInicial, {
+                        type: 'pie',
+                        data: {
+                            labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                            datasets: [{
+                                label: '# of Votes',
+                                data: [memoriaUsada, memoriaLivre, memoriaInutil],
+                                backgroundColor: [
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(255, 99, 132, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(255, 99, 132, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true
+                                    },
+                                    tooltips: {
+                                        enabled: true,
+                                        mode: 'single',
+                                        callbacks: {
+                                            label: function (tooltipItem, data) {
+                                                return tooltipItem.yLabel + ' dfougsaduiffgsd';
+                                            }
+                                        }
+                                    }
+                                }]
+                            }
+                        }
+                    });
+
+                    //Download Chart Image
+                    document.getElementById("downloadStatus").addEventListener('click', function () {
+                        /*Get image of canvas element*/
+                        var url_base64jp = document.getElementById("memoriaUtilizacao").toDataURL("image/jpg");
+                        /*get download button (tag: <a></a>) */
+                        var a = document.getElementById("downloadStatus");
+                        /*insert chart image url to download button (tag: <a></a>) */
+                        a.href = url_base64jp;
+                    });
+
+                    //FINISH STATUS MEMORIA****
+
+                    //BEGIN FRAMES LIVRES
+                    var espacosLivres = document.getElementById('espacosLivres').getContext('2d');
+
+                    var espacoChart = new Chart(espacosLivres, {
+                        type: 'bar',
+                        data: {
+                            labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                            datasets: [{
+                                label: 'frames',
+                                data: res.framesLivres,
+                                backgroundColor: [
+                                    'rgba(255, 99, 132, 0.2)',
+                                    'rgba(54, 162, 235, 0.2)',
+                                    'rgba(255, 206, 86, 0.2)',
+                                    'rgba(75, 192, 192, 0.2)',
+                                    'rgba(153, 102, 255, 0.2)',
+                                    'rgba(255, 159, 64, 0.2)',
+                                    'rgba(88, 214, 141, 0.2)',
+                                    'rgba(93, 173, 226, 0.2)',
+                                    'rgba(192, 57, 43, 0.2)',
+                                    'rgba(229, 152, 102, 0.2)'
+                                ],
+                                borderColor: [
+                                    'rgba(255, 99, 132, 1)',
+                                    'rgba(54, 162, 235, 1)',
+                                    'rgba(255, 206, 86, 1)',
+                                    'rgba(75, 192, 192, 1)',
+                                    'rgba(153, 102, 255, 1)',
+                                    'rgba(255, 159, 64, 1)',
+                                    'rgba(88, 214, 141, 1)',
+                                    'rgba(93, 173, 226, 1)',
+                                    'rgba(192, 57, 43, 1)',
+                                    'rgba(229, 152, 102, 1)'
+                                ],
+                                borderWidth: 1
+                            }]
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        // Include a dollar sign in the ticks
+                                        callback: function (value, index, values) {
+                                            return value;
+                                        }
+                                    }
+                                }]
+                            },
+                            legend: {
+                                display: false,
+                            }
+                        }
+                    });
+
+                    //Download Chart Image
+                    document.getElementById("download").addEventListener('click', function () {
+                        /*Get image of canvas element*/
+                        var url_base64jp = document.getElementById("espacosLivres").toDataURL("image/jpg");
+                        /*get download button (tag: <a></a>) */
+                        var a = document.getElementById("download");
+                        /*insert chart image url to download button (tag: <a></a>) */
+                        a.href = url_base64jp;
+                    });
+
+                    //FINISH FRAMES LIVRES
+                }
+                else {
+                    console.log('Erro ao buscar memorias');
+                    console.log('erro -> ' + res.error);
+                }
+            },
+            error: function (req, status, error) {
+                var message = 'Houve um erro na simulação: ' + error;
+                console.log('Status: ' + status + ' Erro: ' + message);
+            }
+        }).done(function () {
+            inicializaAlgs(memory_id);
+        });
+
+        console.log('method:inicializaStatusInicial() -> Finish*');
+    }
+
+    //inicializa os graficos dos algoritmos
+    function inicializaAlgs(memory_id) {
+        console.log('method:inicializaAlgs() -> Start*');
+
+        var algs = $('#alg_select').val();
+
+        var needFirst = false, needNext = false, needBest = false, needWorst = false;
+
+        if (algs != 'all') {
+            switch (algs) {
+                case 'first':
+                    needFirst = true;
+                    break;
+                case 'next':
+                    needNext = true;
+                    break;
+                case 'best':
+                    needBest = true;
+                    break;
+                case 'worst':
+                    needWorst = true;
+                    break;
+            }
+        }
+        else { needFirst = true, needNext = true, needBest = true, needWorst = true; }
+
+        $.ajax({
+            url: "/Home/GetMemoriesAlgsData/",
+            type: "POST",
+            datatype: "text",
+            data: {
+                memoryID: memory_id, needFirst: needFirst,
+                needNext: needNext, needBest: needBest,
+                needWorst: needWorst
+            },
+            success: function (res) {
+                if (res.success) {
+                    if (needFirst){
+                        $('#first-processo-inserido').text(res.first_processo_inserido + ' de ' + res.processTotalCount);
+                        $('#first-menor-processo').text(res.first_menor_process.toFixed(2)+' KiB');
+                        $('#first-maior-processo').text(res.first_maior_process.toFixed(2)+' KiB');
+                        $('#first-menor-insercao').text(res.first_menor_insercao.toFixed(2)+' ms');
+                        $('#first-media-insercao').text(res.first_media_insercao.toFixed(2)+' ms');
+                        $('#first-maior-insercao').text(res.first_maior_insercao.toFixed(2)+' ms');
+                    }
+
+                    if (needNext){
+                        $('#next-processo-inserido').text(res.next_processo_inserido + ' de ' + res.processTotalCount);
+                        $('#next-menor-processo').text(res.next_menor_process.toFixed(2) + ' KiB');
+                        $('#next-maior-processo').text(res.next_maior_process.toFixed(2) + ' KiB');
+                        $('#next-menor-insercao').text(res.next_menor_insercao.toFixed(2) + ' ms');
+                        $('#next-media-insercao').text(res.next_media_insercao.toFixed(2) + ' ms');
+                        $('#next-maior-insercao').text(res.next_maior_insercao.toFixed(2) + ' ms');
+                    }
+
+                    if (needBest){
+                        $('#best-processo-inserido').text(res.best_processo_inserido + ' de ' + res.processTotalCount);
+                        $('#best-menor-processo').text(res.best_menor_process.toFixed(2) + ' KiB');
+                        $('#best-maior-processo').text(res.best_maior_process.toFixed(2) + ' KiB');
+                        $('#best-menor-insercao').text(res.best_menor_insercao.toFixed(2) + ' ms');
+                        $('#best-media-insercao').text(res.best_media_insercao.toFixed(2) + ' ms');
+                        $('#best-maior-insercao').text(res.best_maior_insercao.toFixed(2) + ' ms');
+                    }
+
+                    if (needWorst){
+                        $('#worst-processo-inserido').text(res.worst_processo_inserido + ' de ' + res.processTotalCount);
+                        $('#worst-menor-processo').text(res.worst_menor_process.toFixed(2) + ' KiB');
+                        $('#worst-maior-processo').text(res.worst_maior_process.toFixed(2) + ' KiB');
+                        $('#worst-menor-insercao').text(res.worst_menor_insercao.toFixed(2) + ' ms');
+                        $('#worst-media-insercao').text(res.worst_media_insercao.toFixed(2) + ' ms');
+                        $('#worst-maior-insercao').text(res.worst_maior_insercao.toFixed(2) + ' ms');
+                    }
+                }
+                else {
+                    console.log('Erro ao buscar memorias');
+                    console.log('erro -> ' + res.error);
+                }
+            },
+            error: function (req, status, error) {
+                var message = 'Houve um erro na simulação: ' + error;
+                console.log('Status: ' + status + ' Erro: ' + message);
+            }
+        });
+
+        $.ajax({
+            url: "/Home/GetMemoriesAlgsGraficos/",
+            type: "POST",
+            datatype: "text",
+            data: {
+                memoryID: memory_id, needFirst: needFirst,
+                needNext: needNext, needBest: needBest,
+                needWorst: needWorst
+            },
+            success: function (res) {
+                console.log(res);
+
+                if (res.success) {
+                    if (needFirst) {
+                        //BEGIN STATUS MEMORIA *****
+                        var memoriaUtilizacaoFirst = document.getElementById('memoriaUtilizacaoFirst').getContext('2d');
+
+                        var memoriaUsadaFirst = res.memoriaUtilizadaFirst;
+                        var memoriaLivreFirst = res.memoriaLivreFirst;
+                        var memoriaInutilFirst = res.memoriaInutilFirst;
+
+                        var memoriaChartFirst = new Chart(memoriaUtilizacaoFirst, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                                datasets: [{
+                                    label: '# of Votes',
+                                    data: [memoriaUsadaFirst, memoriaLivreFirst, memoriaInutilFirst],
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(255, 99, 132, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        tooltips: {
+                                            callbacks: {
+                                                label: function (tooltipItem, data) {
+                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                                    if (label) {
+                                                        label += ' bytes';
+                                                    }
+
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadStatusFirst").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("memoriaUtilizacaoFirst").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadStatusFirst");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH STATUS MEMORIA****
+
+                        //BEGIN FRAMES LIVRES
+                        var espacosLivresFirst = document.getElementById('espacosLivresFirst').getContext('2d');
+
+                        var espacoChartFirst = new Chart(espacosLivresFirst, {
+                            type: 'bar',
+                            data: {
+                                labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                                datasets: [{
+                                    label: 'frames',
+                                    data: res.framesLivresFirst,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(88, 214, 141, 0.2)',
+                                        'rgba(93, 173, 226, 0.2)',
+                                        'rgba(192, 57, 43, 0.2)',
+                                        'rgba(229, 152, 102, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(88, 214, 141, 1)',
+                                        'rgba(93, 173, 226, 1)',
+                                        'rgba(192, 57, 43, 1)',
+                                        'rgba(229, 152, 102, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            // Include a dollar sign in the ticks
+                                            callback: function (value, index, values) {
+                                                return value;
+                                            }
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadFirst").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("espacosLivresFirst").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadFirst");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH FRAMES LIVRES
+                    }
+
+                    if (needNext) {
+                        //BEGIN STATUS MEMORIA *****
+                        var memoriaUtilizacaoNext = document.getElementById('memoriaUtilizacaoNext').getContext('2d');
+
+                        var memoriaUsadaNext = res.memoriaUtilizadaNext;
+                        var memoriaLivreNext = res.memoriaLivreNext;
+                        var memoriaInutilNext = res.memoriaInutilNext;
+
+                        var memoriaChartNext = new Chart(memoriaUtilizacaoNext, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                                datasets: [{
+                                    label: '# of Votes',
+                                    data: [memoriaUsadaNext, memoriaLivreNext, memoriaInutilNext],
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(255, 99, 132, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        tooltips: {
+                                            callbacks: {
+                                                label: function (tooltipItem, data) {
+                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                                    if (label) {
+                                                        label += ' bytes';
+                                                    }
+
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadStatusNext").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("memoriaUtilizacaoNext").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadStatusNext");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH STATUS MEMORIA****
+
+                        //BEGIN FRAMES LIVRES
+                        var espacosLivresNext = document.getElementById('espacosLivresNext').getContext('2d');
+
+                        var espacoChartNext = new Chart(espacosLivresNext, {
+                            type: 'bar',
+                            data: {
+                                labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                                datasets: [{
+                                    label: 'frames',
+                                    data: res.framesLivresNext,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(88, 214, 141, 0.2)',
+                                        'rgba(93, 173, 226, 0.2)',
+                                        'rgba(192, 57, 43, 0.2)',
+                                        'rgba(229, 152, 102, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(88, 214, 141, 1)',
+                                        'rgba(93, 173, 226, 1)',
+                                        'rgba(192, 57, 43, 1)',
+                                        'rgba(229, 152, 102, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            // Include a dollar sign in the ticks
+                                            callback: function (value, index, values) {
+                                                return value;
+                                            }
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadNext").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("espacosLivresNext").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadNext");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH FRAMES LIVRES
+
+                    }
+
+                    if (needBest) {
+                        //BEGIN STATUS MEMORIA *****
+                        var memoriaUtilizacaoBest = document.getElementById('memoriaUtilizacaoBest').getContext('2d');
+
+                        var memoriaUsadaBest = res.memoriaUtilizadaBest;
+                        var memoriaLivreBest = res.memoriaLivreBest;
+                        var memoriaInutilBest = res.memoriaInutilBest;
+
+                        var memoriaChartBest = new Chart(memoriaUtilizacaoBest, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                                datasets: [{
+                                    label: '# of Votes',
+                                    data: [memoriaUsadaBest, memoriaLivreBest, memoriaInutilBest],
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(255, 99, 132, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        tooltips: {
+                                            callbacks: {
+                                                label: function (tooltipItem, data) {
+                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                                    if (label) {
+                                                        label += ' bytes';
+                                                    }
+
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadStatusBest").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("memoriaUtilizacaoBest").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadStatusBest");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH STATUS MEMORIA****
+
+                        //BEGIN FRAMES LIVRES
+                        var espacosLivresBest = document.getElementById('espacosLivresBest').getContext('2d');
+
+                        var espacoChartBest = new Chart(espacosLivresBest, {
+                            type: 'bar',
+                            data: {
+                                labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                                datasets: [{
+                                    label: 'frames',
+                                    data: res.framesLivresBest,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(88, 214, 141, 0.2)',
+                                        'rgba(93, 173, 226, 0.2)',
+                                        'rgba(192, 57, 43, 0.2)',
+                                        'rgba(229, 152, 102, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(88, 214, 141, 1)',
+                                        'rgba(93, 173, 226, 1)',
+                                        'rgba(192, 57, 43, 1)',
+                                        'rgba(229, 152, 102, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            // Include a dollar sign in the ticks
+                                            callback: function (value, index, values) {
+                                                return value;
+                                            }
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadBest").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("espacosLivresBest").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadBest");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH FRAMES LIVRES
+                    }
+
+                    if (needWorst) {
+                        //BEGIN STATUS MEMORIA *****
+                        var memoriaUtilizacaoWorst = document.getElementById('memoriaUtilizacaoWorst').getContext('2d');
+
+                        var memoriaUsadaWorst = res.memoriaUtilizadaWorst;
+                        var memoriaLivreWorst = res.memoriaLivreWorst;
+                        var memoriaInutilWorst = res.memoriaInutilWorst;
+
+                        var memoriaChartWorst = new Chart(memoriaUtilizacaoWorst, {
+                            type: 'pie',
+                            data: {
+                                labels: ['Útilizada', 'Livre', 'Inútil (Fragmentação Interna)'],
+                                datasets: [{
+                                    label: '# of Votes',
+                                    data: [memoriaUsadaWorst, memoriaLivreWorst, memoriaInutilWorst],
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(255, 99, 132, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            beginAtZero: true
+                                        },
+                                        tooltips: {
+                                            callbacks: {
+                                                label: function (tooltipItem, data) {
+                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
+
+                                                    if (label) {
+                                                        label += ' bytes';
+                                                    }
+
+                                                    return label;
+                                                }
+                                            }
+                                        }
+                                    }]
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadStatusWorst").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("memoriaUtilizacaoWorst").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadStatusWorst");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH STATUS MEMORIA****
+
+                        //BEGIN FRAMES LIVRES
+                        var espacosLivresWorst = document.getElementById('espacosLivresWorst').getContext('2d');
+
+                        var espacoChartWorst = new Chart(espacosLivresWorst, {
+                            type: 'bar',
+                            data: {
+                                labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                                datasets: [{
+                                    label: 'frames',
+                                    data: res.framesLivresWorst,
+                                    backgroundColor: [
+                                        'rgba(255, 99, 132, 0.2)',
+                                        'rgba(54, 162, 235, 0.2)',
+                                        'rgba(255, 206, 86, 0.2)',
+                                        'rgba(75, 192, 192, 0.2)',
+                                        'rgba(153, 102, 255, 0.2)',
+                                        'rgba(255, 159, 64, 0.2)',
+                                        'rgba(88, 214, 141, 0.2)',
+                                        'rgba(93, 173, 226, 0.2)',
+                                        'rgba(192, 57, 43, 0.2)',
+                                        'rgba(229, 152, 102, 0.2)'
+                                    ],
+                                    borderColor: [
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(255, 206, 86, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(153, 102, 255, 1)',
+                                        'rgba(255, 159, 64, 1)',
+                                        'rgba(88, 214, 141, 1)',
+                                        'rgba(93, 173, 226, 1)',
+                                        'rgba(192, 57, 43, 1)',
+                                        'rgba(229, 152, 102, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                            },
+                            options: {
+                                scales: {
+                                    yAxes: [{
+                                        ticks: {
+                                            // Include a dollar sign in the ticks
+                                            callback: function (value, index, values) {
+                                                return value;
+                                            }
+                                        }
+                                    }]
+                                },
+                                legend: {
+                                    display: false,
+                                }
+                            }
+                        });
+
+                        document.getElementById("downloadWorst").addEventListener('click', function () {
+                            var url_base64jp = document.getElementById("espacosLivresWorst").toDataURL("image/jpg");
+                            var a = document.getElementById("downloadWorst");
+                            a.href = url_base64jp;
+                        });
+                        //FINISH FRAMES LIVRES
+                    }
+                }
+                else {
+                    console.log('Erro ao buscar memorias');
+                    console.log('erro -> ' + res.error);
+                }
+            },
+            error: function (req, status, error) {
+                var message = 'Houve um erro na simulação: ' + error;
+                console.log('Status: ' + status + ' Erro: ' + message);
+            }
+        }).done(function () {
+            habilitaSectionAlg(algs);
+        });
+
+        console.log('method:inicializaAlgs() -> Finish*');
+    }
+
+    //Habilita as sections de acordo com os filtros
+    function habilitaSectionAlg(algs)
+    {
+        console.log('method:habilitaSectionAlg() -> Start*');
+
+        console.log('algs '+algs);
+
+        if (algs == 'all') {
+            if (isFirstCompleted) $('#div-first').removeClass('display-none');
+            if (isNextCompleted) $('#div-next').removeClass('display-none');
+            if (isBestCompleted) $('#div-best').removeClass('display-none');
+            if (isWorstCompleted) $('#div-worst').removeClass('display-none');
+        }
+        else {
+            $('#div-first').addClass('display-none');
+            $('#div-next').addClass('display-none');
+            $('#div-best').addClass('display-none');
+            $('#div-worst').addClass('display-none');
+
+            switch (algs) {
+                case 'first':
+                    if (isFirstCompleted) $('#div-first').removeClass('display-none');
+                    break;
+                case 'next':
+                    if (isNextCompleted) $('#div-next').removeClass('display-none');
+                    break;
+                case 'best':
+                    if (isBestCompleted) $('#div-best').removeClass('display-none');
+                    break;
+                case 'worst':
+                    if (isWorstCompleted) $('#div-worst').removeClass('display-none');
+                    break;
+            }
+        }
+
+        $('#loadingModal').modal('hide');
+        $('.container-fluid').removeClass('display-none');
+        console.log('method:habilitaSectionAlg() -> Finish*');
+    }
+</script>

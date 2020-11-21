@@ -1,5 +1,21 @@
 ﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
 for details on configuring this project to bundle and minify static web assets. */
+.display-none {
+    display:none;
+}
+
+.text-dash-box {
+    font-size: 18px !important;
+}
+
+.text-box {
+    font-size: 14px !important;
+}
+
+.box-dashboard {
+    height: 50px !important;
+}
+
 .link {
     display: inline-block;
     float: right;
@@ -183,10 +199,6 @@ html {
   min-height: 100%;
 }
 
-body {
-  /* Margin bottom by footer height */
-  margin-bottom: 60px;
-}
 .footer {
     background-color: #008d83 !important;
     position: absolute;

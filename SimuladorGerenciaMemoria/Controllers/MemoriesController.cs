@@ -31,6 +31,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             return View(
                 await _context.Memories
+                .Include(m => m.Simulation)
                 .Where(m => m.UserID == HttpContext.Session.GetInt32("UserID"))
                 .OrderBy(m => m.CreateDate)
                 .ToListAsync()
@@ -119,9 +120,9 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             long memoriaLivre = memory.Size - memoriaUsada;
 
-            ViewBag.memoriaUsada = memoriaUsada;
-            ViewBag.memoriaLivre = memoriaLivre;
-            ViewBag.memoriaInutil = memoriaInutil;            
+            ViewBag.memoriaUsada = ((double) memoriaUsada / 1024); //KiB
+            ViewBag.memoriaLivre = ((double) memoriaLivre / 1024); //KiB
+            ViewBag.memoriaInutil = ((double) memoriaInutil / 1024); //KiB
             ViewBag.framesLivres = JsonConvert.SerializeObject(framesLivres);
 
             return View(memory);
@@ -132,7 +133,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public IActionResult Create()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
+            ViewBag.SimulationID = new SelectList(_context.Simulations.OrderByDescending(s => s.CreateDate), "ID", "Name");
             ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
 
             return View();
@@ -143,7 +144,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         public JsonResult Create(string Name, int SimulationID, long Size, long FramesSize, int InitialState, int InitialProcessMin, int InitialProcessMax)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            ViewBag.SimulationID = new SelectList(_context.Simulations, "ID", "Name");
+            ViewBag.SimulationID = new SelectList(_context.Simulations.Where(s => s.UserID == HttpContext.Session.GetInt32("UserID")), "ID", "Name");
             ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
 
             try
@@ -261,7 +262,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [RedirectAction]
-        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID,IsBestFitCompleted,IsFirstFitCompleted,IsWorstFitCompleted,IsNextFitCompleted,InitialProcessMin,InitialProcessMax,BestFitInseridos,FirstFitInseridos,WorstFitInseridos,NextFitInseridos")] Memory memory)
+        public async Task<IActionResult> Edit(int id, [Bind("ID,Name,CreateDate,Size,FramesSize,FramesQTD,SimulationID,IsGeneratedProcessList,UserID,IsBestFitCompleted,IsFirstFitCompleted,IsWorstFitCompleted,IsNextFitCompleted,InitialState,InitialProcessMin,InitialProcessMax,BestFitInseridos,FirstFitInseridos,WorstFitInseridos,NextFitInseridos")] Memory memory)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
@@ -302,7 +303,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             if (_memory.UserID != HttpContext.Session.GetInt32("UserID"))
                 return RedirectToAction("Error403", "Erros");
     
-            ViewBag.MaximoPossivel = 100 - _memory.InitialState;
+            ViewBag.MaximoPossivel = 120 - _memory.InitialState;
     
             if (id == null) return RedirectToAction("Error404", "Erros");
 
@@ -328,7 +329,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                 if (_memory == null)
                     throw new Exception("Houve um erro! Memória não encontrada.");
 
-                if ((_memory.InitialState+MemoryToFeelPerc) > 100)
+                if ((_memory.InitialState+MemoryToFeelPerc) > 120)
                     throw new Exception("Valor para preencher inválido!");
 
                 long _memoryToFeel = (long)(_memory.Size * ((float)MemoryToFeelPerc / 100));
@@ -534,6 +535,11 @@ namespace SimuladorGerenciaMemoria.Controllers
                                         };
                                     }
 
+                                    watch.Stop();
+                                    // Get the elapsed time as a TimeSpan value.
+                                    TimeSpan ts = watch.Elapsed;
+                                    process.TimeToFindIndexFirst = ts.Milliseconds;
+
                                     processInserted++;                                   
                                     break;
                                 }
@@ -589,7 +595,12 @@ namespace SimuladorGerenciaMemoria.Controllers
                                         };
                                     }
 
-                                    processInserted++;                                    
+                                    processInserted++;
+
+                                    watch.Stop();
+                                    // Get the elapsed time as a TimeSpan value.
+                                    TimeSpan ts = watch.Elapsed;
+                                    process.TimeToFindIndexNext = ts.Milliseconds;
                                     break;
                                 }
 
@@ -659,7 +670,13 @@ namespace SimuladorGerenciaMemoria.Controllers
                                     };
                                 }
 
-                                processInserted++;                      
+                                processInserted++;
+
+                                watch.Stop();
+                                // Get the elapsed time as a TimeSpan value.
+                                TimeSpan ts = watch.Elapsed;
+
+                                process.TimeToFindIndexBest = ts.Milliseconds;
                             }
                         }
 
@@ -729,15 +746,14 @@ namespace SimuladorGerenciaMemoria.Controllers
                                 }
 
                                 processInserted++;
+
+                                watch.Stop();
+                                // Get the elapsed time as a TimeSpan value.
+                                TimeSpan ts = watch.Elapsed;
+
+                                process.TimeToFindIndexWorst = ts.Milliseconds;
                             }
-                        }
-
-                        watch.Stop();
-                        // Get the elapsed time as a TimeSpan value.
-                        TimeSpan ts = watch.Elapsed;
-
-                        process.TimeToFindIndex = String.Format("{0:0000000000}",
-                            ts.Milliseconds);
+                        }            
                     }
 
                     switch (Alg) 

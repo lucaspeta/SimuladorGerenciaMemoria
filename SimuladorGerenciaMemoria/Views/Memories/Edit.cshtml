@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Editar Memória</h1>
+<h1><i class="fas fa-memory"></i> Editar Memória</h1>
 <hr />
 <div class="row">
     <div class="col-md-4">
@@ -32,7 +32,7 @@
 
             <div class="form-group">
                 <label asp-for="Name" class="control-label"></label>
-                <input asp-for="Name" class="form-control" />
+                <input id="name" asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
@@ -67,6 +67,8 @@
     @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
 }
 
+<script src="~/lib/jquery/dist/jquery.min.js"></script>
+
 <script>
     function habilitarSubmit() {
         $('#submit-btn').prop('disabled', false);
@@ -79,6 +81,14 @@
         $('#submit-btn').removeClass('btn-success');
         $('#submit-btn').addClass('btn-disabled');
     }
+
+    /*$('#name').on('keyup', function () {
+        var str = $(this).val();
+
+        var newStr = str.normalize('NFD').replace(/[\u0300-\u036f]/g, "").replace(/\s/g, '');
+
+        $(this).val(newStr);
+    });*/
 
     $('#preencher-tamanho').on('focusout', function () {
         var val = $(this).val();

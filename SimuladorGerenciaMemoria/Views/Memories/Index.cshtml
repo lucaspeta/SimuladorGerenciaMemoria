@@ -5,7 +5,7 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h1>Lista de Memórias <i class="fas fa-ruler-horizontal"></i></h1>
+<h1><i class="fas fa-memory"></i> Lista de Memórias</h1>
 
 <p>
     <a class="btn btn-success" href="Memories/Create">+ Novo</a>
@@ -30,7 +30,7 @@
                             FrameTam(bytes)
                         </th>
                         <th>
-                            @Html.DisplayNameFor(model => model.FramesQTD)
+                            Simulação
                         </th>
                         <th>
                             GeradaLista
@@ -55,7 +55,7 @@
                             @string.Format("{0:#,0}", item.FramesSize)
                         </td>
                         <td>
-                            @string.Format("{0:#,0}", item.FramesQTD)
+                            @Html.DisplayFor(modelItem => item.Simulation.Name)
                         </td>
                         <td>
                             @Html.DisplayFor(modelItem => item.IsGeneratedProcessList)
