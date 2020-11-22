@@ -152,6 +152,9 @@ namespace SimuladorGerenciaMemoria.Controllers
                 if (Name == null || SimulationID == 0 || Size == 0 || FramesSize == 0 || InitialState == 0 || InitialProcessMin == 0 || InitialProcessMax == 0)
                     throw new Exception("É necessário preencher os campos obrigatórios.");
 
+                if(Size % FramesSize != 0)
+                    throw new Exception("Valor inválido para o tamanho do frame.");
+
                 Memory memory = new Memory
                 {
                     Name = Name,

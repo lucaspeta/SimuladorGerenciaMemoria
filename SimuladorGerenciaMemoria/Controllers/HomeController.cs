@@ -549,61 +549,21 @@ namespace SimuladorGerenciaMemoria.Controllers
                     //descobre a qual porcentagem da memoria o frame se encontra
                     double porc = ((i * 100) / memory.FramesQTD);
 
-                    if (needFirst)
-                    {
-                        if (porc <= 10) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[0] += 1;
-                        if (porc <= 20 && porc > 10) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[1] += 1;
-                        if (porc <= 30 && porc > 20) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[2] += 1;
-                        if (porc <= 40 && porc > 30) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[3] += 1;
-                        if (porc <= 50 && porc > 40) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[4] += 1;
-                        if (porc <= 60 && porc > 50) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[5] += 1;
-                        if (porc <= 70 && porc > 60) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[6] += 1;
-                        if (porc <= 80 && porc > 70) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[7] += 1;
-                        if (porc <= 90 && porc > 80) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[8] += 1;
-                        if (porc <= 100 && porc > 90) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[9] += 1;
-                    }
+                    int index = 0;
 
-                    if (needNext)
-                    {
-                        if (porc <= 10) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[0] += 1;
-                        if (porc <= 20 && porc > 10) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[1] += 1;
-                        if (porc <= 30 && porc > 20) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[2] += 1;
-                        if (porc <= 40 && porc > 30) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[3] += 1;
-                        if (porc <= 50 && porc > 40) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[4] += 1;
-                        if (porc <= 60 && porc > 50) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[5] += 1;
-                        if (porc <= 70 && porc > 60) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[6] += 1;
-                        if (porc <= 80 && porc > 70) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[7] += 1;
-                        if (porc <= 90 && porc > 80) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[8] += 1;
-                        if (porc <= 100 && porc > 90) if(!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[9] += 1;
-                    }
+                    if (porc <= 10) index = 0; if (porc > 10 && porc <= 20) index = 1;
+                    if (porc > 20 && porc <= 30) index = 2; if (porc > 30 && porc <= 40) index = 3;
+                    if (porc > 40 && porc <= 50) index = 4; if (porc > 50 && porc <= 60) index = 5;
+                    if (porc > 60 && porc <= 70) index = 6; if (porc > 70 && porc <= 80) index = 7;
+                    if (porc > 80 && porc <= 90) index = 8; if (porc > 90) index = 9;
 
-                    if (needBest)
-                    {
-                        if (porc <= 10) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[0] += 1;
-                        if (porc <= 20 && porc > 10) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[1] += 1;
-                        if (porc <= 30 && porc > 20) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[2] += 1;
-                        if (porc <= 40 && porc > 30) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[3] += 1;
-                        if (porc <= 50 && porc > 40) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[4] += 1;
-                        if (porc <= 60 && porc > 50) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[5] += 1;
-                        if (porc <= 70 && porc > 60) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[6] += 1;
-                        if (porc <= 80 && porc > 70) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[7] += 1;
-                        if (porc <= 90 && porc > 80) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[8] += 1;
-                        if (porc <= 100 && porc > 90) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[9] += 1;
-                    }
+                    if (needFirst) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[index] += 1;
 
-                    if (needWorst) 
-                    {
-                        if (porc <= 10) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[0] += 1;
-                        if (porc <= 20 && porc > 10) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[1] += 1;
-                        if (porc <= 30 && porc > 20) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[2] += 1;
-                        if (porc <= 40 && porc > 30) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[3] += 1;
-                        if (porc <= 50 && porc > 40) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[4] += 1;
-                        if (porc <= 60 && porc > 50) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[5] += 1;
-                        if (porc <= 70 && porc > 60) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[6] += 1;
-                        if (porc <= 80 && porc > 70) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[7] += 1;
-                        if (porc <= 90 && porc > 80) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[8] += 1;
-                        if (porc <= 100 && porc > 90) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[9] += 1;
-                    }                   
+                    if (needNext) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[index] += 1;
+
+                    if (needBest) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[index] += 1;
+
+                    if (needWorst) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[index] += 1;                 
                 }
 
                 return Json(
@@ -645,7 +605,110 @@ namespace SimuladorGerenciaMemoria.Controllers
             }
         }
 
-        [RedirectAction]
+        [HttpPost]
+        public JsonResult GetComparacoes(int? memoryID, bool needFirst, bool needNext, bool needBest, bool needWorst)
+        {
+            try
+            {
+                List<int> fragmentacaoInternaFirst = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<int> fragmentacaoInternaNext = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<int> fragmentacaoInternaBest = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<int> fragmentacaoInternaWorst = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    
+                if (memoryID == null)
+                    throw new Exception("Memória não informada!");
+
+                Memory memory = _context.Memories.Find(memoryID);
+
+                if (memory == null)
+                    throw new Exception("Memória não encontrada!");
+
+                var frames = _context.Frames
+                    .Where(f => f.MemoryID == memoryID).ToList();
+
+                var framesFirst = frames.Where(f => f.IsInitial == true 
+                || f.TipoAlg == Frame.TipoAlgVal.FirstFit).ToList();
+
+                var framesNext = frames.Where(f => f.IsInitial == true
+                || f.TipoAlg == Frame.TipoAlgVal.NextFit).ToList();
+
+                var framesBest = frames.Where(f => f.IsInitial == true
+                || f.TipoAlg == Frame.TipoAlgVal.BestFit).ToList();
+
+                var framesWorst = frames.Where(f => f.IsInitial == true
+                || f.TipoAlg == Frame.TipoAlgVal.WorstFit).ToList();
+
+                for (int i = 0; i < memory.FramesQTD; i++)
+                {
+                    //descobre a qual porcentagem da memoria o frame se encontra
+                    double porc = ((i * 100) / memory.FramesQTD);
+
+                    int index = 0;
+
+                    if (porc <= 10) index = 0; if (porc > 10 && porc <= 20) index = 1;
+                    if (porc > 20 && porc <= 30) index = 2; if (porc > 30 && porc <= 40) index = 3;
+                    if (porc > 40 && porc <= 50) index = 4; if (porc > 50 && porc <= 60) index = 5;
+                    if (porc > 60 && porc <= 70) index = 6; if (porc > 70 && porc <= 80) index = 7;
+                    if (porc > 80 && porc <= 90) index = 8; if (porc > 90) index = 9;
+
+                    if (needFirst)
+                    {
+                        Frame frame = framesFirst.Where(f => f.FrameNumber == i
+                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
+
+                        if (frame != null) fragmentacaoInternaFirst[index] += frame.CapacidadeUtilizada;
+                    }
+
+                    if (needNext)
+                    {
+                        Frame frame = framesNext.Where(f => f.FrameNumber == i
+                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
+
+                        if (frame != null) fragmentacaoInternaNext[index] += frame.CapacidadeUtilizada;
+                    }
+
+                    if (needBest)
+                    {
+                        Frame frame = framesBest.Where(f => f.FrameNumber == i
+                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
+
+                        if (frame != null) fragmentacaoInternaBest[index] += frame.CapacidadeUtilizada;
+                    }
+
+                    if (needWorst)
+                    {
+                        Frame frame = framesWorst.Where(f => f.FrameNumber == i
+                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
+
+                        if (frame != null) fragmentacaoInternaWorst[index] += frame.CapacidadeUtilizada;
+                    }
+                }
+
+                return Json(
+                    new
+                    {
+                        fragmentacaoInternaFirst,
+                        fragmentacaoInternaNext,
+                        fragmentacaoInternaBest,
+                        fragmentacaoInternaWorst,
+
+                        success = true
+                    }
+                );
+            }
+            catch (Exception e)
+            {
+                return Json(
+                    new
+                    {
+                        error = e.Message,
+                        success = false
+                    }
+                );
+            }
+        }
+
+                [RedirectAction]
         public IActionResult About()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");

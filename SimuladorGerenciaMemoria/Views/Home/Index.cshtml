@@ -18,7 +18,7 @@
 <!-- Loading -->
 <div style="margin-top: 250px; margin-left:9px;" class="modal fade" id="loadingModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true" data-backdrop="static" data-keyboard="false">
     <div class="modal-dialog" role="document">
-        <p style="margin-left: 100px; font-size: 30pt; font-weight: 800; color: white; display: inline-block; position: relative;">Carregando&nbsp;</p>
+        <p style="margin-left: 50px; font-size: 30pt; font-weight: 800; color: white; display: inline-block; position: relative;">Carregando&nbsp;</p>
         <div style="color: white;" class="spinner-border" role="status">
             <span class="sr-only">Loading...</span>
         </div>
@@ -479,15 +479,20 @@
         <!--WORST FIT SECTION *******FINISH*********-->
 
         <hr />
-        <h3>DADOS FINAIS DOS ALGORITMOS</h3>
+        <h3>COMPARAÕES ENTRE OS ALGORITMOS</h3>
 
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box border border-dark">
                     <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
-                    <div>
-                        <canvas id="fragmentacaoInterna" height="70"></canvas>
-                    </div>
+                    <a id="downloadComparacaoFragInt"
+                       download="ComparacaoFragmentacaoInterna.jpg"
+                       href=""
+                       class="link"
+                       title="Baixar Gráfico">
+                        Download
+                    </a>
+                    <canvas id="fragmentacaoInterna" height="70"></canvas>                    
                 </div>
             </div>
         </div>
@@ -495,9 +500,15 @@
             <div class="col-sm-12">
                 <div class="white-box border border-dark">
                     <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
-                    <div>
-                        <canvas id="fragmentacaoExterna" height="70"></canvas>
-                    </div>
+                    <p>Quantidade de frames</p>
+                    <a id="downloadComparacaoFragExt"
+                       download="ComparacaoFragmentacaoExterna.jpg"
+                       href=""
+                       class="link"
+                       title="Baixar Gráfico">
+                        Download
+                    </a>
+                    <canvas id="fragmentacaoExterna" height="70"></canvas>
                 </div>
             </div>
         </div>
@@ -505,143 +516,28 @@
             <div class="col-sm-12">
                 <div class="white-box border border-dark">
                     <h3 class="box-title">TEMPO DE INSERÇÃO (Linha do tempo)</h3>
-                    <div>
-                        <canvas id="tempoInsercao" height="70"></canvas>
-                    </div>
+                    <a id="downloadComparacaoTempoInsercao"
+                       download="ComparacaoTempoInsecao.jpg"
+                       href=""
+                       class="link"
+                       title="Baixar Gráfico">
+                        Download
+                    </a>
+                    <canvas id="tempoInsercao" height="70"></canvas>
                 </div>
             </div>
         </div>
     </div>
+    <br />
+    <br />
+    <br />
+    <br />
 
     <div id="NA-graficos">
         <div class="row">
             <h3 style="margin-left: 10px; margin-top: 10px;" class="box-title">NÃO FOI ENCONTRADO NENHUM REGISTRO PARA EXIBIR.</h3>
         </div>
     </div>
-
-    <!--FRAGMENTACAO INTERNA-->
-    <script>
-        var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
-
-        var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
-            type: 'line',
-            data: {
-                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-                datasets: [{
-                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-                    label: "Africa",
-                    borderColor: "#3e95cd",
-                    fill: false
-                }, {
-                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-                    label: "Asia",
-                    borderColor: "#8e5ea2",
-                    fill: false
-                }, {
-                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
-                    label: "Europe",
-                    borderColor: "#3cba9f",
-                    fill: false
-                }, {
-                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
-                    label: "Latin America",
-                    borderColor: "#e8c3b9",
-                    fill: false
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'World population per region (in millions)'
-                }
-            }
-        });
-    </script>
-
-    <!--FRAGMENTACAO EXTERNA-->
-    <script>
-        var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
-
-        var fragmentacaoExternaChart = new Chart(fragmentacaoExterna, {
-            type: 'line',
-            data: {
-                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-                datasets: [{
-                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-                    label: "Africa",
-                    borderColor: "#3e95cd",
-                    fill: false
-                }, {
-                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-                    label: "Asia",
-                    borderColor: "#8e5ea2",
-                    fill: false
-                }, {
-                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
-                    label: "Europe",
-                    borderColor: "#3cba9f",
-                    fill: false
-                }, {
-                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
-                    label: "Latin America",
-                    borderColor: "#e8c3b9",
-                    fill: false
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'World population per region (in millions)'
-                }
-            }
-        });
-    </script>
-
-    <!--TEMPO DE INSERCAO-->
-    <script>
-        var tempoInsercao = document.getElementById('tempoInsercao').getContext('2d');
-
-        var tempoInsercaoChart = new Chart(tempoInsercao, {
-            type: 'line',
-            data: {
-                labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-                datasets: [{
-                    data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-                    label: "Africa",
-                    borderColor: "#3e95cd",
-                    fill: false
-                }, {
-                    data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-                    label: "Asia",
-                    borderColor: "#8e5ea2",
-                    fill: false
-                }, {
-                    data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
-                    label: "Europe",
-                    borderColor: "#3cba9f",
-                    fill: false
-                }, {
-                    data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
-                    label: "Latin America",
-                    borderColor: "#e8c3b9",
-                    fill: false
-                }]
-            },
-            options: {
-                title: {
-                    display: true,
-                    text: 'World population per region (in millions)'
-                }
-            }
-        });
-    </script>
-
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
-    <br />
 </div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -654,6 +550,10 @@
     var isNextCompleted = false;
     var isBestCompleted = false;
     var isWorstCompleted = false;
+    var framesExternaFirst;
+    var framesExternaNext;
+    var framesExternaBest;
+    var framesExternaWorst;
 
     //se mudar o picklist de simulações busca as memorias da simulação escolhida
     $('.simulation_id').change(function () {
@@ -1053,9 +953,12 @@
                 needWorst: needWorst
             },
             success: function (res) {
-                console.log(res);
-
                 if (res.success) {
+                    framesExternaFirst = res.framesLivresFirst;
+                    framesExternaNext = res.framesLivresNext;
+                    framesExternaBest = res.framesLivresBest;
+                    framesExternaWorst = res.framesLivresWorst;
+
                     if (needFirst) {
                         //BEGIN STATUS MEMORIA *****
                         var memoriaUtilizacaoFirst = document.getElementById('memoriaUtilizacaoFirst').getContext('2d');
@@ -1551,10 +1454,221 @@
                 console.log('Status: ' + status + ' Erro: ' + message);
             }
         }).done(function () {
-            habilitaSectionAlg(algs);
+            comparacoesGraficos(memory_id, algs, needFirst, needNext, needBest, needWorst);            
         });
 
         console.log('method:inicializaAlgs() -> Finish*');
+    }
+
+    function comparacoesGraficos(memory_id, algs, needFirst, needNext, needBest, needWorst)
+    {
+        console.log('method:comparacoesGraficos() -> Start*');
+
+        /*$.ajax({
+            url: "/Home/GetComparacoes/",
+            type: "POST",
+            datatype: "text",
+            data: {
+                memoryID: memory_id, needFirst: needFirst,
+                needNext: needNext, needBest: needBest,
+                needWorst: needWorst
+            },
+            success: function (res) {*/
+                //var dataset1 = [];
+                var dataset2 = [];
+
+                if (needFirst) {                   
+                    /*var firstInterna = {
+                        data: res.fragmentacaoInternaFirst,
+                        label: "First-Fit",
+                        borderColor: "#8e5ea2",
+                        fill: false
+                    };*/
+
+                    var firstExterna = {
+                        data: framesExternaFirst,
+                        label: "First-Fit",
+                        borderColor: "#8e5ea2",
+                        backgroundColor: "#8e5ea2",
+                        fill: false
+                    }
+
+                    //dataset1.push(firstInterna);
+                    dataset2.push(firstExterna);
+                }
+
+                if (needNext) {
+                    /*var nextInterna = {
+                        data: res.fragmentacaoInternaNext,
+                        label: "Next-Fit",
+                        borderColor: "#3e95cd",
+                        fill: false
+                    };*/
+
+                    var nextExterna = {
+                        data: framesExternaNext,
+                        label: "Next-Fit",
+                        borderColor: "#3e95cd",
+                        backgroundColor: "#3e95cd",
+                        fill: false
+                    };
+
+                    //dataset1.push(nextInterna);
+                    dataset2.push(nextExterna);
+                }
+                     
+                if (needBest) {
+                    /*var bestInterna = {
+                        data: res.fragmentacaoInternaBest,
+                        label: "Best-Fit",
+                        borderColor: "#3cba9f",
+                        fill: false
+                    };*/
+
+                    var bestExterna = {
+                        data: framesExternaBest,
+                        label: "Best-Fit",
+                        borderColor: "#3cba9f",   
+                        backgroundColor: "#3cba9f",
+                        fill: false
+                    };
+
+                    //dataset1.push(bestInterna);
+                    dataset2.push(bestExterna);
+                }
+
+                if (needWorst) {
+                    /*var worstInterna = {
+                        data: res.fragmentacaoInternaWorst,
+                        label: "Worst-Fit",
+                        borderColor: "#c45850",
+                        fill: false
+                    };*/
+
+                    var worstExterna = {
+                        data: framesExternaWorst,
+                        label: "Worst-Fit",
+                        borderColor: "#c45850",               
+                        backgroundColor: "#c45850",
+                        fill: false
+                    };
+
+                    //dataset1.push(worstInterna);
+                    dataset2.push(worstExterna);
+                }
+
+                /*
+                var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
+                 
+                var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
+                    type: 'line',
+                    data: {
+                        labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                        datasets: dataset1
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'Agrupado por % da distribuição da Memória'
+                        }
+                    }
+                });
+                
+                //Download Chart Image
+                    document.getElementById("downloadComparacaoFragInt").addEventListener('click', function () {
+                    var url_base64jp = document.getElementById("fragmentacaoInterna").toDataURL("image/jpg");
+                    var a = document.getElementById("downloadComparacaoFragInt");
+                    a.href = url_base64jp;
+                });
+                */
+
+                var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
+
+                if (fragmentacaoExternaChart !== undefined)
+                {
+                    fragmentacaoExternaChart.detroy();
+                }
+
+                var fragmentacaoExternaChart = new Chart(fragmentacaoExterna, {
+                    type: 'bar',
+                    data: {
+                        labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                        datasets: dataset2
+                    },
+                    options: {
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    beginAtZero: true,
+                                    callback: function (value, index, values) {
+                                        return 'frames ' + value;
+                                    }
+                                }
+                            }]
+                        },
+                        title: {
+                            display: true,
+                            text: 'Agrupado por % da distribuição da Memória'
+                        }
+                    }
+                });
+
+                //Download Chart Image
+                document.getElementById("downloadComparacaoFragExt").addEventListener('click', function () {
+                    var url_base64jp = document.getElementById("fragmentacaoExterna").toDataURL("image/jpg");
+                    var a = document.getElementById("downloadComparacaoFragExt");
+                    a.href = url_base64jp;
+                });
+
+                /*var tempoInsercao = document.getElementById('tempoInsercao').getContext('2d');
+
+                var tempoInsercaoChart = new Chart(tempoInsercao, {
+                    type: 'line',
+                    data: {
+                        labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
+                        datasets: [{
+                            data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
+                            label: "Africa",
+                            borderColor: "#3e95cd",
+                            fill: false
+                        }, {
+                            data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
+                            label: "Asia",
+                            borderColor: "#8e5ea2",
+                            fill: false
+                        }, {
+                            data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
+                            label: "Europe",
+                            borderColor: "#3cba9f",
+                            fill: false
+                        }, {
+                            data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
+                            label: "Latin America",
+                            borderColor: "#e8c3b9",
+                            fill: false
+                        }]
+                    },
+                    options: {
+                        title: {
+                            display: true,
+                            text: 'World population per region (in millions)'
+                        }
+                    }
+                });
+
+                //Download Chart Image
+                document.getElementById("downloadComparacaoTempoInsercao").addEventListener('click', function () {
+                    var url_base64jp = document.getElementById("tempoInsercao").toDataURL("image/jpg");
+                    var a = document.getElementById("downloadComparacaoTempoInsercao");
+                    a.href = url_base64jp;
+                });
+            }
+        }).done(function () {
+            habilitaSectionAlg(algs);
+        });*/
+
+        habilitaSectionAlg(algs);
+        console.log('method:comparacoesGraficos() -> Finish*');
     }
 
     //Habilita as sections de acordo com os filtros
