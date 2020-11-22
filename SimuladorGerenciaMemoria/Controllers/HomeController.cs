@@ -17,7 +17,7 @@ namespace SimuladorGerenciaMemoria.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly SimuladorContext _context;        
+        private readonly SimuladorContext _context;
 
         public HomeController(SimuladorContext context, ILogger<HomeController> logger)
         {
@@ -26,7 +26,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         }
 
         [RedirectAction]
-        public IActionResult Index(int? id)
+        public IActionResult Index(int? id, string algs)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
             ViewBag.isDashboard = true;
@@ -40,11 +40,11 @@ namespace SimuladorGerenciaMemoria.Controllers
                 if (memory == null)
                     return RedirectToAction("Error404", "Erros");
 
-                if(memory.UserID != HttpContext.Session.GetInt32("UserID"))
+                if (memory.UserID != HttpContext.Session.GetInt32("UserID"))
                     return RedirectToAction("Error403", "Erros");
 
                 simulationSelected = memory.SimulationID;
-            }                
+            }
 
             SelectList simulations = new SelectList(_context.Simulations.
                 Where(s => s.UserID == HttpContext.Session.GetInt32("UserID")).
@@ -56,12 +56,23 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             ViewBag.SimulationID = simulations;
 
-            if (id != null) 
+            if (id != null)
             {
                 ViewBag.MemorySelected = id;
                 ViewBag.SimulationSelected = simulationSelected;
             }
-            
+
+            if (algs != null)
+            {
+                if (algs != "all" && algs != "first" && algs != "next" && algs != "best" && algs != "worst")
+                    return RedirectToAction("Error404", "Erros");
+            }
+            else{
+                algs = "all";
+            }
+
+            ViewBag.Algs = algs;
+
             return View();
         }
 
@@ -618,6 +629,16 @@ namespace SimuladorGerenciaMemoria.Controllers
                 Dictionary<int, int> mapTOTinsertedBest = new Dictionary<int, int>();
                 Dictionary<int, int> mapTOTinsertedWorst = new Dictionary<int, int>();
 
+                List<Frame> framesFirst = new List<Frame>();
+                List<Frame> framesBest = new List<Frame>();
+                List<Frame> framesNext = new List<Frame>();
+                List<Frame> framesWorst = new List<Frame>();
+
+                List<Models.Process> processesInsertedFirst = new List<Models.Process>();
+                List<Models.Process> processesInsertedNext = new List<Models.Process>();
+                List<Models.Process> processesInsertedBest = new List<Models.Process>();
+                List<Models.Process> processesInsertedWorst = new List<Models.Process>();
+
                 if (memoryID == null)
                     throw new Exception("Memória não informada!");
 
@@ -629,33 +650,47 @@ namespace SimuladorGerenciaMemoria.Controllers
                 var frames = _context.Frames
                     .Where(f => f.MemoryID == memoryID).ToList();
 
-                var processesInserted = _context.Processes.Where(p => p.MemoryID == memory.ID && p.isInitial == false).OrderBy(p => p.ID).ToList();
+                List<Models.Process> processesInserted = _context.Processes.Where(p => p.MemoryID == memory.ID && p.isInitial == false).OrderBy(p => p.ID).ToList();
 
-                var framesFirst = frames.Where(f => f.IsInitial == true 
-                || f.TipoAlg == Frame.TipoAlgVal.FirstFit 
-                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
+                if (needFirst && memory.IsFirstFitCompleted) 
+                {
+                    framesFirst = frames.Where(f => f.IsInitial == true
+                    || f.TipoAlg == Frame.TipoAlgVal.FirstFit
+                    && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
-                var framesNext = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.NextFit 
-                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
+                    foreach (var item in framesFirst) mapUsedCapacityFirst.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                    processesInsertedFirst = processesInserted.Where(p => p.TimeToFindIndexFirst != null).ToList();
+                }
 
-                var framesBest = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.BestFit 
-                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
+                if (needNext && memory.IsNextFitCompleted)
+                {
+                    framesNext = frames.Where(f => f.IsInitial == true
+                    || f.TipoAlg == Frame.TipoAlgVal.NextFit
+                    && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
-                var framesWorst = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.WorstFit 
-                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
+                    foreach (var item in framesNext) mapUsedCapacityNext.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                    processesInsertedNext = processesInserted.Where(p => p.TimeToFindIndexNext != null).ToList();
+                }
 
-                var processesInsertedFirst = processesInserted.Where(p => p.TimeToFindIndexFirst != null);
-                var processesInsertedNext = processesInserted.Where(p => p.TimeToFindIndexNext != null);
-                var processesInsertedBest = processesInserted.Where(p => p.TimeToFindIndexBest != null);
-                var processesInsertedWorst = processesInserted.Where(p => p.TimeToFindIndexWorst != null);
+                if (needBest && memory.IsBestFitCompleted)
+                {
+                    framesBest = frames.Where(f => f.IsInitial == true
+                    || f.TipoAlg == Frame.TipoAlgVal.BestFit
+                    && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
-                foreach (var item in framesFirst) mapUsedCapacityFirst.Add(item.FrameNumber, item.CapacidadeUtilizada);
-                foreach (var item in framesNext) mapUsedCapacityNext.Add(item.FrameNumber, item.CapacidadeUtilizada);
-                foreach (var item in framesBest) mapUsedCapacityBest.Add(item.FrameNumber, item.CapacidadeUtilizada);
-                foreach (var item in framesWorst) mapUsedCapacityWorst.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                    foreach (var item in framesBest) mapUsedCapacityBest.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                    processesInsertedBest = processesInserted.Where(p => p.TimeToFindIndexBest != null).ToList();
+                }
+
+                if (needWorst && memory.IsWorstFitCompleted)
+                {
+                   framesWorst = frames.Where(f => f.IsInitial == true
+                   || f.TipoAlg == Frame.TipoAlgVal.WorstFit
+                   && f.CapacidadeUtilizada != memory.FramesSize).ToList();
+
+                    foreach (var item in framesWorst) mapUsedCapacityWorst.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                    processesInsertedWorst = processesInserted.Where(p => p.TimeToFindIndexWorst != null).ToList();
+                }
 
                 int i = 0;
 
@@ -678,79 +713,99 @@ namespace SimuladorGerenciaMemoria.Controllers
                         if (mapUsedCapacityWorst.ContainsKey(i)) fragmentacaoInternaWorst[index] += ((double)mapUsedCapacityWorst[i] / 1024);
                 }
 
-                i = 0;
-                foreach (var item in processesInsertedFirst) 
+                if (needFirst && memory.IsFirstFitCompleted)
                 {
-                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedFirst.Count());
-                    int index = Utils.Utils.RetornaIndex(porc);
+                    i = 0;
+                    foreach (var item in processesInsertedFirst)
+                    {
+                        int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedFirst.Count());
+                        int index = Utils.Utils.RetornaIndex(porc);
 
-                    if (mapTOTinsertedFirst.ContainsKey(index)){
-                        int valToUpdate = mapTOTinsertedFirst[index];
-                        mapTOTinsertedFirst.Remove(index);
-                        mapTOTinsertedFirst.Add(index, valToUpdate + (int)item.TimeToFindIndexFirst);
+                        if (mapTOTinsertedFirst.ContainsKey(index))
+                        {
+                            int valToUpdate = mapTOTinsertedFirst[index];
+                            mapTOTinsertedFirst.Remove(index);
+                            mapTOTinsertedFirst.Add(index, valToUpdate + (int)item.TimeToFindIndexFirst);
+                        }
+                        else mapTOTinsertedFirst.Add(index, (int)item.TimeToFindIndexFirst);
+
+                        i++;
                     }
-                    else mapTOTinsertedFirst.Add(index, (int)item.TimeToFindIndexFirst);
-
-                    i++;
                 }
 
-                i = 0;
-                foreach (var item in processesInsertedNext)
+                if (needNext && memory.IsNextFitCompleted)
                 {
-                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedNext.Count());
-                    int index = Utils.Utils.RetornaIndex(porc);
-
-                    if (mapTOTinsertedNext.ContainsKey(index))
+                    i = 0;
+                    foreach (var item in processesInsertedNext)
                     {
-                        int valToUpdate = mapTOTinsertedNext[index];
-                        mapTOTinsertedNext.Remove(index);
-                        mapTOTinsertedNext.Add(index, valToUpdate + (int)item.TimeToFindIndexNext);
+                        int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedNext.Count());
+                        int index = Utils.Utils.RetornaIndex(porc);
+
+                        if (mapTOTinsertedNext.ContainsKey(index))
+                        {
+                            int valToUpdate = mapTOTinsertedNext[index];
+                            mapTOTinsertedNext.Remove(index);
+                            mapTOTinsertedNext.Add(index, valToUpdate + (int)item.TimeToFindIndexNext);
+                        }
+                        else mapTOTinsertedNext.Add(index, (int)item.TimeToFindIndexNext);
+
+                        i++;
                     }
-                    else mapTOTinsertedNext.Add(index, (int)item.TimeToFindIndexNext);
+                }                    
 
-                    i++;
-                }
-
-                i = 0;
-                foreach (var item in processesInsertedBest)
+                if (needBest && memory.IsBestFitCompleted)
                 {
-                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedBest.Count());
-                    int index = Utils.Utils.RetornaIndex(porc);
-
-                    if (mapTOTinsertedBest.ContainsKey(index))
+                    i = 0;
+                    foreach (var item in processesInsertedBest)
                     {
-                        int valToUpdate = mapTOTinsertedBest[index];
-                        mapTOTinsertedBest.Remove(index);
-                        mapTOTinsertedBest.Add(index, valToUpdate + (int)item.TimeToFindIndexBest);
+                        int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedBest.Count());
+                        int index = Utils.Utils.RetornaIndex(porc);
+
+                        if (mapTOTinsertedBest.ContainsKey(index))
+                        {
+                            int valToUpdate = mapTOTinsertedBest[index];
+                            mapTOTinsertedBest.Remove(index);
+                            mapTOTinsertedBest.Add(index, valToUpdate + (int)item.TimeToFindIndexBest);
+                        }
+                        else mapTOTinsertedBest.Add(index, (int)item.TimeToFindIndexBest);
+
+                        i++;
                     }
-                    else mapTOTinsertedBest.Add(index, (int)item.TimeToFindIndexBest);
+                }                    
 
-                    i++;
-                }
-
-                i = 0;
-                foreach (var item in processesInsertedWorst)
+                if (needWorst && memory.IsWorstFitCompleted)
                 {
-                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedWorst.Count());
-                    int index = Utils.Utils.RetornaIndex(porc);
-
-                    if (mapTOTinsertedWorst.ContainsKey(index))
+                    i = 0;
+                    foreach (var item in processesInsertedWorst)
                     {
-                        int valToUpdate = mapTOTinsertedWorst[index];
-                        mapTOTinsertedWorst.Remove(index);
-                        mapTOTinsertedWorst.Add(index, valToUpdate + (int)item.TimeToFindIndexWorst);
-                    }
-                    else mapTOTinsertedWorst.Add(index, (int)item.TimeToFindIndexWorst);
+                        int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedWorst.Count());
+                        int index = Utils.Utils.RetornaIndex(porc);
 
-                    i++;
+                        if (mapTOTinsertedWorst.ContainsKey(index))
+                        {
+                            int valToUpdate = mapTOTinsertedWorst[index];
+                            mapTOTinsertedWorst.Remove(index);
+                            mapTOTinsertedWorst.Add(index, valToUpdate + (int)item.TimeToFindIndexWorst);
+                        }
+                        else mapTOTinsertedWorst.Add(index, (int)item.TimeToFindIndexWorst);
+
+                        i++;
+                    }
                 }
 
                 for (i = 0; i < 10; i++) 
                 {
-                    tempoInsercaoFirst[i] = (double)(mapTOTinsertedFirst[i] / (double)(processesInsertedFirst.Count() * 0.10));
-                    tempoInsercaoNext[i] = (double)(mapTOTinsertedNext[i] / (double)(processesInsertedNext.Count() * 0.10));
-                    tempoInsercaoBest[i] = (double)(mapTOTinsertedBest[i] / (double)(processesInsertedBest.Count() * 0.10));
-                    tempoInsercaoWorst[i] = (double)(mapTOTinsertedWorst[i] / (double)(processesInsertedWorst.Count() * 0.10));
+                    if (needFirst && memory.IsFirstFitCompleted)
+                        tempoInsercaoFirst[i] = (double)(mapTOTinsertedFirst[i] / (double)(processesInsertedFirst.Count() * 0.10));
+
+                    if (needBest && memory.IsBestFitCompleted)
+                        tempoInsercaoNext[i] = (double)(mapTOTinsertedNext[i] / (double)(processesInsertedNext.Count() * 0.10));
+
+                    if (needBest && memory.IsBestFitCompleted)
+                        tempoInsercaoBest[i] = (double)(mapTOTinsertedBest[i] / (double)(processesInsertedBest.Count() * 0.10));
+
+                    if (needWorst && memory.IsWorstFitCompleted)
+                        tempoInsercaoWorst[i] = (double)(mapTOTinsertedWorst[i] / (double)(processesInsertedWorst.Count() * 0.10));
                 }
 
                 return Json(

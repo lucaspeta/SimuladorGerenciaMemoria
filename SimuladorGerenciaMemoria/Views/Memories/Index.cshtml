@@ -58,7 +58,7 @@
                             @Html.DisplayFor(modelItem => item.CreateDate)
                         </td>
                         <td>
-                            <a asp-controller="Home" asp-action="Index" asp-route-id="@item.ID">Resultados</a> |
+                            <a asp-controller="Home" asp-action="Index" asp-route-id="@item.ID" asp-route-algs="all">Resultados</a> |
                             <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
                             <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a> |
                             <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>

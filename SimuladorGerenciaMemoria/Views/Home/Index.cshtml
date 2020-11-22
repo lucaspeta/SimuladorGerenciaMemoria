@@ -478,59 +478,61 @@
         </div>
         <!--WORST FIT SECTION *******FINISH*********-->
 
-        <hr />
-        <h3>COMPARAÇÕES ENTRE OS ALGORITMOS</h3>
+        <div id="div-comparacao" class="display-none">
+            <hr />
+            <h3>COMPARAÇÕES ENTRE OS ALGORITMOS</h3>
 
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="white-box border border-dark">
-                    <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
-                    <a id="downloadComparacaoFragInt"
-                       download="ComparacaoFragmentacaoInterna.jpg"
-                       href=""
-                       class="link"
-                       title="Baixar Gráfico">
-                        Download
-                    </a>
-                    <canvas id="fragmentacaoInterna" height="70"></canvas>                    
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">FRAGMENTAÇÃO INTERNA</h3>
+                        <a id="downloadComparacaoFragInt"
+                           download="ComparacaoFragmentacaoInterna.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="fragmentacaoInterna" height="70"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
+                        <a id="downloadComparacaoFragExt"
+                           download="ComparacaoFragmentacaoExterna.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="fragmentacaoExterna" height="70"></canvas>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-sm-12">
+                    <div class="white-box border border-dark">
+                        <h3 class="box-title">TEMPO DE INSERÇÃO</h3>
+                        <a id="downloadComparacaoTempoInsercao"
+                           download="ComparacaoTempoInsecao.jpg"
+                           href=""
+                           class="link"
+                           title="Baixar Gráfico">
+                            Download
+                        </a>
+                        <canvas id="tempoInsercao" height="70"></canvas>
+                    </div>
                 </div>
             </div>
         </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="white-box border border-dark">
-                    <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
-                    <a id="downloadComparacaoFragExt"
-                       download="ComparacaoFragmentacaoExterna.jpg"
-                       href=""
-                       class="link"
-                       title="Baixar Gráfico">
-                        Download
-                    </a>
-                    <canvas id="fragmentacaoExterna" height="70"></canvas>
-                </div>
-            </div>
-        </div>
-        <div class="row">
-            <div class="col-sm-12">
-                <div class="white-box border border-dark">
-                    <h3 class="box-title">TEMPO DE INSERÇÃO</h3>
-                    <a id="downloadComparacaoTempoInsercao"
-                       download="ComparacaoTempoInsecao.jpg"
-                       href=""
-                       class="link"
-                       title="Baixar Gráfico">
-                        Download
-                    </a>
-                    <canvas id="tempoInsercao" height="70"></canvas>
-                </div>
-            </div>
-        </div>
+        <br />
+        <br />
+        <br />
+        <br />
     </div>
-    <br />
-    <br />
-    <br />
-    <br />
 
     <div id="NA-graficos">
         <div class="row">
@@ -563,6 +565,11 @@
     $(document).ready(function () {
         feelMemoriesPicklist();
         $('#loadingModal').modal('show');
+
+        var algParameter = '@(ViewBag.Algs)';
+
+        if (algParameter != '')
+            $('#alg_select').val(algParameter);
     });
 
     //Inicializa o picklist de memoria e verifica se há o GET na URl
@@ -632,7 +639,15 @@
     }
 
     $('#btn-filtrar').on('click', function () {
-        inicializaGraficos();
+        var memoryID = $('#memoria_select').val();
+        var alg = $('#alg_select').val();
+
+        var link = "@Url.Action("Index", "Home", new { id = "1", algs = "2" })";
+
+        link = link.replace("1", memoryID);
+        link = link.replace("2", alg);
+
+        window.location.href = link;
     });
 
     //pega os valores dos picklists e chama a funcao inicializaDadosIniciais()
@@ -1453,7 +1468,7 @@
                 console.log('Status: ' + status + ' Erro: ' + message);
             }
         }).done(function () {
-            comparacoesGraficos(memory_id, algs, needFirst, needNext, needBest, needWorst);            
+            comparacoesGraficos(memory_id, algs, needFirst, needNext, needBest, needWorst);
         });
 
         console.log('method:inicializaAlgs() -> Finish*');
@@ -1486,7 +1501,7 @@
                             borderColor: "#8e5ea2",
                             backgroundColor: "#8e5ea2",
                             fill: false
-                        };                      
+                        };
 
                         var kibExternaFirst = [];
 
@@ -1527,7 +1542,7 @@
 
                         for (var i = 0; i < framesExternaNext.length; i++)
                             kibExternaNext.push((framesExternaNext[i] * res.frameSize) / 1024);
-                            
+
                         var nextExterna = {
                             data: kibExternaNext,
                             label: "Next-Fit",
@@ -1618,9 +1633,9 @@
                         dataset2.push(worstExterna);
                         dataset3.push(worstInsercao);
                     }
-                                        
+
                     var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
-                     
+
                     var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
                         type: 'bar',
                         data: {
@@ -1646,14 +1661,14 @@
                             }
                         }
                     });
-                    
+
                     //Download Chart Image
                         document.getElementById("downloadComparacaoFragInt").addEventListener('click', function () {
                         var url_base64jp = document.getElementById("fragmentacaoInterna").toDataURL("image/jpg");
                         var a = document.getElementById("downloadComparacaoFragInt");
                         a.href = url_base64jp;
                     });
-                    
+
 
                     var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
 
@@ -1712,7 +1727,7 @@
                                         }
                                     }
                                 }]
-                            },   
+                            },
                             title: {
                                 display: true,
                                 text: 'Agrupado pela % do total de processos inseridos'
@@ -1730,7 +1745,7 @@
                 else {
                     console.log('Erro ao buscar memorias');
                     console.log('erro -> ' + res.error);
-                }                
+                }
             }
         }).done(function () {
             habilitaSectionAlg(algs);
@@ -1740,11 +1755,10 @@
     }
 
     //Habilita as sections de acordo com os filtros
-    function habilitaSectionAlg(algs)
-    {
+    function habilitaSectionAlg(algs) {
         console.log('method:habilitaSectionAlg() -> Start*');
 
-        console.log('algs '+algs);
+        console.log('algs ' + algs);
 
         if (algs == 'all') {
             if (isFirstCompleted) $('#div-first').removeClass('display-none');
@@ -1773,6 +1787,9 @@
                     break;
             }
         }
+
+        if (isFirstCompleted || isNextCompleted || isBestCompleted || isWorstCompleted)
+            $('#div-comparacao').removeClass('display-none');
 
         $('#loadingModal').modal('hide');
         $('.container-fluid').removeClass('display-none');

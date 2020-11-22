@@ -442,7 +442,7 @@
             data: { id: memoriaID, Alg: algoritmo },
             success: function (res) {
                 if(res.success){
-                    var message = 'Foram inseridos (' + res.processos + ') process na mémoria.';
+                    var message = 'Foram inseridos (' + res.processos + ') processos na mémoria.';
 
                     $('#loadingModal').modal('hide');
                     openResponseModal(true, message, algoritmo);
