@@ -147,7 +147,7 @@
             </div>
             <div class="col-md-6 col-sm-12 col-xs-12">
                 <div class="white-box border border-dark">
-                    <h3 class="box-title">Frames quantidade livres (Estado Inicial)</h3>
+                    <h3 class="box-title">Quantidade de frames livres (Estado Inicial)</h3>
                     <p>Agrupado por % da distribuição da memória</p>
                     <a id="download"
                        download="EspacoLivresMemoriaInicial.jpg"
@@ -225,7 +225,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="white-box border border-dark">
-                        <h3 class="box-title">Frames quantidade Livres (First-Fit)</h3>
+                        <h3 class="box-title">Quantidade de frames livres (First-Fit)</h3>
                         <p>Agrupado por % da distribuição da memória</p>
                         <a id="downloadFirst"
                            download="EspacoLivresMemoriaFirst.jpg"
@@ -304,7 +304,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="white-box border border-dark">
-                        <h3 class="box-title">Frames quantidade Livres (Next-Fit)</h3>
+                        <h3 class="box-title">Quantidade de frames livres (Next-Fit)</h3>
                         <p>Agrupado por % da distribuição da memória</p>
                         <a id="downloadNext"
                            download="EspacoLivresMemoriaNext.jpg"
@@ -383,7 +383,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="white-box border border-dark">
-                        <h3 class="box-title">Frames quantidade Livres (Best-Fit)</h3>
+                        <h3 class="box-title">Quantidade de frames livres (Best-Fit)</h3>
                         <p>Agrupado por % da distribuição da memória</p>
                         <a id="downloadBest"
                            download="EspacoLivresMemoriaBest.jpg"
@@ -462,7 +462,7 @@
                 </div>
                 <div class="col-md-6 col-sm-12 col-xs-12">
                     <div class="white-box border border-dark">
-                        <h3 class="box-title">Frames quantidade Livres (Worst-Fit)</h3>
+                        <h3 class="box-title">Quantidade de frames livres (Worst-Fit)</h3>
                         <p>Agrupado por % da distribuição da memória</p>
                         <a id="downloadWorst"
                            download="EspacoLivresMemoriaWorst.jpg"
@@ -479,7 +479,7 @@
         <!--WORST FIT SECTION *******FINISH*********-->
 
         <hr />
-        <h3>COMPARAÕES ENTRE OS ALGORITMOS</h3>
+        <h3>COMPARAÇÕES ENTRE OS ALGORITMOS</h3>
 
         <div class="row">
             <div class="col-sm-12">
@@ -500,7 +500,6 @@
             <div class="col-sm-12">
                 <div class="white-box border border-dark">
                     <h3 class="box-title">FRAGMENTAÇÃO EXTERNA</h3>
-                    <p>Quantidade de frames</p>
                     <a id="downloadComparacaoFragExt"
                        download="ComparacaoFragmentacaoExterna.jpg"
                        href=""
@@ -515,7 +514,7 @@
         <div class="row">
             <div class="col-sm-12">
                 <div class="white-box border border-dark">
-                    <h3 class="box-title">TEMPO DE INSERÇÃO (Linha do tempo)</h3>
+                    <h3 class="box-title">TEMPO DE INSERÇÃO</h3>
                     <a id="downloadComparacaoTempoInsercao"
                        download="ComparacaoTempoInsecao.jpg"
                        href=""
@@ -1464,7 +1463,7 @@
     {
         console.log('method:comparacoesGraficos() -> Start*');
 
-        /*$.ajax({
+        $.ajax({
             url: "/Home/GetComparacoes/",
             type: "POST",
             datatype: "text",
@@ -1473,201 +1472,270 @@
                 needNext: needNext, needBest: needBest,
                 needWorst: needWorst
             },
-            success: function (res) {*/
-                //var dataset1 = [];
-                var dataset2 = [];
+            success: function (res) {
+                if (res.success) {
+                    console.log(res);
+                    var dataset1 = [];
+                    var dataset2 = [];
+                    var dataset3 = [];
 
-                if (needFirst) {                   
-                    /*var firstInterna = {
-                        data: res.fragmentacaoInternaFirst,
-                        label: "First-Fit",
-                        borderColor: "#8e5ea2",
-                        fill: false
-                    };*/
-
-                    var firstExterna = {
-                        data: framesExternaFirst,
-                        label: "First-Fit",
-                        borderColor: "#8e5ea2",
-                        backgroundColor: "#8e5ea2",
-                        fill: false
-                    }
-
-                    //dataset1.push(firstInterna);
-                    dataset2.push(firstExterna);
-                }
-
-                if (needNext) {
-                    /*var nextInterna = {
-                        data: res.fragmentacaoInternaNext,
-                        label: "Next-Fit",
-                        borderColor: "#3e95cd",
-                        fill: false
-                    };*/
-
-                    var nextExterna = {
-                        data: framesExternaNext,
-                        label: "Next-Fit",
-                        borderColor: "#3e95cd",
-                        backgroundColor: "#3e95cd",
-                        fill: false
-                    };
-
-                    //dataset1.push(nextInterna);
-                    dataset2.push(nextExterna);
-                }
-                     
-                if (needBest) {
-                    /*var bestInterna = {
-                        data: res.fragmentacaoInternaBest,
-                        label: "Best-Fit",
-                        borderColor: "#3cba9f",
-                        fill: false
-                    };*/
-
-                    var bestExterna = {
-                        data: framesExternaBest,
-                        label: "Best-Fit",
-                        borderColor: "#3cba9f",   
-                        backgroundColor: "#3cba9f",
-                        fill: false
-                    };
-
-                    //dataset1.push(bestInterna);
-                    dataset2.push(bestExterna);
-                }
-
-                if (needWorst) {
-                    /*var worstInterna = {
-                        data: res.fragmentacaoInternaWorst,
-                        label: "Worst-Fit",
-                        borderColor: "#c45850",
-                        fill: false
-                    };*/
-
-                    var worstExterna = {
-                        data: framesExternaWorst,
-                        label: "Worst-Fit",
-                        borderColor: "#c45850",               
-                        backgroundColor: "#c45850",
-                        fill: false
-                    };
-
-                    //dataset1.push(worstInterna);
-                    dataset2.push(worstExterna);
-                }
-
-                /*
-                var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
-                 
-                var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
-                    type: 'line',
-                    data: {
-                        labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
-                        datasets: dataset1
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'Agrupado por % da distribuição da Memória'
-                        }
-                    }
-                });
-                
-                //Download Chart Image
-                    document.getElementById("downloadComparacaoFragInt").addEventListener('click', function () {
-                    var url_base64jp = document.getElementById("fragmentacaoInterna").toDataURL("image/jpg");
-                    var a = document.getElementById("downloadComparacaoFragInt");
-                    a.href = url_base64jp;
-                });
-                */
-
-                var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
-
-                if (fragmentacaoExternaChart !== undefined)
-                {
-                    fragmentacaoExternaChart.detroy();
-                }
-
-                var fragmentacaoExternaChart = new Chart(fragmentacaoExterna, {
-                    type: 'bar',
-                    data: {
-                        labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
-                        datasets: dataset2
-                    },
-                    options: {
-                        scales: {
-                            yAxes: [{
-                                ticks: {
-                                    beginAtZero: true,
-                                    callback: function (value, index, values) {
-                                        return 'frames ' + value;
-                                    }
-                                }
-                            }]
-                        },
-                        title: {
-                            display: true,
-                            text: 'Agrupado por % da distribuição da Memória'
-                        }
-                    }
-                });
-
-                //Download Chart Image
-                document.getElementById("downloadComparacaoFragExt").addEventListener('click', function () {
-                    var url_base64jp = document.getElementById("fragmentacaoExterna").toDataURL("image/jpg");
-                    var a = document.getElementById("downloadComparacaoFragExt");
-                    a.href = url_base64jp;
-                });
-
-                /*var tempoInsercao = document.getElementById('tempoInsercao').getContext('2d');
-
-                var tempoInsercaoChart = new Chart(tempoInsercao, {
-                    type: 'line',
-                    data: {
-                        labels: [1500, 1600, 1700, 1750, 1800, 1850, 1900, 1950, 1999, 2050],
-                        datasets: [{
-                            data: [86, 114, 106, 106, 107, 111, 133, 221, 783, 2478],
-                            label: "Africa",
-                            borderColor: "#3e95cd",
-                            fill: false
-                        }, {
-                            data: [282, 350, 411, 502, 635, 809, 947, 1402, 3700, 5267],
-                            label: "Asia",
+                    if (needFirst && isFirstCompleted) {
+                        var firstInterna = {
+                            data: res.fragmentacaoInternaFirst,
+                            label: "First-Fit",
                             borderColor: "#8e5ea2",
+                            backgroundColor: "#8e5ea2",
                             fill: false
-                        }, {
-                            data: [168, 170, 178, 190, 203, 276, 408, 547, 675, 734],
-                            label: "Europe",
-                            borderColor: "#3cba9f",
-                            fill: false
-                        }, {
-                            data: [40, 20, 10, 16, 24, 38, 74, 167, 508, 784],
-                            label: "Latin America",
-                            borderColor: "#e8c3b9",
-                            fill: false
-                        }]
-                    },
-                    options: {
-                        title: {
-                            display: true,
-                            text: 'World population per region (in millions)'
-                        }
-                    }
-                });
+                        };                      
 
-                //Download Chart Image
-                document.getElementById("downloadComparacaoTempoInsercao").addEventListener('click', function () {
-                    var url_base64jp = document.getElementById("tempoInsercao").toDataURL("image/jpg");
-                    var a = document.getElementById("downloadComparacaoTempoInsercao");
-                    a.href = url_base64jp;
-                });
+                        var kibExternaFirst = [];
+
+                        for (var i = 0; i < framesExternaFirst.length; i++)
+                            kibExternaFirst.push((framesExternaFirst[i] * res.frameSize) / 1024);
+
+                        var firstExterna = {
+                            data: kibExternaFirst,
+                            label: "First-Fit",
+                            borderColor: "#8e5ea2",
+                            backgroundColor: "#8e5ea2",
+                            fill: false
+                        }
+
+                        var firstInsercao = {
+                            data: res.tempoInsercaoFirst,
+                            label: "First-Fit",
+                            borderColor: "#8e5ea2",
+                            backgroundColor: "#8e5ea2",
+                            fill: false
+                        }
+
+                        dataset1.push(firstInterna);
+                        dataset2.push(firstExterna);
+                        dataset3.push(firstInsercao);
+                    }
+
+                    if (needNext && isNextCompleted) {
+                        var nextInterna = {
+                            data: res.fragmentacaoInternaNext,
+                            label: "Next-Fit",
+                            borderColor: "#3e95cd",
+                            backgroundColor: "#3e95cd",
+                            fill: false
+                        };
+
+                        var kibExternaNext = [];
+
+                        for (var i = 0; i < framesExternaNext.length; i++)
+                            kibExternaNext.push((framesExternaNext[i] * res.frameSize) / 1024);
+                            
+                        var nextExterna = {
+                            data: kibExternaNext,
+                            label: "Next-Fit",
+                            borderColor: "#3e95cd",
+                            backgroundColor: "#3e95cd",
+                            fill: false
+                        };
+
+                        var nextInsercao = {
+                            data: res.tempoInsercaoNext,
+                            label: "Next-Fit",
+                            borderColor: "#3e95cd",
+                            backgroundColor: "#3e95cd",
+                            fill: false
+                        }
+
+                        dataset1.push(nextInterna);
+                        dataset2.push(nextExterna);
+                        dataset3.push(nextInsercao);
+                    }
+
+                    if (needBest && isBestCompleted) {
+                        var bestInterna = {
+                            data: res.fragmentacaoInternaBest,
+                            label: "Best-Fit",
+                            borderColor: "#3cba9f",
+                            backgroundColor: "#3cba9f",
+                            fill: false
+                        };
+
+                        var kibExternaBest = [];
+
+                        for (var i = 0; i < framesExternaBest.length; i++)
+                            kibExternaBest.push((framesExternaBest[i] * res.frameSize) / 1024);
+
+                        var bestExterna = {
+                            data: kibExternaBest,
+                            label: "Best-Fit",
+                            borderColor: "#3cba9f",
+                            backgroundColor: "#3cba9f",
+                            fill: false
+                        };
+
+                        var bestInsercao = {
+                            data: res.tempoInsercaoBest,
+                            label: "Best-Fit",
+                            borderColor: "#3cba9f",
+                            backgroundColor: "#3cba9f",
+                            fill: false
+                        }
+
+                        dataset1.push(bestInterna);
+                        dataset2.push(bestExterna);
+                        dataset3.push(bestInsercao);
+                    }
+
+                    if (needWorst && isWorstCompleted) {
+                        var worstInterna = {
+                            data: res.fragmentacaoInternaWorst,
+                            label: "Worst-Fit",
+                            borderColor: "#c45850",
+                            backgroundColor: "#c45850",
+                            fill: false
+                        };
+
+                        var kibExternaWorst = [];
+
+                        for (var i = 0; i < framesExternaWorst.length; i++)
+                            kibExternaWorst.push((framesExternaWorst[i] * res.frameSize) / 1024);
+
+                        var worstExterna = {
+                            data: kibExternaWorst,
+                            label: "Worst-Fit",
+                            borderColor: "#c45850",
+                            backgroundColor: "#c45850",
+                            fill: false
+                        };
+
+                        var worstInsercao = {
+                            data: res.tempoInsercaoWorst,
+                            label: "Worst-Fit",
+                            borderColor: "#c45850",
+                            backgroundColor: "#c45850",
+                            fill: false
+                        }
+
+                        dataset1.push(worstInterna);
+                        dataset2.push(worstExterna);
+                        dataset3.push(worstInsercao);
+                    }
+                                        
+                    var fragmentacaoInterna = document.getElementById('fragmentacaoInterna').getContext('2d');
+                     
+                    var fragmentacaoInternaChart = new Chart(fragmentacaoInterna, {
+                        type: 'bar',
+                        data: {
+                            labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                            datasets: dataset1
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        precision: 2,
+                                        stepSize: 5,
+                                        beginAtZero: false,
+                                        callback: function (value, index, values) {
+                                            return 'KiB ' + value;
+                                        }
+                                    }
+                                }]
+                            },
+                            title: {
+                                display: true,
+                                text: 'Agrupado por % da distribuição da Memória'
+                            }
+                        }
+                    });
+                    
+                    //Download Chart Image
+                        document.getElementById("downloadComparacaoFragInt").addEventListener('click', function () {
+                        var url_base64jp = document.getElementById("fragmentacaoInterna").toDataURL("image/jpg");
+                        var a = document.getElementById("downloadComparacaoFragInt");
+                        a.href = url_base64jp;
+                    });
+                    
+
+                    var fragmentacaoExterna = document.getElementById('fragmentacaoExterna').getContext('2d');
+
+                    if (fragmentacaoExternaChart !== undefined) {
+                        fragmentacaoExternaChart.detroy();
+                    }
+
+                    var fragmentacaoExternaChart = new Chart(fragmentacaoExterna, {
+                        type: 'bar',
+                        data: {
+                            labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                            datasets: dataset2
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        beginAtZero: true,
+                                        callback: function (value, index, values) {
+                                            return 'KiB ' + value;
+                                        }
+                                    }
+                                }]
+                            },
+                            title: {
+                                display: true,
+                                text: 'Agrupado por % da distribuição da Memória'
+                            }
+                        }
+                    });
+
+                    //Download Chart Image
+                    document.getElementById("downloadComparacaoFragExt").addEventListener('click', function () {
+                        var url_base64jp = document.getElementById("fragmentacaoExterna").toDataURL("image/jpg");
+                        var a = document.getElementById("downloadComparacaoFragExt");
+                        a.href = url_base64jp;
+                    });
+
+                    var tempoInsercao = document.getElementById('tempoInsercao').getContext('2d');
+
+                    var tempoInsercaoChart = new Chart(tempoInsercao, {
+                        type: 'line',
+                        data: {
+                            labels: ['(0 - 10)%', '(10,1 - 20)%', '(20,1 - 30)%', '(30,1 - 40)%', '(50,1 - 60)%', '(60,1 - 70)%', '(70,1 - 80)%', '(80,1 - 90)%', '(90,1 - 100)%'],
+                            datasets: dataset3
+                        },
+                        options: {
+                            scales: {
+                                yAxes: [{
+                                    ticks: {
+                                        precision: 2,
+                                        stepSize: 5,
+                                        beginAtZero: false,
+                                        callback: function (value, index, values) {
+                                            return value + ' ms';
+                                        }
+                                    }
+                                }]
+                            },   
+                            title: {
+                                display: true,
+                                text: 'Agrupado pela % do total de processos inseridos'
+                            }
+                        }
+                    });
+
+                    //Download Chart Image
+                    document.getElementById("downloadComparacaoTempoInsercao").addEventListener('click', function () {
+                        var url_base64jp = document.getElementById("tempoInsercao").toDataURL("image/jpg");
+                        var a = document.getElementById("downloadComparacaoTempoInsercao");
+                        a.href = url_base64jp;
+                    });
+                }
+                else {
+                    console.log('Erro ao buscar memorias');
+                    console.log('erro -> ' + res.error);
+                }                
             }
         }).done(function () {
             habilitaSectionAlg(algs);
-        });*/
+        });
 
-        habilitaSectionAlg(algs);
         console.log('method:comparacoesGraficos() -> Finish*');
     }
 

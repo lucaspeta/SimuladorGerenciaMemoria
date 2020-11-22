@@ -17,7 +17,7 @@ namespace SimuladorGerenciaMemoria.Controllers
     public class HomeController : Controller
     {
         private readonly ILogger<HomeController> _logger;
-        private readonly SimuladorContext _context;
+        private readonly SimuladorContext _context;        
 
         public HomeController(SimuladorContext context, ILogger<HomeController> logger)
         {
@@ -201,18 +201,10 @@ namespace SimuladorGerenciaMemoria.Controllers
                 for (int i = 0; i < memory.FramesQTD; i++)
                 {
                     //descobre a qual porcentagem da memoria o frame se encontra
-                    double porc = ((i * 100) / memory.FramesQTD);
+                    double porc = Utils.Utils.RetornaPorcentagem(i, memory.FramesQTD);
+                    int Index = Utils.Utils.RetornaIndex(porc);
 
-                    if (porc <= 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[0] += 1;
-                    if (porc <= 20 && porc > 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[1] += 1;
-                    if (porc <= 30 && porc > 20) if (!mapFrameUsed.ContainsKey(i)) framesLivres[2] += 1;
-                    if (porc <= 40 && porc > 30) if (!mapFrameUsed.ContainsKey(i)) framesLivres[3] += 1;
-                    if (porc <= 50 && porc > 40) if (!mapFrameUsed.ContainsKey(i)) framesLivres[4] += 1;
-                    if (porc <= 60 && porc > 50) if (!mapFrameUsed.ContainsKey(i)) framesLivres[5] += 1;
-                    if (porc <= 70 && porc > 60) if (!mapFrameUsed.ContainsKey(i)) framesLivres[6] += 1;
-                    if (porc <= 80 && porc > 70) if (!mapFrameUsed.ContainsKey(i)) framesLivres[7] += 1;
-                    if (porc <= 90 && porc > 80) if (!mapFrameUsed.ContainsKey(i)) framesLivres[8] += 1;
-                    if (porc <= 100 && porc > 90) if (!mapFrameUsed.ContainsKey(i)) framesLivres[9] += 1;
+                    if (!mapFrameUsed.ContainsKey(i)) framesLivres[Index] += 1;
                 }
 
                 return Json(
@@ -547,22 +539,12 @@ namespace SimuladorGerenciaMemoria.Controllers
                 for (int i = 0; i < memory.FramesQTD; i++)
                 {
                     //descobre a qual porcentagem da memoria o frame se encontra
-                    double porc = ((i * 100) / memory.FramesQTD);
-
-                    int index = 0;
-
-                    if (porc <= 10) index = 0; if (porc > 10 && porc <= 20) index = 1;
-                    if (porc > 20 && porc <= 30) index = 2; if (porc > 30 && porc <= 40) index = 3;
-                    if (porc > 40 && porc <= 50) index = 4; if (porc > 50 && porc <= 60) index = 5;
-                    if (porc > 60 && porc <= 70) index = 6; if (porc > 70 && porc <= 80) index = 7;
-                    if (porc > 80 && porc <= 90) index = 8; if (porc > 90) index = 9;
+                    double porc = Utils.Utils.RetornaPorcentagem(i, memory.FramesQTD);
+                    int index = Utils.Utils.RetornaIndex(porc);
 
                     if (needFirst) if (!mapFrameUsedFirst.ContainsKey(i)) framesLivresFirst[index] += 1;
-
                     if (needNext) if (!mapFrameUsedNext.ContainsKey(i)) framesLivresNext[index] += 1;
-
                     if (needBest) if (!mapFrameUsedBest.ContainsKey(i)) framesLivresBest[index] += 1;
-
                     if (needWorst) if (!mapFrameUsedWorst.ContainsKey(i)) framesLivresWorst[index] += 1;                 
                 }
 
@@ -610,11 +592,32 @@ namespace SimuladorGerenciaMemoria.Controllers
         {
             try
             {
-                List<int> fragmentacaoInternaFirst = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                List<int> fragmentacaoInternaNext = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                List<int> fragmentacaoInternaBest = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-                List<int> fragmentacaoInternaWorst = new List<int> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
-    
+                //Fragmentacao Interna
+                List<double> fragmentacaoInternaFirst = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> fragmentacaoInternaNext = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> fragmentacaoInternaBest = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> fragmentacaoInternaWorst = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                //int -> frameNumber, long -> bytes
+                Dictionary<int, long> mapUsedCapacityFirst = new Dictionary<int, long>();
+                Dictionary<int, long> mapUsedCapacityNext = new Dictionary<int, long>();
+                Dictionary<int, long> mapUsedCapacityBest = new Dictionary<int, long>();
+                Dictionary<int, long> mapUsedCapacityWorst = new Dictionary<int, long>();
+
+                //Tempo insercao medio por distribuição do total de pocessos inseridos
+                //lists to return
+                List<double> tempoInsercaoFirst = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> tempoInsercaoNext = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> tempoInsercaoBest = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+                List<double> tempoInsercaoWorst = new List<double> { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+
+                //Maps para guardar o total de (ms) gastos por processo
+                //int -> index vet, int -> total (ms)
+                Dictionary<int, int> mapTOTinsertedFirst = new Dictionary<int, int>();
+                Dictionary<int, int> mapTOTinsertedNext = new Dictionary<int, int>();
+                Dictionary<int, int> mapTOTinsertedBest = new Dictionary<int, int>();
+                Dictionary<int, int> mapTOTinsertedWorst = new Dictionary<int, int>();
+
                 if (memoryID == null)
                     throw new Exception("Memória não informada!");
 
@@ -626,62 +629,128 @@ namespace SimuladorGerenciaMemoria.Controllers
                 var frames = _context.Frames
                     .Where(f => f.MemoryID == memoryID).ToList();
 
+                var processesInserted = _context.Processes.Where(p => p.MemoryID == memory.ID && p.isInitial == false).OrderBy(p => p.ID).ToList();
+
                 var framesFirst = frames.Where(f => f.IsInitial == true 
-                || f.TipoAlg == Frame.TipoAlgVal.FirstFit).ToList();
+                || f.TipoAlg == Frame.TipoAlgVal.FirstFit 
+                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
                 var framesNext = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.NextFit).ToList();
+                || f.TipoAlg == Frame.TipoAlgVal.NextFit 
+                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
                 var framesBest = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.BestFit).ToList();
+                || f.TipoAlg == Frame.TipoAlgVal.BestFit 
+                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
                 var framesWorst = frames.Where(f => f.IsInitial == true
-                || f.TipoAlg == Frame.TipoAlgVal.WorstFit).ToList();
+                || f.TipoAlg == Frame.TipoAlgVal.WorstFit 
+                && f.CapacidadeUtilizada != memory.FramesSize).ToList();
 
-                for (int i = 0; i < memory.FramesQTD; i++)
+                var processesInsertedFirst = processesInserted.Where(p => p.TimeToFindIndexFirst != null);
+                var processesInsertedNext = processesInserted.Where(p => p.TimeToFindIndexNext != null);
+                var processesInsertedBest = processesInserted.Where(p => p.TimeToFindIndexBest != null);
+                var processesInsertedWorst = processesInserted.Where(p => p.TimeToFindIndexWorst != null);
+
+                foreach (var item in framesFirst) mapUsedCapacityFirst.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                foreach (var item in framesNext) mapUsedCapacityNext.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                foreach (var item in framesBest) mapUsedCapacityBest.Add(item.FrameNumber, item.CapacidadeUtilizada);
+                foreach (var item in framesWorst) mapUsedCapacityWorst.Add(item.FrameNumber, item.CapacidadeUtilizada);
+
+                int i = 0;
+
+                for (i = 0; i < memory.FramesQTD; i++)
                 {
                     //descobre a qual porcentagem da memoria o frame se encontra
-                    double porc = ((i * 100) / memory.FramesQTD);
+                    double porc = Utils.Utils.RetornaPorcentagem(i, memory.FramesQTD);
+                    int index = Utils.Utils.RetornaIndex(porc);
 
-                    int index = 0;
+                    if (needFirst && memory.IsFirstFitCompleted)
+                        if (mapUsedCapacityFirst.ContainsKey(i)) fragmentacaoInternaFirst[index] += ((double)mapUsedCapacityFirst[i] / 1024);
 
-                    if (porc <= 10) index = 0; if (porc > 10 && porc <= 20) index = 1;
-                    if (porc > 20 && porc <= 30) index = 2; if (porc > 30 && porc <= 40) index = 3;
-                    if (porc > 40 && porc <= 50) index = 4; if (porc > 50 && porc <= 60) index = 5;
-                    if (porc > 60 && porc <= 70) index = 6; if (porc > 70 && porc <= 80) index = 7;
-                    if (porc > 80 && porc <= 90) index = 8; if (porc > 90) index = 9;
+                    if (needNext && memory.IsNextFitCompleted)
+                        if (mapUsedCapacityNext.ContainsKey(i)) fragmentacaoInternaNext[index] += ((double)mapUsedCapacityNext[i] / 1024);
 
-                    if (needFirst)
-                    {
-                        Frame frame = framesFirst.Where(f => f.FrameNumber == i
-                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
+                    if (needBest && memory.IsBestFitCompleted)
+                        if (mapUsedCapacityBest.ContainsKey(i)) fragmentacaoInternaBest[index] += ((double)mapUsedCapacityBest[i] / 1024);
 
-                        if (frame != null) fragmentacaoInternaFirst[index] += frame.CapacidadeUtilizada;
+                    if (needWorst && memory.IsWorstFitCompleted)
+                        if (mapUsedCapacityWorst.ContainsKey(i)) fragmentacaoInternaWorst[index] += ((double)mapUsedCapacityWorst[i] / 1024);
+                }
+
+                i = 0;
+                foreach (var item in processesInsertedFirst) 
+                {
+                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedFirst.Count());
+                    int index = Utils.Utils.RetornaIndex(porc);
+
+                    if (mapTOTinsertedFirst.ContainsKey(index)){
+                        int valToUpdate = mapTOTinsertedFirst[index];
+                        mapTOTinsertedFirst.Remove(index);
+                        mapTOTinsertedFirst.Add(index, valToUpdate + (int)item.TimeToFindIndexFirst);
                     }
+                    else mapTOTinsertedFirst.Add(index, (int)item.TimeToFindIndexFirst);
 
-                    if (needNext)
+                    i++;
+                }
+
+                i = 0;
+                foreach (var item in processesInsertedNext)
+                {
+                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedNext.Count());
+                    int index = Utils.Utils.RetornaIndex(porc);
+
+                    if (mapTOTinsertedNext.ContainsKey(index))
                     {
-                        Frame frame = framesNext.Where(f => f.FrameNumber == i
-                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
-
-                        if (frame != null) fragmentacaoInternaNext[index] += frame.CapacidadeUtilizada;
+                        int valToUpdate = mapTOTinsertedNext[index];
+                        mapTOTinsertedNext.Remove(index);
+                        mapTOTinsertedNext.Add(index, valToUpdate + (int)item.TimeToFindIndexNext);
                     }
+                    else mapTOTinsertedNext.Add(index, (int)item.TimeToFindIndexNext);
 
-                    if (needBest)
+                    i++;
+                }
+
+                i = 0;
+                foreach (var item in processesInsertedBest)
+                {
+                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedBest.Count());
+                    int index = Utils.Utils.RetornaIndex(porc);
+
+                    if (mapTOTinsertedBest.ContainsKey(index))
                     {
-                        Frame frame = framesBest.Where(f => f.FrameNumber == i
-                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
-
-                        if (frame != null) fragmentacaoInternaBest[index] += frame.CapacidadeUtilizada;
+                        int valToUpdate = mapTOTinsertedBest[index];
+                        mapTOTinsertedBest.Remove(index);
+                        mapTOTinsertedBest.Add(index, valToUpdate + (int)item.TimeToFindIndexBest);
                     }
+                    else mapTOTinsertedBest.Add(index, (int)item.TimeToFindIndexBest);
 
-                    if (needWorst)
+                    i++;
+                }
+
+                i = 0;
+                foreach (var item in processesInsertedWorst)
+                {
+                    int porc = Utils.Utils.RetornaPorcentagem(i, processesInsertedWorst.Count());
+                    int index = Utils.Utils.RetornaIndex(porc);
+
+                    if (mapTOTinsertedWorst.ContainsKey(index))
                     {
-                        Frame frame = framesWorst.Where(f => f.FrameNumber == i
-                        && f.CapacidadeUtilizada != memory.FramesSize).Single();
-
-                        if (frame != null) fragmentacaoInternaWorst[index] += frame.CapacidadeUtilizada;
+                        int valToUpdate = mapTOTinsertedWorst[index];
+                        mapTOTinsertedWorst.Remove(index);
+                        mapTOTinsertedWorst.Add(index, valToUpdate + (int)item.TimeToFindIndexWorst);
                     }
+                    else mapTOTinsertedWorst.Add(index, (int)item.TimeToFindIndexWorst);
+
+                    i++;
+                }
+
+                for (i = 0; i < 10; i++) 
+                {
+                    tempoInsercaoFirst[i] = (double)(mapTOTinsertedFirst[i] / (double)(processesInsertedFirst.Count() * 0.10));
+                    tempoInsercaoNext[i] = (double)(mapTOTinsertedNext[i] / (double)(processesInsertedNext.Count() * 0.10));
+                    tempoInsercaoBest[i] = (double)(mapTOTinsertedBest[i] / (double)(processesInsertedBest.Count() * 0.10));
+                    tempoInsercaoWorst[i] = (double)(mapTOTinsertedWorst[i] / (double)(processesInsertedWorst.Count() * 0.10));
                 }
 
                 return Json(
@@ -691,7 +760,11 @@ namespace SimuladorGerenciaMemoria.Controllers
                         fragmentacaoInternaNext,
                         fragmentacaoInternaBest,
                         fragmentacaoInternaWorst,
-
+                        tempoInsercaoFirst,
+                        tempoInsercaoNext,
+                        tempoInsercaoBest,
+                        tempoInsercaoWorst,
+                        frameSize = memory.FramesSize,
                         success = true
                     }
                 );

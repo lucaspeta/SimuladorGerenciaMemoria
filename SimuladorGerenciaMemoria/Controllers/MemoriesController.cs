@@ -104,18 +104,10 @@ namespace SimuladorGerenciaMemoria.Controllers
             for (int i = 0; i < memory.FramesQTD; i++) 
             {
                 //descobre a qual porcentagem da memoria o frame se encontra
-                double porc = ((i * 100) / memory.FramesQTD);
+                double porc = Utils.Utils.RetornaPorcentagem(i, memory.FramesQTD);
+                int index = Utils.Utils.RetornaIndex(porc);
 
-                if (porc <= 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[0] += 1;
-                if (porc <= 20 && porc > 10) if (!mapFrameUsed.ContainsKey(i)) framesLivres[1] += 1;
-                if (porc <= 30 && porc > 20) if (!mapFrameUsed.ContainsKey(i)) framesLivres[2] += 1;
-                if (porc <= 40 && porc > 30) if (!mapFrameUsed.ContainsKey(i)) framesLivres[3] += 1;
-                if (porc <= 50 && porc > 40) if (!mapFrameUsed.ContainsKey(i)) framesLivres[4] += 1;
-                if (porc <= 60 && porc > 50) if (!mapFrameUsed.ContainsKey(i)) framesLivres[5] += 1;
-                if (porc <= 70 && porc > 60) if (!mapFrameUsed.ContainsKey(i)) framesLivres[6] += 1;
-                if (porc <= 80 && porc > 70) if (!mapFrameUsed.ContainsKey(i)) framesLivres[7] += 1;
-                if (porc <= 90 && porc > 80) if (!mapFrameUsed.ContainsKey(i)) framesLivres[8] += 1;
-                if (porc <= 100 && porc > 90) if (!mapFrameUsed.ContainsKey(i)) framesLivres[9] += 1;
+                if (!mapFrameUsed.ContainsKey(i)) framesLivres[index] += 1;                
             }
 
             long memoriaLivre = memory.Size - memoriaUsada;
@@ -153,7 +145,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                     throw new Exception("É necessário preencher os campos obrigatórios.");
 
                 if(Size % FramesSize != 0)
-                    throw new Exception("Valor inválido para o tamanho do frame.");
+                    throw new Exception("Valor inválido para o tamanho do frame! O tamanho do frame precisa ser um multiplo do tamanho da memória.");
 
                 Memory memory = new Memory
                 {
@@ -377,6 +369,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             List<Models.Process> processToInsert = _context.Processes
                 .Where(p => p.MemoryID == id)
                 .Where(p => p.isInitial == false)
+                .OrderBy(p => p.ID)
                 .ToList();
 
             return processToInsert;

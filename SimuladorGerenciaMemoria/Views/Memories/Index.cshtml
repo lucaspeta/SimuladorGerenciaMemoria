@@ -27,9 +27,6 @@
                             Tamanho(bytes)
                         </th>
                         <th>
-                            FrameTam(bytes)
-                        </th>
-                        <th>
                             Simulação
                         </th>
                         <th>
@@ -52,9 +49,6 @@
                             @string.Format("{0:#,0}", item.Size)
                         </td>
                         <td>
-                            @string.Format("{0:#,0}", item.FramesSize)
-                        </td>
-                        <td>
                             @Html.DisplayFor(modelItem => item.Simulation.Name)
                         </td>
                         <td>
@@ -64,6 +58,7 @@
                             @Html.DisplayFor(modelItem => item.CreateDate)
                         </td>
                         <td>
+                            <a asp-controller="Home" asp-action="Index" asp-route-id="@item.ID">Resultados</a> |
                             <a asp-action="Edit" asp-route-id="@item.ID">Editar</a> |
                             <a asp-action="Details" asp-route-id="@item.ID">Detalhes</a> |
                             <a asp-action="Delete" asp-route-id="@item.ID">Delete</a>
