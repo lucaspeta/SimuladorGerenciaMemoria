@@ -46,13 +46,17 @@ namespace SimuladorGerenciaMemoria.Controllers
                 simulationSelected = memory.SimulationID;
             }
 
-            SelectList simulations = new SelectList(_context.Simulations.
+            var simulacoes = _context.Simulations.
                 Where(s => s.UserID == HttpContext.Session.GetInt32("UserID")).
-                OrderByDescending(s => s.CreateDate),
-                "ID", "Name");
+                OrderByDescending(s => s.CreateDate).ToList();
 
-            var selected = simulations.First();
-            selected.Selected = true;
+            SelectList simulations = new SelectList(simulacoes, "ID", "Name");
+
+            if (simulacoes.Count() > 0) 
+            {
+                var selected = simulations.First();
+                selected.Selected = true;
+            }            
 
             ViewBag.SimulationID = simulations;
 

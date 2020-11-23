@@ -663,11 +663,18 @@
         console.log('memoria ' + memoria);
         console.log('algs ' + algs);
 
-        if (memoria != '')
-        {
+        if (memoria != '' && memoria != null) {
             $('#div-all').removeClass('display-none');
             $('#NA-graficos').addClass('display-none');
             inicializaDadosIniciais(memoria, algs);
+        }
+        else
+        {
+            setTimeout(function () {
+                $('#loadingModal').modal('hide');
+                $('#NA-graficos').removeClass('display-none');
+                $('.container-fluid').removeClass('display-none');
+            }, 1000);            
         }
 
         console.log('method:inicializaGraficos() -> Finish*');
@@ -1784,8 +1791,18 @@
         if (isFirstCompleted || isNextCompleted || isBestCompleted || isWorstCompleted)
             $('#div-comparacao').removeClass('display-none');
 
-        $('#loadingModal').modal('hide');
-        $('.container-fluid').removeClass('display-none');
+        if (!isFirstCompleted && !isNextCompleted && !isBestCompleted && !isWorstCompleted) {
+            setTimeout(function () {
+                $('#loadingModal').modal('hide');
+                $('.container-fluid').removeClass('display-none');
+            }, 1000);
+        }
+        else
+        {
+            $('#loadingModal').modal('hide');
+            $('.container-fluid').removeClass('display-none');
+        }
+        
         console.log('method:habilitaSectionAlg() -> Finish*');
     }
 </script>

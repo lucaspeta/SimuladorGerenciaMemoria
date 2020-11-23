@@ -63,6 +63,7 @@
             @Html.ValidationMessageFor(model => model.RepeatPassword, "", new { @class = "text-danger" })
         </fieldset>
 
+        <b id="error-message" class="text-danger">@ViewBag.Error</b><br />
         <button type="submit" class="btn btn-block btn-lg btn-primary m-t-3">Cadastrar</button>
     </div>
         }
