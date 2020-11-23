@@ -319,14 +319,17 @@ namespace SimuladorGerenciaMemoria.Controllers
         public JsonResult GerarProcessosInserir(int memoryID, long MemoryToFeelPerc, int ini, int fin)
         {
             try
-            {
-                if(ini > fin)
+            {               
+                if (ini > fin)
                     throw new Exception("O tamanho máximo do processo precisa ser maior que o mínimo!");
 
                 Memory _memory = _context.Memories.Find(memoryID);
 
                 if (_memory == null)
                     throw new Exception("Houve um erro! Memória não encontrada.");
+
+                if (_memory.IsGeneratedProcessList)
+                    throw new Exception("A lista de memória já foi gerada, atualize a paginá para visualizar a lista de processos!");
 
                 if ((_memory.InitialState+MemoryToFeelPerc) > 120)
                     throw new Exception("Valor para preencher inválido!");
