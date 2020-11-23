@@ -275,9 +275,9 @@
     <script>
     var memoriaUtilizacao = document.getElementById('memoriaUtilizacao').getContext('2d');
 
-    var memoriaUsada = parseFloat('@(ViewBag.memoriaUsada)').toFixed(0);
-    var memoriaLivre = parseFloat('@(ViewBag.memoriaLivre)').toFixed(0);
-    var memoriaInutil = parseFloat('@(ViewBag.memoriaInutil)').toFixed(0);
+    var memoriaUsada = parseFloat('@(ViewBag.memoriaUsada)').toFixed(2).replace(/[.,]00$/, "");
+    var memoriaLivre = parseFloat('@(ViewBag.memoriaLivre)').toFixed(2).replace(/[.,]00$/, "");
+    var memoriaInutil = parseFloat('@(ViewBag.memoriaInutil)').toFixed(2).replace(/[.,]00$/, "");
 
     var memoriaChart = new Chart(memoriaUtilizacao, {
         type: 'pie',
@@ -308,6 +308,13 @@
                         beginAtZero: true
                     }
                 }]
+            },
+            tooltips: {
+                callbacks: {
+                    label: function (tti, data) {
+                        return data.datasets[0].data[tti.index] +' KiB';
+                    }
+                }
             }
         }
     });
@@ -364,9 +371,8 @@
             scales: {
                 yAxes: [{
                     ticks: {
-                        // Include a dollar sign in the ticks
                         callback: function (value, index, values) {
-                            return value;
+                            return 'frames ' + value;
                         }
                     }
                 }]

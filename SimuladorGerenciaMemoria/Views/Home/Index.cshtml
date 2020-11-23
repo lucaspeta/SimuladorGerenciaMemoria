@@ -516,6 +516,7 @@
                 <div class="col-sm-12">
                     <div class="white-box border border-dark">
                         <h3 class="box-title">TEMPO DE INSERÇÃO</h3>
+                        <p>tempo para encontrar o Registrardor Base </p>
                         <a id="downloadComparacaoTempoInsercao"
                            download="ComparacaoTempoInsecao.jpg"
                            href=""
@@ -695,12 +696,12 @@
                     isBestCompleted = res.isBestCompleted;
                     isWorstCompleted = res.isWorstCompleted;
 
-                    $('#memory_tamanho').append('<i class="fas fa-memory"></i> ' + res.memoriaTamanho.toFixed(2)+' MiB');
+                    $('#memory_tamanho').append('<i class="fas fa-memory"></i> ' + res.memoriaTamanho.toFixed(2).replace(/[.,]00$/, "")+' MiB');
 
                     $('#process_qtd').text(res.numeroProcessos);
-                    $('#menor_process').text(res.menorProcesso.toFixed(2)+' KiB');
-                    $('#maior_process').text(res.maiorProcesso.toFixed(2)+' KiB');
-                    $('#media_process').text(res.mediaProcesso.toFixed(2)+' KiB');
+                    $('#menor_process').text(res.menorProcesso.toFixed(2).replace(/[.,]00$/, "")+' KiB');
+                    $('#maior_process').text(res.maiorProcesso.toFixed(2).replace(/[.,]00$/, "")+' KiB');
+                    $('#media_process').text(res.mediaProcesso.toFixed(2).replace(/[.,]00$/, "")+' KiB');
                 }
                 else {
                     console.log('Erro ao buscar memorias');
@@ -735,9 +736,9 @@
                     //BEGIN STATUS MEMORIA *****
                     var memoriaUtilizacaoInicial = document.getElementById('memoriaUtilizacao').getContext('2d');
 
-                    var memoriaUsada = res.memoriaUtilizada.toFixed(2);
-                    var memoriaLivre = res.memoriaLivre.toFixed(2);
-                    var memoriaInutil = res.memoriaInutil.toFixed(2);
+                    var memoriaUsada = res.memoriaUtilizada.toFixed(2).replace(/[.,]00$/, "");
+                    var memoriaLivre = res.memoriaLivre.toFixed(2).replace(/[.,]00$/, "");
+                    var memoriaInutil = res.memoriaInutil.toFixed(2).replace(/[.,]00$/, "");
 
                     var memoriaChart = new Chart(memoriaUtilizacaoInicial, {
                         type: 'pie',
@@ -759,22 +760,23 @@
                                 borderWidth: 1
                             }]
                         },
-                        options: {
-                            scales: {
+                        options: {                                       
+                             scales: {
                                 yAxes: [{
                                     ticks: {
-                                        beginAtZero: true
-                                    },
-                                    tooltips: {
-                                        enabled: true,
-                                        mode: 'single',
-                                        callbacks: {
-                                            label: function (tooltipItem, data) {
-                                                return tooltipItem.yLabel + ' dfougsaduiffgsd';
-                                            }
+                                        beginAtZero: true,
+                                        callback: function (value, index, values) {
+                                            return value;
                                         }
                                     }
                                 }]
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function (tti, data) {                                        
+                                        return data.labels[tti.index]+': '+data.datasets[0].data[tti.index]+' KiB';
+                                    }
+                                }
                             }
                         }
                     });
@@ -831,10 +833,9 @@
                         options: {
                             scales: {
                                 yAxes: [{
-                                    ticks: {
-                                        // Include a dollar sign in the ticks
+                                    ticks: {                                        
                                         callback: function (value, index, values) {
-                                            return value;
+                                            return 'frames '+value;
                                         }
                                     }
                                 }]
@@ -912,38 +913,38 @@
                 if (res.success) {
                     if (needFirst){
                         $('#first-processo-inserido').text(res.first_processo_inserido + ' de ' + res.processTotalCount);
-                        $('#first-menor-processo').text(res.first_menor_process.toFixed(2)+' KiB');
-                        $('#first-maior-processo').text(res.first_maior_process.toFixed(2)+' KiB');
-                        $('#first-menor-insercao').text(res.first_menor_insercao.toFixed(2)+' ms');
-                        $('#first-media-insercao').text(res.first_media_insercao.toFixed(2)+' ms');
-                        $('#first-maior-insercao').text(res.first_maior_insercao.toFixed(2)+' ms');
+                        $('#first-menor-processo').text(res.first_menor_process.toFixed(2).replace(/[.,]00$/, "")+' KiB');
+                        $('#first-maior-processo').text(res.first_maior_process.toFixed(2).replace(/[.,]00$/, "")+' KiB');
+                        $('#first-menor-insercao').text(res.first_menor_insercao.toFixed(2).replace(/[.,]00$/, "")+' ms');
+                        $('#first-media-insercao').text(res.first_media_insercao.toFixed(2).replace(/[.,]00$/, "")+' ms');
+                        $('#first-maior-insercao').text(res.first_maior_insercao.toFixed(2).replace(/[.,]00$/, "")+' ms');
                     }
 
                     if (needNext){
                         $('#next-processo-inserido').text(res.next_processo_inserido + ' de ' + res.processTotalCount);
-                        $('#next-menor-processo').text(res.next_menor_process.toFixed(2) + ' KiB');
-                        $('#next-maior-processo').text(res.next_maior_process.toFixed(2) + ' KiB');
-                        $('#next-menor-insercao').text(res.next_menor_insercao.toFixed(2) + ' ms');
-                        $('#next-media-insercao').text(res.next_media_insercao.toFixed(2) + ' ms');
-                        $('#next-maior-insercao').text(res.next_maior_insercao.toFixed(2) + ' ms');
+                        $('#next-menor-processo').text(res.next_menor_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#next-maior-processo').text(res.next_maior_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#next-menor-insercao').text(res.next_menor_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#next-media-insercao').text(res.next_media_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#next-maior-insercao').text(res.next_maior_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
                     }
 
                     if (needBest){
                         $('#best-processo-inserido').text(res.best_processo_inserido + ' de ' + res.processTotalCount);
-                        $('#best-menor-processo').text(res.best_menor_process.toFixed(2) + ' KiB');
-                        $('#best-maior-processo').text(res.best_maior_process.toFixed(2) + ' KiB');
-                        $('#best-menor-insercao').text(res.best_menor_insercao.toFixed(2) + ' ms');
-                        $('#best-media-insercao').text(res.best_media_insercao.toFixed(2) + ' ms');
-                        $('#best-maior-insercao').text(res.best_maior_insercao.toFixed(2) + ' ms');
+                        $('#best-menor-processo').text(res.best_menor_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#best-maior-processo').text(res.best_maior_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#best-menor-insercao').text(res.best_menor_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#best-media-insercao').text(res.best_media_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#best-maior-insercao').text(res.best_maior_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
                     }
 
                     if (needWorst){
                         $('#worst-processo-inserido').text(res.worst_processo_inserido + ' de ' + res.processTotalCount);
-                        $('#worst-menor-processo').text(res.worst_menor_process.toFixed(2) + ' KiB');
-                        $('#worst-maior-processo').text(res.worst_maior_process.toFixed(2) + ' KiB');
-                        $('#worst-menor-insercao').text(res.worst_menor_insercao.toFixed(2) + ' ms');
-                        $('#worst-media-insercao').text(res.worst_media_insercao.toFixed(2) + ' ms');
-                        $('#worst-maior-insercao').text(res.worst_maior_insercao.toFixed(2) + ' ms');
+                        $('#worst-menor-processo').text(res.worst_menor_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#worst-maior-processo').text(res.worst_maior_process.toFixed(2).replace(/[.,]00$/, "") + ' KiB');
+                        $('#worst-menor-insercao').text(res.worst_menor_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#worst-media-insercao').text(res.worst_media_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
+                        $('#worst-maior-insercao').text(res.worst_maior_insercao.toFixed(2).replace(/[.,]00$/, "") + ' ms');
                     }
                 }
                 else {
@@ -977,9 +978,9 @@
                         //BEGIN STATUS MEMORIA *****
                         var memoriaUtilizacaoFirst = document.getElementById('memoriaUtilizacaoFirst').getContext('2d');
 
-                        var memoriaUsadaFirst = res.memoriaUtilizadaFirst;
-                        var memoriaLivreFirst = res.memoriaLivreFirst;
-                        var memoriaInutilFirst = res.memoriaInutilFirst;
+                        var memoriaUsadaFirst = res.memoriaUtilizadaFirst.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaLivreFirst = res.memoriaLivreFirst.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaInutilFirst = res.memoriaInutilFirst.toFixed(2).replace(/[.,]00$/, "");
 
                         var memoriaChartFirst = new Chart(memoriaUtilizacaoFirst, {
                             type: 'pie',
@@ -1006,21 +1007,15 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        },
-                                        tooltips: {
-                                            callbacks: {
-                                                label: function (tooltipItem, data) {
-                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                                                    if (label) {
-                                                        label += ' bytes';
-                                                    }
-
-                                                    return label;
-                                                }
-                                            }
-                                        }
+                                        }                                        
                                     }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tti, data) {
+                                            return data.labels[tti.index] + ': ' + data.datasets[0].data[tti.index] + ' KiB';
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -1073,9 +1068,8 @@
                                 scales: {
                                     yAxes: [{
                                         ticks: {
-                                            // Include a dollar sign in the ticks
                                             callback: function (value, index, values) {
-                                                return value;
+                                                return 'frames ' + value;
                                             }
                                         }
                                     }]
@@ -1098,9 +1092,9 @@
                         //BEGIN STATUS MEMORIA *****
                         var memoriaUtilizacaoNext = document.getElementById('memoriaUtilizacaoNext').getContext('2d');
 
-                        var memoriaUsadaNext = res.memoriaUtilizadaNext;
-                        var memoriaLivreNext = res.memoriaLivreNext;
-                        var memoriaInutilNext = res.memoriaInutilNext;
+                        var memoriaUsadaNext = res.memoriaUtilizadaNext.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaLivreNext = res.memoriaLivreNext.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaInutilNext = res.memoriaInutilNext.toFixed(2).replace(/[.,]00$/, "");
 
                         var memoriaChartNext = new Chart(memoriaUtilizacaoNext, {
                             type: 'pie',
@@ -1127,21 +1121,15 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        },
-                                        tooltips: {
-                                            callbacks: {
-                                                label: function (tooltipItem, data) {
-                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                                                    if (label) {
-                                                        label += ' bytes';
-                                                    }
-
-                                                    return label;
-                                                }
-                                            }
-                                        }
+                                        }                                        
                                     }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tti, data) {
+                                            return data.labels[tti.index] + ': ' + data.datasets[0].data[tti.index] + ' KiB';
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -1194,9 +1182,8 @@
                                 scales: {
                                     yAxes: [{
                                         ticks: {
-                                            // Include a dollar sign in the ticks
                                             callback: function (value, index, values) {
-                                                return value;
+                                                return 'frames ' + value;
                                             }
                                         }
                                     }]
@@ -1220,9 +1207,9 @@
                         //BEGIN STATUS MEMORIA *****
                         var memoriaUtilizacaoBest = document.getElementById('memoriaUtilizacaoBest').getContext('2d');
 
-                        var memoriaUsadaBest = res.memoriaUtilizadaBest;
-                        var memoriaLivreBest = res.memoriaLivreBest;
-                        var memoriaInutilBest = res.memoriaInutilBest;
+                        var memoriaUsadaBest = res.memoriaUtilizadaBest.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaLivreBest = res.memoriaLivreBest.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaInutilBest = res.memoriaInutilBest.toFixed(2).replace(/[.,]00$/, "");
 
                         var memoriaChartBest = new Chart(memoriaUtilizacaoBest, {
                             type: 'pie',
@@ -1249,21 +1236,15 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        },
-                                        tooltips: {
-                                            callbacks: {
-                                                label: function (tooltipItem, data) {
-                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                                                    if (label) {
-                                                        label += ' bytes';
-                                                    }
-
-                                                    return label;
-                                                }
-                                            }
-                                        }
+                                        }                                        
                                     }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tti, data) {
+                                            return data.labels[tti.index] + ': ' + data.datasets[0].data[tti.index] + ' KiB';
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -1316,9 +1297,8 @@
                                 scales: {
                                     yAxes: [{
                                         ticks: {
-                                            // Include a dollar sign in the ticks
                                             callback: function (value, index, values) {
-                                                return value;
+                                                return 'frames ' + value;
                                             }
                                         }
                                     }]
@@ -1341,9 +1321,9 @@
                         //BEGIN STATUS MEMORIA *****
                         var memoriaUtilizacaoWorst = document.getElementById('memoriaUtilizacaoWorst').getContext('2d');
 
-                        var memoriaUsadaWorst = res.memoriaUtilizadaWorst;
-                        var memoriaLivreWorst = res.memoriaLivreWorst;
-                        var memoriaInutilWorst = res.memoriaInutilWorst;
+                        var memoriaUsadaWorst = res.memoriaUtilizadaWorst.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaLivreWorst = res.memoriaLivreWorst.toFixed(2).replace(/[.,]00$/, "");
+                        var memoriaInutilWorst = res.memoriaInutilWorst.toFixed(2).replace(/[.,]00$/, "");
 
                         var memoriaChartWorst = new Chart(memoriaUtilizacaoWorst, {
                             type: 'pie',
@@ -1370,21 +1350,15 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        },
-                                        tooltips: {
-                                            callbacks: {
-                                                label: function (tooltipItem, data) {
-                                                    var label = data.datasets[tooltipItem.datasetIndex].label || '';
-
-                                                    if (label) {
-                                                        label += ' bytes';
-                                                    }
-
-                                                    return label;
-                                                }
-                                            }
                                         }
                                     }]
+                                },
+                                tooltips: {
+                                    callbacks: {
+                                        label: function (tti, data) {
+                                            return data.labels[tti.index] + ': ' + data.datasets[0].data[tti.index] + ' KiB';
+                                        }
+                                    }
                                 }
                             }
                         });
@@ -1437,9 +1411,8 @@
                                 scales: {
                                     yAxes: [{
                                         ticks: {
-                                            // Include a dollar sign in the ticks
                                             callback: function (value, index, values) {
-                                                return value;
+                                                return 'frames ' + value;
                                             }
                                         }
                                     }]
@@ -1489,7 +1462,6 @@
             },
             success: function (res) {
                 if (res.success) {
-                    console.log(res);
                     var dataset1 = [];
                     var dataset2 = [];
                     var dataset3 = [];
@@ -1658,6 +1630,13 @@
                             title: {
                                 display: true,
                                 text: 'Agrupado por % da distribuição da Memória'
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function (tti, data) {
+                                        return data.labels[tti.index] + ': ' + data.datasets[tti.datasetIndex].data[tti.index].toFixed(2).replace(/[.,]00$/, "") + ' KiB';
+                                    }
+                                }
                             }
                         }
                     });
@@ -1696,6 +1675,13 @@
                             title: {
                                 display: true,
                                 text: 'Agrupado por % da distribuição da Memória'
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function (tti, data) {
+                                        return data.labels[tti.index] + ': ' + data.datasets[tti.datasetIndex].data[tti.index].toFixed(2).replace(/[.,]00$/, "") + ' KiB';
+                                    }
+                                }
                             }
                         }
                     });
@@ -1731,6 +1717,13 @@
                             title: {
                                 display: true,
                                 text: 'Agrupado pela % do total de processos inseridos'
+                            },
+                            tooltips: {
+                                callbacks: {
+                                    label: function (tti, data) {                                       
+                                        return data.labels[tti.index]+': '+data.datasets[tti.datasetIndex].data[tti.index].toFixed(2).replace(/[.,]00$/, "")+' ms';
+                                    }
+                                }
                             }
                         }
                     });

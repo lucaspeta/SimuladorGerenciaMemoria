@@ -798,7 +798,7 @@ namespace SimuladorGerenciaMemoria.Controllers
                     if (needFirst && memory.IsFirstFitCompleted)
                         tempoInsercaoFirst[i] = (double)(mapTOTinsertedFirst[i] / (double)(processesInsertedFirst.Count() * 0.10));
 
-                    if (needBest && memory.IsBestFitCompleted)
+                    if (needNext && memory.IsNextFitCompleted)
                         tempoInsercaoNext[i] = (double)(mapTOTinsertedNext[i] / (double)(processesInsertedNext.Count() * 0.10));
 
                     if (needBest && memory.IsBestFitCompleted)
