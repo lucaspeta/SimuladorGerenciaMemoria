@@ -8,6 +8,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using SimuladorGerenciaMemoria.Scripts;
 using SimuladorGerenciaMemoria.Models;
+using Microsoft.AspNetCore;
 
 namespace SimuladorGerenciaMemoria
 {
@@ -15,19 +16,8 @@ namespace SimuladorGerenciaMemoria
     {
         public static void Main(string[] args)
         {
-            
-            // testes para geração do script
-            /*Memory m = new Memory();
-            m.ID = 1;
-            m.Name = "Memoria 1";
-            m.Size = 100000;
-            m.FramesSize = 1000;
-            m.FramesQTD = m.Size / m.FramesSize;
-
-            ScriptProcess p = new ScriptProcess(m,100);
-            p.CreateProcesses();*/
-
             CreateHostBuilder(args).Build().Run();
+            BuildWebHost(args);
         }
 
         public static IHostBuilder CreateHostBuilder(string[] args) =>
@@ -36,5 +26,11 @@ namespace SimuladorGerenciaMemoria
                 {
                     webBuilder.UseStartup<Startup>();
                 });
-    }
+
+        public static IWebHost BuildWebHost(string[] args) =>
+            WebHost.CreateDefaultBuilder(args)
+                .UseStartup<Startup>()
+                .UseKestrel(o => { o.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10); })
+                .Build();            
+        }
 }

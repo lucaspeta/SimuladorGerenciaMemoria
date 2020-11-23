@@ -540,6 +540,12 @@
             <h3 style="margin-left: 10px; margin-top: 10px;" class="box-title">NÃO FOI ENCONTRADO NENHUM REGISTRO PARA EXIBIR.</h3>
         </div>
     </div>
+
+    <div id="SEL_MEMORIA" class="display-none">
+        <div class="row">
+            <h3 style="margin-left: 10px; margin-top: 10px;" class="box-title">SELECIONE UMA MEMÓRIA PARA EXIBIR OS RESULTADOS.</h3>
+        </div>
+    </div>
 </div>
 
 <script src="~/lib/jquery/dist/jquery.min.js"></script>
@@ -547,7 +553,6 @@
 <script>
     //Variaveis de controlle
     var isSetGet = false;
-    var isInitial = true;
     var isFirstCompleted = false;
     var isNextCompleted = false;
     var isBestCompleted = false;
@@ -578,6 +583,7 @@
         console.log('method:feelMemoriesPicklist() -> Start*');
         var memoriaGetParameter = '@(ViewBag.MemorySelected)';
         var simulationGetParameter = '@(ViewBag.SimulationSelected)';
+        var algParameter = '@(ViewBag.Algs)';
 
         //se tiver o parametro no get
         if (simulationGetParameter != '' && !isSetGet)
@@ -588,7 +594,7 @@
 
         var simulationSelected = $('.simulation_id').val();
 
-        if (simulationSelected != '') {
+        if (simulationSelected != '' && simulationSelected != null) {
             $.ajax({
                 url: "/Home/GetMemories/",
                 type: "POST",
@@ -613,8 +619,7 @@
                                 if (item[0] == memoriaGetParameter) $('#memoria_select').append('<option selected="selected" value="' + item[0] + '">' + item[1] + '</option>');
                                 else $('#memoria_select').append('<option value="' + item[0] + '">' + item[1] + '</option>');
                             }
-                            else
-                            {
+                            else {
                                 if (i == 0) $('#memoria_select').append('<option selected="selected" value="' + item[0] + '">' + item[1] + '</option>');
                                 else $('#memoria_select').append('<option value="' + item[0] + '">' + item[1] + '</option>');
                             }
@@ -630,12 +635,28 @@
                     console.log('Status: ' + status + ' Erro: ' + msg);
                 }
             }).done(function () {
-                if (isInitial) {
-                    isInitial = false;
+                if (memoriaGetParameter != '' && algParameter != '') {
                     inicializaGraficos();
+                }
+                else {
+                    setTimeout(function () {
+                        $('#loadingModal').modal('hide');
+                        $('.container-fluid').removeClass('display-none');
+                        $('#NA-graficos').addClass('display-none');
+                        $('#SEL_MEMORIA').removeClass('display-none');
+                    }, 1000);
                 }
             });
         }
+        else
+        {
+            setTimeout(function () {
+                $('#loadingModal').modal('hide');
+                $('#NA-graficos').removeClass('display-none');
+                $('.container-fluid').removeClass('display-none');
+            }, 1000);
+        }
+
         console.log('method:feelMemoriesPicklist() -> Finish*');
     }
 
@@ -643,10 +664,10 @@
         var memoryID = $('#memoria_select').val();
         var alg = $('#alg_select').val();
 
-        var link = "@Url.Action("Index", "Home", new { id = "1", algs = "2" })";
+        var link = "@Url.Action("Index", "Home", new { id = "batata", algs = "maca" })";        
 
-        link = link.replace("1", memoryID);
-        link = link.replace("2", alg);
+        link = link.replace("batata", memoryID);
+        link = link.replace("maca", alg);
 
         window.location.href = link;
     });
@@ -659,22 +680,10 @@
         var memoria = $('#memoria_select').val();
         var algs = $('#alg_select').val();
 
-        console.log('simulation ' + simulation);
-        console.log('memoria ' + memoria);
-        console.log('algs ' + algs);
-
         if (memoria != '' && memoria != null) {
             $('#div-all').removeClass('display-none');
             $('#NA-graficos').addClass('display-none');
             inicializaDadosIniciais(memoria, algs);
-        }
-        else
-        {
-            setTimeout(function () {
-                $('#loadingModal').modal('hide');
-                $('#NA-graficos').removeClass('display-none');
-                $('.container-fluid').removeClass('display-none');
-            }, 1000);            
         }
 
         console.log('method:inicializaGraficos() -> Finish*');
@@ -767,7 +776,7 @@
                                 borderWidth: 1
                             }]
                         },
-                        options: {                                       
+                        options: {
                              scales: {
                                 yAxes: [{
                                     ticks: {
@@ -780,7 +789,7 @@
                             },
                             tooltips: {
                                 callbacks: {
-                                    label: function (tti, data) {                                        
+                                    label: function (tti, data) {
                                         return data.labels[tti.index]+': '+data.datasets[0].data[tti.index]+' KiB';
                                     }
                                 }
@@ -840,7 +849,7 @@
                         options: {
                             scales: {
                                 yAxes: [{
-                                    ticks: {                                        
+                                    ticks: {
                                         callback: function (value, index, values) {
                                             return 'frames '+value;
                                         }
@@ -1014,7 +1023,7 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        }                                        
+                                        }
                                     }]
                                 },
                                 tooltips: {
@@ -1128,7 +1137,7 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        }                                        
+                                        }
                                     }]
                                 },
                                 tooltips: {
@@ -1243,7 +1252,7 @@
                                     yAxes: [{
                                         ticks: {
                                             beginAtZero: true
-                                        }                                        
+                                        }
                                     }]
                                 },
                                 tooltips: {
@@ -1727,7 +1736,7 @@
                             },
                             tooltips: {
                                 callbacks: {
-                                    label: function (tti, data) {                                       
+                                    label: function (tti, data) {
                                         return data.labels[tti.index]+': '+data.datasets[tti.datasetIndex].data[tti.index].toFixed(2).replace(/[.,]00$/, "")+' ms';
                                     }
                                 }
@@ -1802,7 +1811,7 @@
             $('#loadingModal').modal('hide');
             $('.container-fluid').removeClass('display-none');
         }
-        
+
         console.log('method:habilitaSectionAlg() -> Finish*');
     }
 </script>

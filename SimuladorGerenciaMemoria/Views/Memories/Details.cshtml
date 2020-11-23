@@ -464,11 +464,11 @@
                 }
             },
             error: function (req, status, error) {
-                var message = 'Houve um erro na simulação: ' + error;
+                var message = 'Houve um erro na simulação:' + req.responseText;
                 $('#loadingModal').modal('hide');
 
-                openResponseModal(false, message);
-                console.log('Status: '+ status + ' Erro: '+msg);
+                openResponseModal(false, message, algoritmo);
+                console.log('Status: ' + status + ' Erro: ' + req.responseText);
             }
         });
     });

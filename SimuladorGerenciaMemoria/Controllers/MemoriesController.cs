@@ -125,8 +125,12 @@ namespace SimuladorGerenciaMemoria.Controllers
         public IActionResult Create()
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
-            ViewBag.SimulationID = new SelectList(_context.Simulations.OrderByDescending(s => s.CreateDate), "ID", "Name");
+
+            ViewBag.SimulationID = new SelectList(_context.Simulations
+                .Where(s => s.UserID == HttpContext.Session.GetInt32("UserID"))
+                .OrderByDescending(s => s.CreateDate), "ID", "Name");
             ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
+
 
             return View();
         }
