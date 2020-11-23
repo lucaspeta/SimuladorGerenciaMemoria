@@ -46,8 +46,7 @@ namespace SimuladorGerenciaMemoria.Controllers
             ViewBag.memoriaID = id;
 
             ViewBag.processQTD = _context.Processes
-                .Where(p => p.isInitial == false)
-                .Where(p => p.MemoryID == id)
+                .Where(p => p.MemoryID == id && p.isInitial == false)
                 .Count();
 
             if (id == null)
@@ -308,8 +307,7 @@ namespace SimuladorGerenciaMemoria.Controllers
 
             return View(
                await _context.Processes
-               .Where(p => p.MemoryID == id)
-               .Where(p => p.isInitial == false)
+               .Where(p => p.MemoryID == id && p.isInitial == false)
                .ToListAsync()
                );
         }
@@ -374,8 +372,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         private List<Models.Process> GetProcessesToInsert(int? id)
         {
             List<Models.Process> processToInsert = _context.Processes
-                .Where(p => p.MemoryID == id)
-                .Where(p => p.isInitial == false)
+                .Where(p => p.MemoryID == id && p.isInitial == false)
                 .OrderBy(p => p.ID)
                 .ToList();
 
@@ -386,8 +383,7 @@ namespace SimuladorGerenciaMemoria.Controllers
         private List<Models.Frame> GetInitialFrames(int? id)
         {
             List<Models.Frame> framesIniciais = _context.Frames
-                .Where(f => f.MemoryID == id)
-                .Where(f => f.IsInitial == true)
+                .Where(f => f.MemoryID == id && f.IsInitial == true)
                 .OrderBy(f => f.RegB)
                 .ToList();
 
