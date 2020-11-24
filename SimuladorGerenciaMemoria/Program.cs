@@ -16,7 +16,6 @@ namespace SimuladorGerenciaMemoria
     {
         public static void Main(string[] args)
         {
-            BuildWebHost(args);
             CreateHostBuilder(args).Build().Run();            
         }
 
@@ -25,12 +24,6 @@ namespace SimuladorGerenciaMemoria
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>();
-                });
-
-        public static IWebHost BuildWebHost(string[] args) =>
-            WebHost.CreateDefaultBuilder(args)
-                .UseStartup<Startup>()
-                .UseKestrel(o => { o.Limits.KeepAliveTimeout = TimeSpan.FromMinutes(10); })
-                .Build();            
+                });    
         }
 }
