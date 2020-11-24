@@ -121,15 +121,32 @@ namespace SimuladorGerenciaMemoria.Controllers
 
         // GET: Memories/Create
         [RedirectAction]
-        public IActionResult Create()
+        public IActionResult Create(int? id)
         {
             ViewBag.userName = HttpContext.Session.GetString("UserName");
 
-            ViewBag.SimulationID = new SelectList(_context.Simulations
+            var simulacoes = _context.Simulations
                 .Where(s => s.UserID == HttpContext.Session.GetInt32("UserID"))
-                .OrderByDescending(s => s.CreateDate), "ID", "Name");
-            ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
+                .OrderByDescending(s => s.CreateDate);
 
+            SelectList simulations = new SelectList(simulacoes, "ID", "Name");
+
+            if (id != null) 
+            {
+                if (simulacoes.Count() > 0)
+                {
+                    foreach (var item in simulations)
+                    {
+                        if (Int32.Parse(item.Value) == (int)id)
+                        {
+                            item.Selected = true;
+                        }
+                    }
+                }
+            }            
+
+            ViewBag.SimulationID = simulations;
+            ViewBag.UserID = HttpContext.Session.GetInt32("UserID");
 
             return View();
         }
